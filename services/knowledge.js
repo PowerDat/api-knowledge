@@ -2,6 +2,20 @@ const db = require("./db");
 const helper = require("../helper");
 const config = require("../config");
 
+async function getOutput(paramsQuery) {
+  const rows = await db.query(
+    `SELECT * FROM progress_report_output 
+          INNER JOIN progress_report 
+            ON progress_report_output.progress_report_id = progress_report.progress_report_id
+          INNER JOIN concept_proposal 
+            ON concept_proposal.concept_proposal_id = progress_report.concept_proposal_id
+          WHERE progress_report_output.output_name = '${paramsQuery.outputName}'
+    `
+  );
+  const data = helper.emptyOrRows(rows);
+  return data;
+}
+
 async function getKnowledgeByGrouup(paramsQuery) {
   const rows = await db.query(
     `SELECT * FROM progress_report_knowledge AS PRK 
@@ -122,14 +136,13 @@ async function getNewKnowledge() {
   let concept_proposal_id = [];
   let project_id = [];
   data.map((listvalue) => {
-      concept_proposal_id.push(listvalue.concept_proposal_id);
-      project_id.push(listvalue.project_id);
-    }
-  );
+    concept_proposal_id.push(listvalue.concept_proposal_id);
+    project_id.push(listvalue.project_id);
+  });
   let cciq = [...new Set(concept_proposal_id)];
   let pjid = [...new Set(project_id)];
-  
-  console.log(pjid.filter(x => x !== null));
+
+  console.log(pjid.filter((x) => x !== null));
 
   let concept_proposal_locations = [];
   for (let i = 0; i < cciq.length; i++) {
@@ -150,10 +163,12 @@ async function getNewKnowledge() {
     );
   }
 
-  let pjids = pjid.filter(x => x !== null)
-  let project_locations = []
+  let pjids = pjid.filter((x) => x !== null);
+  let project_locations = [];
   for (let j = 0; j < pjids.length; j++) {
-    const locations = await db.query(`SELECT * FROM us_project WHERE project_id = ${pjids[j]}`);
+    const locations = await db.query(
+      `SELECT * FROM us_project WHERE project_id = ${pjids[j]}`
+    );
     const data = helper.emptyOrRows(locations);
     data.map((listvalue) =>
       project_locations.push({
@@ -170,8 +185,7 @@ async function getNewKnowledge() {
   // console.log(concept_proposal_locations);
   const results1 = project_locations.map((item) => {
     const arrayResult = data.filter(
-      (itemInArray) =>
-        itemInArray.project_id === item.project_id
+      (itemInArray) => itemInArray.project_id === item.project_id
     );
     return { ...item, new_knowledges: arrayResult };
   });
@@ -193,7 +207,7 @@ async function getNewKnowledge() {
   });
 
   const project_nodes = [];
-  results1.map((listvalue,index) => {
+  results1.map((listvalue, index) => {
     project_nodes.push({
       id: 1000 + 1,
       type: "parent",
@@ -201,13 +215,15 @@ async function getNewKnowledge() {
       lat: listvalue.lat,
       lon: listvalue.lon,
       new_knowledges: listvalue.new_knowledges,
-      img : listvalue.project_type_id = 1 ? "https://www.km-innovations.rmuti.ac.th/researcher/icon/งานวิจัย.png" : "https://www.km-innovations.rmuti.ac.th/researcher/icon/บริการวิชาการ.png" 
-    })
-  })
+      img: (listvalue.project_type_id = 1
+        ? "https://www.km-innovations.rmuti.ac.th/researcher/icon/งานวิจัย.png"
+        : "https://www.km-innovations.rmuti.ac.th/researcher/icon/บริการวิชาการ.png"),
+    });
+  });
 
   console.log(project_nodes);
-  const childNodesProject = []
-  project_nodes.map((listvalue,index)=>{
+  const childNodesProject = [];
+  project_nodes.map((listvalue, index) => {
     listvalue.new_knowledges.map((item, index) =>
       childNodesProject.push({
         id: `${listvalue.id}.${index + 1}`,
@@ -218,8 +234,8 @@ async function getNewKnowledge() {
         lon: listvalue.lon,
         img: "https://libapps-au.s3-ap-southeast-2.amazonaws.com/customers/7612/images/Know-512.png",
       })
-    )
-  })
+    );
+  });
   console.log(childNodesProject);
 
   const parentNodes = [];
@@ -252,7 +268,7 @@ async function getNewKnowledge() {
 
   helper.applyArray(parentNodes, childNodes);
   helper.applyArray(parentNodes, project_nodes);
-  helper.applyArray(parentNodes, childNodesProject)
+  helper.applyArray(parentNodes, childNodesProject);
 
   const links = childNodes.map((listvalue) => {
     return {
@@ -268,7 +284,7 @@ async function getNewKnowledge() {
     };
   });
 
-  helper.applyArray(links,linksProject)
+  helper.applyArray(links, linksProject);
 
   return {
     nodes: parentNodes,
@@ -280,4 +296,5 @@ module.exports = {
   getNewKnowledge,
   getKnowledge,
   getKnowledgeByGrouup,
+  getOutput
 };
