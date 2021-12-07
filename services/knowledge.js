@@ -119,20 +119,21 @@ async function getKnowledge() {
 
 async function getNewKnowledge() {
   const rows = await db.query(
-    `SELECT concept_proposal.concept_proposal_id,
-            project_id,
-            progress_report_knowledge.knowledge_name,
-            progress_report_knowledge.knowledge_detail,
-            progress_report_knowledge.knowledge_image
-        FROM progress_report_knowledge 
-        INNER JOIN progress_report_output 
-            ON progress_report_knowledge.output_id = progress_report_output.output_id
-        INNER JOIN progress_report 
-            ON progress_report.progress_report_id = progress_report_output.progress_report_id
-        INNER JOIN concept_proposal on concept_proposal.concept_proposal_id = progress_report.concept_proposal_id 
+    `SELECT pr.concept_proposal_id,
+            pr.project_id,
+            prok.outcome_knowledge_name, 
+            prok.outcome_knowledge_detail,
+            prok.outcome_knowledge_image,
+            prok.outcome_knowledge_video
+    FROM progress_report_outcome AS pro 
+    INNER JOIN progress_report_outcome_knowledge AS prok
+      ON pro.outcome_id = prok.outcome_id
+    INNER JOIN progress_report AS pr 
+      ON pr.progress_report_id = pro.progress_report_id
     `
   );
   const data = helper.emptyOrRows(rows);
+  console.log(data);
   let concept_proposal_id = [];
   let project_id = [];
   data.map((listvalue) => {
@@ -257,8 +258,8 @@ async function getNewKnowledge() {
       childNodes.push({
         id: `${listvalue.id}.${index + 1}`,
         type: "child",
-        knowledge_name: item.knowledge_name,
-        knowledge_detail: item.knowledge_detail,
+        outcome_knowledge_name: item.outcome_knowledge_name,
+        outcome_knowledge_detail: item.outcome_knowledge_detail,
         lat: listvalue.lat,
         lon: listvalue.lon,
         img: "https://libapps-au.s3-ap-southeast-2.amazonaws.com/customers/7612/images/Know-512.png",
