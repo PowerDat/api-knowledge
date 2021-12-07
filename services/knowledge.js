@@ -195,7 +195,7 @@ async function getNewKnowledge() {
   const project_nodes = [];
   results1.map((listvalue,index) => {
     project_nodes.push({
-      id: "1000" + 1,
+      id: 1000 + 1,
       type: "parent",
       project_name: listvalue.project_name_th,
       lat: listvalue.lat,
