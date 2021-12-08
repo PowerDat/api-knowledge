@@ -82,7 +82,7 @@ async function getOutput(paramsQuery) {
       lat: listvalue.lat,
       lon: listvalue.lon,
       innovations: listvalue.innovations,
-      img: "https://www.vippng.com/png/full/75-750988_search-for-the-pawfect-minder-user-research.png",
+      img: "https://logodix.com/logo/487697.png",
     })
   );
 
@@ -96,7 +96,7 @@ async function getOutput(paramsQuery) {
         output_detail: item.output_detail,
         lat: listvalue.lat,
         lon: listvalue.lon,
-        img: "https://libapps-au.s3-ap-southeast-2.amazonaws.com/customers/7612/images/Know-512.png",
+        img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/Innovation-icon.png",
       })
     )
   );
@@ -175,7 +175,7 @@ async function getKnowledgeByGrouup(paramsQuery) {
       lat: listvalue.lat,
       lon: listvalue.lon,
       knowledges: listvalue.knowledges,
-      img: "https://www.vippng.com/png/full/75-750988_search-for-the-pawfect-minder-user-research.png",
+      img: "https://logodix.com/logo/487697.png",
     })
   );
 
@@ -189,7 +189,7 @@ async function getKnowledgeByGrouup(paramsQuery) {
         knowledge_detail: item.knowledge_detail,
         lat: listvalue.lat,
         lon: listvalue.lon,
-        img: "https://libapps-au.s3-ap-southeast-2.amazonaws.com/customers/7612/images/Know-512.png",
+        img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/Knowledge%20(3).png",
       })
     )
   );
@@ -347,7 +347,7 @@ async function getNewKnowledge() {
       lat: listvalue.lat,
       lon: listvalue.lon,
       new_knowledges: listvalue.new_knowledges,
-      img: "https://www.vippng.com/png/full/75-750988_search-for-the-pawfect-minder-user-research.png",
+      img: "https://logodix.com/logo/487697.png",
     })
   );
 
@@ -361,7 +361,7 @@ async function getNewKnowledge() {
         outcome_knowledge_detail: item.outcome_knowledge_detail,
         lat: listvalue.lat,
         lon: listvalue.lon,
-        img: "https://libapps-au.s3-ap-southeast-2.amazonaws.com/customers/7612/images/Know-512.png",
+        img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/New-knowledge-icon.png",
       })
     )
   );
