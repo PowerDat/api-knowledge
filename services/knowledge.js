@@ -263,35 +263,6 @@ async function getNewKnowledge() {
     );
   }
 
-  // let pjids = pjid.filter((x) => x !== null);
-  // let project_locations = [];
-  // for (let j = 0; j < pjids.length; j++) {
-  //   const locations = await db.query(
-  //     `SELECT * FROM us_project WHERE project_id = ${pjids[j]}`
-  //   );
-  //   const data = helper.emptyOrRows(locations);
-  //   data.map((listvalue) =>
-  //     project_locations.push({
-  //       project_id: listvalue.project_id,
-  //       project_name_th: listvalue.project_name_th,
-  //       project_type: listvalue.project_type_id,
-  //       lat: listvalue.project_latitude,
-  //       lon: listvalue.project_longitude,
-  //     })
-  //   );
-  // }
-  // console.log(project_locations);
-
-  // console.log(concept_proposal_locations);
-  // const results1 = project_locations.map((item) => {
-  //   const arrayResult = data.filter(
-  //     (itemInArray) => itemInArray.project_id === item.project_id
-  //   );
-  //   return { ...item, new_knowledges: arrayResult };
-  // });
-
-  // console.log(results1);
-
   const results = concept_proposal_locations.map((item) => {
     const arrayResult = data.filter(
       (itemInArray) =>
@@ -306,43 +277,12 @@ async function getNewKnowledge() {
     listvalue.data.map((item) => prepareNodes.push(item));
   });
 
-  const project_nodes = [];
-  // results1.map((listvalue, index) => {
-  //   project_nodes.push({
-  //     id: 1000 + 1,
-  //     type: "parent",
-  //     project_name: listvalue.project_name_th,
-  //     lat: listvalue.lat,
-  //     lon: listvalue.lon,
-  //     new_knowledges: listvalue.new_knowledges,
-  //     img: (listvalue.project_type_id = 1
-  //       ? "https://www.km-innovations.rmuti.ac.th/researcher/icon/งานวิจัย.png"
-  //       : "https://www.km-innovations.rmuti.ac.th/researcher/icon/บริการวิชาการ.png"),
-  //   });
-  // });
-
-  // console.log(project_nodes);
-  // const childNodesProject = [];
-  // project_nodes.map((listvalue, index) => {
-  //   listvalue.new_knowledges.map((item, index) =>
-  //     childNodesProject.push({
-  //       id: `${listvalue.id}.${index + 1}`,
-  //       type: "child",
-  //       knowledge_name: item.knowledge_name,
-  //       knowledge_detail: item.knowledge_detail,
-  //       lat: listvalue.lat,
-  //       lon: listvalue.lon,
-  //       img: "https://libapps-au.s3-ap-southeast-2.amazonaws.com/customers/7612/images/Know-512.png",
-  //     })
-  //   );
-  // });
-  // console.log(childNodesProject);
-
   const parentNodes = [];
   prepareNodes.map((listvalue, index) =>
     parentNodes.push({
       id: index + 1,
       type: "parent",
+      concept_proposal_id: listvalue.concept_proposal_id,
       concept_proposal_name: listvalue.concept_proposal_name,
       lat: listvalue.lat,
       lon: listvalue.lon,
@@ -357,6 +297,7 @@ async function getNewKnowledge() {
       childNodes.push({
         id: `${listvalue.id}.${index + 1}`,
         type: "child",
+        concept_proposal_id: listvalue.concept_proposal_id,
         outcome_knowledge_name: item.outcome_knowledge_name,
         outcome_knowledge_detail: item.outcome_knowledge_detail,
         lat: listvalue.lat,
@@ -367,8 +308,6 @@ async function getNewKnowledge() {
   );
 
   helper.applyArray(parentNodes, childNodes);
-  helper.applyArray(parentNodes, project_nodes);
-  // helper.applyArray(parentNodes, childNodesProject);
 
   const links = childNodes.map((listvalue) => {
     return {
@@ -376,15 +315,6 @@ async function getNewKnowledge() {
       to: listvalue.id,
     };
   });
-
-  // const linksProject = childNodesProject.map((listvalue) => {
-  //   return {
-  //     from: listvalue.id | 0,
-  //     to: listvalue.id,
-  //   };
-  // });
-
-  // helper.applyArray(links, linksProject);
 
   return {
     nodes: parentNodes,
