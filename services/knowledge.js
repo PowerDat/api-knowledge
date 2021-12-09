@@ -189,7 +189,7 @@ async function getKnowledgeByGrouup(paramsQuery) {
         knowledge_detail: item.knowledge_detail,
         lat: listvalue.lat,
         lon: listvalue.lon,
-        img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/Knowledge%20(3).png",
+        img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/knowledge-icon.png",
       })
     )
   );
