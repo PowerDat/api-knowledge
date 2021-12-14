@@ -26,11 +26,29 @@ function groupBy(arrayData, property) {
   return groups;
 }
 
+async function compareArrayToAdd(firstArray, secondArray, typeName) {
+  const results = firstArray.map((item) => {
+    const arrayResult = secondArray.filter(
+      (itemInArray) => itemInArray[`${typeName}`] === item[`${typeName}`]
+    );
+    return {
+      ...item,
+      [secondArray[0].output_id
+        ? "innovations"
+        : secondArray[0].impacts
+        ? "impacts"
+        : "knowledges"]: arrayResult,
+    };
+  });
+  return results;
+}
+
 function applyArray(primaryarray, secondaryarray) {
   Array.prototype.push.apply(primaryarray, secondaryarray);
 }
 
 module.exports = {
+  compareArrayToAdd,
   getOffset,
   emptyOrRows,
   groupBy,
