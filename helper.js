@@ -37,6 +37,8 @@ async function compareArrayToAdd(firstArray, secondArray, typeName) {
         ? "innovations"
         : secondArray[0].impacts
         ? "impacts"
+        : secondArray[0].concept_proposal_name_th
+        ? "concepts"
         : "knowledges"]: arrayResult,
     };
   });

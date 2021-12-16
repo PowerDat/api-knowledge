@@ -108,11 +108,6 @@ async function getImpact(paramsQuery) {
   const progress_report_id = impacts.map((list) => list.progress_report_id);
   const concept_proposal_id = impacts.map((list) => list.concept_proposal_id);
   const impact_id = impacts.map((list) => {
-    // const impact_prepare = JSON.parse(list.impact_id).map((item) => {
-    //   return {
-    //     impact_name: obj[item],
-    //   };
-    // });
     return {
       concept_proposal_id: Number(list.concept_proposal_id),
       impacts: obj[paramsQuery.impact_id],
@@ -143,6 +138,7 @@ async function getImpact(paramsQuery) {
   }
 
   let locations = [];
+  let concepts = [];
   let innovations = [];
   for (let i = 0; i < cciq.length; i++) {
     const rows = await db.query(
@@ -152,15 +148,17 @@ async function getImpact(paramsQuery) {
       `
     );
     const data = helper.emptyOrRows(rows);
-    data.map((item) =>
+    data.map((item) => {
       locations.push({
         concept_proposal_id: item.concept_proposal_id,
         concept_proposal_name: item.concept_proposal_name,
         concept_proposal_name_th: item.concept_proposal_name_th,
+        project_type: item.project_type_id,
         lat: item.concept_proposal_latitude,
         lon: item.concept_proposal_longitude,
-      })
-    );
+      });
+      concepts.push({});
+    });
 
     const rows_innovations = await db.query(
       `SELECT * FROM progress_report_output INNER JOIN progress_report 
@@ -199,12 +197,13 @@ async function getImpact(paramsQuery) {
   );
 
   // console.log(results);
-  console.log(final_impact);
+  // console.log(final_impact);
   const parentNodes = [];
   results.map((listvalue, index) =>
     parentNodes.push({
       id: index + 1,
       type: "parent",
+      concept_proposal_id: listvalue.concept_proposal_id,
       concept_proposal_name: listvalue.concept_proposal_name,
       concept_proposal_name_th: listvalue.concept_proposal_name_th,
       lat: listvalue.lat,
@@ -217,12 +216,25 @@ async function getImpact(paramsQuery) {
   );
 
   const childNodes = [];
+  const childNodesConcepts = [];
   const childNodesInnovations = [];
   const childNodeImpacts = [];
-  parentNodes.map((listvalue) => {
+  parentNodes.map((listvalue, i) => {
+    childNodesConcepts.push({
+      id: `${listvalue.id}.${i + 1}`,
+      type: "child",
+      concept_proposal_id: listvalue.concept_proposal_id,
+      concept_proposal_name: listvalue.concept_proposal_name_th,
+      lat: listvalue.lat,
+      lon: listvalue.lon,
+      img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
+        listvalue.project_type == 1 ? "งานวิจัย.png" : "บริการวิชาการ.png"
+      }`,
+    });
+
     listvalue.knowledges.map((item, index) => {
       childNodes.push({
-        id: `${listvalue.id}.${index + 1}`,
+        id: `${listvalue.id}.${index + 1}xn`,
         type: "child",
         knowledge_name: item.knowledge_name,
         knowledge_detail: item.knowledge_detail,
@@ -234,7 +246,7 @@ async function getImpact(paramsQuery) {
 
     listvalue.innovations.map((item, index) => {
       childNodesInnovations.push({
-        id: `${listvalue.id}.${index + 1}00`,
+        id: `${listvalue.id}.${index + 1}xx`,
         type: "child",
         output_name: item.output_name,
         output_detail: item.output_detail,
@@ -246,7 +258,7 @@ async function getImpact(paramsQuery) {
 
     listvalue.impacts.map((item, index) => {
       childNodeImpacts.push({
-        id: `${listvalue.id}.${index + 1}000`,
+        id: `${listvalue.id}.${index + 1}xxx`,
         type: "child",
         impact_name: item.impacts,
         lat: listvalue.lat,
@@ -264,14 +276,24 @@ async function getImpact(paramsQuery) {
     });
   });
 
+  console.log(childNodesConcepts);
+
   let linksknow = [];
   let linkimpact = [];
-  parentNodes.map((item) => {
+  let linkconcept = [];
+  parentNodes.map((item, i) => {
+    item.knowledges.map((list, j) => {
+      linkconcept.push({
+        from: `${item.id}.${i + 1}`,
+        to: `${item.id}.${j + 1}xn`,
+      });
+    });
+
     item.knowledges.map((list, i) => {
       item.innovations.map((listinno, j) => {
         linksknow.push({
-          from: `${item.id}.${i + 1}`,
-          to: `${item.id}.${j + 1}00`,
+          from: `${item.id}.${i + 1}xn`,
+          to: `${item.id}.${j + 1}xx`,
         });
       });
     });
@@ -279,8 +301,8 @@ async function getImpact(paramsQuery) {
     item.innovations.map((listitem, i) => {
       item.impacts.map((list, j) => {
         linkimpact.push({
-          from: `${item.id}.${i + 1}00`,
-          to: `${item.id}.${j + 1}000`,
+          from: `${item.id}.${i + 1}xx`,
+          to: `${item.id}.${j + 1}xxx`,
         });
       });
     });
@@ -291,8 +313,9 @@ async function getImpact(paramsQuery) {
   helper.applyArray(parentNodes, childNodes);
   helper.applyArray(parentNodes, childNodesInnovations);
   helper.applyArray(parentNodes, childNodeImpacts);
+  helper.applyArray(parentNodes, childNodesConcepts);
 
-  const links = childNodes.map((listvalue) => {
+  const links = childNodesConcepts.map((listvalue) => {
     return {
       from: listvalue.id | 0,
       to: listvalue.id,
@@ -301,6 +324,7 @@ async function getImpact(paramsQuery) {
 
   helper.applyArray(links, linksknow);
   helper.applyArray(links, linkimpact);
+  helper.applyArray(links, linkconcept);
 
   return {
     nodes: parentNodes,
