@@ -39,6 +39,14 @@ async function compareArrayToAdd(firstArray, secondArray, typeName) {
         ? "impacts"
         : secondArray[0].concept_proposal_name_th
         ? "concepts"
+        : secondArray[0].bcg_name
+        ? "bcg"
+        : secondArray[0].sdgs_name
+        ? "sdgs"
+        : secondArray[0].curve_name
+        ? "curve"
+        : secondArray[0].cluster_name
+        ? "cluster"
         : "knowledges"]: arrayResult,
     };
   });
