@@ -84,6 +84,7 @@ async function getOutput(paramsQuery) {
       id: index + 1,
       type: "parent",
       concept_proposal_name: listvalue.concept_proposal_name,
+      project_type: listvalue.project_type,
       concept_proposal_name_th: listvalue.concept_proposal_name_th,
       lat: listvalue.lat,
       lon: listvalue.lon,
@@ -433,6 +434,7 @@ async function getGoal(paramsQuery) {
       concept_proposal_name_th: listvalue.concept_proposal_name_th,
       lat: listvalue.lat,
       lon: listvalue.lon,
+      project_type: listvalue.project_type,
       // knowledges: listvalue.knowledges,
       // innovations: listvalue.innovations,
       [paramsQuery.goal_id == 1
@@ -749,6 +751,7 @@ async function getImpact(paramsQuery) {
       concept_proposal_name_th: listvalue.concept_proposal_name_th,
       lat: listvalue.lat,
       lon: listvalue.lon,
+      project_type: listvalue.project_type,
       // knowledges: listvalue.knowledges,
       // innovations: listvalue.innovations,
       impacts: listvalue.impacts,
