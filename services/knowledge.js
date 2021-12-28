@@ -970,6 +970,7 @@ async function getKnowledgeByGrouup(paramsQuery) {
     parentNodes.push({
       id: index + 1,
       type: "parent",
+      concept_proposal_id: listvalue.concept_proposal_id,
       concept_proposal_name: listvalue.concept_proposal_name,
       lat: listvalue.lat,
       lon: listvalue.lon,
@@ -984,6 +985,7 @@ async function getKnowledgeByGrouup(paramsQuery) {
     listvalue.knowledges.map((item, index) =>
       childNodes.push({
         id: `${listvalue.id}.${index + 1}`,
+        concept_proposal_id: item.concept_proposal_id,
         type: "child",
         knowledge_name: item.knowledge_name,
         knowledge_detail: item.knowledge_detail,
