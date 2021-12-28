@@ -530,7 +530,7 @@ async function getGoal(paramsQuery) {
             : paramsQuery.goal_id == 2
             ? item.sdgs_name
             : paramsQuery.goal_id == 3
-            ? item.curve
+            ? item.curve_name
             : paramsQuery.goal_id == 4
             ? item.cluster_name
             : "",
