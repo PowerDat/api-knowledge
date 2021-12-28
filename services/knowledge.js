@@ -105,7 +105,7 @@ async function getOutput(paramsQuery) {
       lat: listvalue.lat,
       lon: listvalue.lon,
       img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
-        listvalue.project_type == 1 ? "งานวิจัย.png" : "บริการวิชาการ.png"
+        listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
       }`,
     });
     listvalue.innovations.map((item, index) => {
@@ -321,25 +321,25 @@ async function getGoal(paramsQuery) {
   let priq = [...new Set(progress_report_id)];
   let cciq = [...new Set(concept_proposal_id)];
 
-  let knowledges = [];
-  for (let i = 0; i < priq.length; i++) {
-    const rows = await db.query(
-      `SELECT progress_report_knowledge.knowledge_id,
-              progress_report_knowledge.knowledge_name,
-              progress_report_knowledge.knowledge_detail,
-              progress_report.concept_proposal_id,
-              progress_report.progress_report_id 
-        FROM progress_report_knowledge 
-      INNER JOIN progress_report ON progress_report.progress_report_id = progress_report_knowledge.progress_report_id 
-      WHERE progress_report_knowledge.progress_report_id = ${priq[i]} `
-    );
-    const data = helper.emptyOrRows(rows);
-    data.map((item) => knowledges.push(item));
-  }
+  // let knowledges = [];
+  // for (let i = 0; i < priq.length; i++) {
+  //   const rows = await db.query(
+  //     `SELECT progress_report_knowledge.knowledge_id,
+  //             progress_report_knowledge.knowledge_name,
+  //             progress_report_knowledge.knowledge_detail,
+  //             progress_report.concept_proposal_id,
+  //             progress_report.progress_report_id
+  //       FROM progress_report_knowledge
+  //     INNER JOIN progress_report ON progress_report.progress_report_id = progress_report_knowledge.progress_report_id
+  //     WHERE progress_report_knowledge.progress_report_id = ${priq[i]} `
+  //   );
+  //   const data = helper.emptyOrRows(rows);
+  //   data.map((item) => knowledges.push(item));
+  // }
 
   let locations = [];
-  let concepts = [];
-  let innovations = [];
+  // let concepts = [];
+  // let innovations = [];
   for (let i = 0; i < cciq.length; i++) {
     const rows = await db.query(
       `SELECT * FROM concept_proposal
@@ -357,64 +357,64 @@ async function getGoal(paramsQuery) {
         lat: item.concept_proposal_latitude,
         lon: item.concept_proposal_longitude,
       });
-      concepts.push({});
+      // concepts.push({});
     });
 
-    const rows_innovations = await db.query(
-      `SELECT * FROM progress_report_output INNER JOIN progress_report 
-          ON progress_report.progress_report_id = progress_report_output.progress_report_id 
-        WHERE progress_report.concept_proposal_id = ${cciq[i]}`
-    );
+    // const rows_innovations = await db.query(
+    //   `SELECT * FROM progress_report_output INNER JOIN progress_report
+    //       ON progress_report.progress_report_id = progress_report_output.progress_report_id
+    //     WHERE progress_report.concept_proposal_id = ${cciq[i]}`
+    // );
 
-    const data1 = helper.emptyOrRows(rows_innovations);
-    data1.map((listvalue) => {
-      innovations.push({
-        output_id: listvalue.output_id,
-        concept_proposal_id: listvalue.concept_proposal_id,
-        progress_report_id: listvalue.progress_report_id,
-        output_name: listvalue.output_name,
-        output_detail: listvalue.output_detail,
-      });
-    });
+    // const data1 = helper.emptyOrRows(rows_innovations);
+    // data1.map((listvalue) => {
+    //   innovations.push({
+    //     output_id: listvalue.output_id,
+    //     concept_proposal_id: listvalue.concept_proposal_id,
+    //     progress_report_id: listvalue.progress_report_id,
+    //     output_name: listvalue.output_name,
+    //     output_detail: listvalue.output_detail,
+    //   });
+    // });
   }
 
-  const results_locations = await helper.compareArrayToAdd(
-    locations,
-    knowledges,
-    "concept_proposal_id"
-  );
+  // const results_locations = await helper.compareArrayToAdd(
+  //   locations,
+  //   knowledges,
+  //   "concept_proposal_id"
+  // );
 
-  const results_innovations = await helper.compareArrayToAdd(
-    results_locations,
-    innovations,
-    "concept_proposal_id"
-  );
+  // const results_innovations = await helper.compareArrayToAdd(
+  //   results_locations,
+  //   innovations,
+  //   "concept_proposal_id"
+  // );
 
   const goalPoint = async () => {
     if (paramsQuery.goal_id == 1) {
       return await helper.compareArrayToAdd(
-        results_innovations,
+        locations,
         bcg_array,
         "concept_proposal_id"
       );
     }
     if (paramsQuery.goal_id == 2) {
       return await helper.compareArrayToAdd(
-        results_innovations,
+        locations,
         sdgs_array,
         "concept_proposal_id"
       );
     }
     if (paramsQuery.goal_id == 3) {
       return await helper.compareArrayToAdd(
-        results_innovations,
+        locations,
         curve_array,
         "concept_proposal_id"
       );
     }
     if (paramsQuery.goal_id == 4) {
       return await helper.compareArrayToAdd(
-        results_innovations,
+        locations,
         cluster_array,
         "concept_proposal_id"
       );
@@ -433,8 +433,8 @@ async function getGoal(paramsQuery) {
       concept_proposal_name_th: listvalue.concept_proposal_name_th,
       lat: listvalue.lat,
       lon: listvalue.lon,
-      knowledges: listvalue.knowledges,
-      innovations: listvalue.innovations,
+      // knowledges: listvalue.knowledges,
+      // innovations: listvalue.innovations,
       [paramsQuery.goal_id == 1
         ? "bcg"
         : paramsQuery.goal_id == 2
@@ -457,9 +457,9 @@ async function getGoal(paramsQuery) {
     })
   );
 
-  const childNodes = [];
+  // const childNodes = [];
   const childNodesConcepts = [];
-  const childNodesInnovations = [];
+  // const childNodesInnovations = [];
   const childNodeGoal = [];
   parentNodes.map((listvalue, i) => {
     childNodesConcepts.push({
@@ -470,33 +470,33 @@ async function getGoal(paramsQuery) {
       lat: listvalue.lat,
       lon: listvalue.lon,
       img: `https://researcher.kims-rmuti.com/icon/${
-        listvalue.project_type == 1 ? "งานวิจัย.png" : "บริการวิชาการ.png"
+        listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
       }`,
     });
 
-    listvalue.knowledges.map((item, index) => {
-      childNodes.push({
-        id: `${listvalue.id}.${index + 1}xn`,
-        type: "child",
-        knowledge_name: item.knowledge_name,
-        knowledge_detail: item.knowledge_detail,
-        lat: listvalue.lat,
-        lon: listvalue.lon,
-        img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/knowledge-icon.png",
-      });
-    });
+    // listvalue.knowledges.map((item, index) => {
+    //   childNodes.push({
+    //     id: `${listvalue.id}.${index + 1}xn`,
+    //     type: "child",
+    //     knowledge_name: item.knowledge_name,
+    //     knowledge_detail: item.knowledge_detail,
+    //     lat: listvalue.lat,
+    //     lon: listvalue.lon,
+    //     img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/knowledge-icon.png",
+    //   });
+    // });
 
-    listvalue.innovations.map((item, index) => {
-      childNodesInnovations.push({
-        id: `${listvalue.id}.${index + 1}xx`,
-        type: "child",
-        output_name: item.output_name,
-        output_detail: item.output_detail,
-        lat: listvalue.lat,
-        lon: listvalue.lon,
-        img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/Innovation-icon.png",
-      });
-    });
+    // listvalue.innovations.map((item, index) => {
+    //   childNodesInnovations.push({
+    //     id: `${listvalue.id}.${index + 1}xx`,
+    //     type: "child",
+    //     output_name: item.output_name,
+    //     output_detail: item.output_detail,
+    //     lat: listvalue.lat,
+    //     lon: listvalue.lon,
+    //     img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/Innovation-icon.png",
+    //   });
+    // });
 
     listvalue[
       `${
@@ -541,50 +541,68 @@ async function getGoal(paramsQuery) {
 
   console.log(childNodeGoal);
 
-  let linksknow = [];
-  let linkgoal = [];
+  // let linksknow = [];
+  // let linkgoal = [];
   let linkconcept = [];
   parentNodes.map((item, i) => {
-    item.knowledges.map((list, j) => {
+    item[
+      `${
+        paramsQuery.goal_id == 1
+          ? "bcg"
+          : paramsQuery.goal_id == 2
+          ? "sdgs"
+          : paramsQuery.goal_id == 3
+          ? "curve"
+          : paramsQuery.goal_id == 4
+          ? "cluster"
+          : ""
+      }`
+    ].map((list, j) => {
       linkconcept.push({
         from: `${item.id}.${i + 1}`,
-        to: `${item.id}.${j + 1}xn`,
+        to: `${item.id}.${j + 1}xxx`,
       });
     });
+    // item.knowledges.map((list, j) => {
+    //   linkconcept.push({
+    //     from: `${item.id}.${i + 1}`,
+    //     to: `${item.id}.${j + 1}xn`,
+    //   });
+    // });
 
-    item.knowledges.map((list, i) => {
-      item.innovations.map((listinno, j) => {
-        linksknow.push({
-          from: `${item.id}.${i + 1}xn`,
-          to: `${item.id}.${j + 1}xx`,
-        });
-      });
-    });
+    // item.knowledges.map((list, i) => {
+    //   item.innovations.map((listinno, j) => {
+    //     linksknow.push({
+    //       from: `${item.id}.${i + 1}xn`,
+    //       to: `${item.id}.${j + 1}xx`,
+    //     });
+    //   });
+    // });
 
-    item.innovations.map((listitem, i) => {
-      item[
-        `${
-          paramsQuery.goal_id == 1
-            ? "bcg"
-            : paramsQuery.goal_id == 2
-            ? "sdgs"
-            : paramsQuery.goal_id == 3
-            ? "curve"
-            : paramsQuery.goal_id == 4
-            ? "cluster"
-            : ""
-        }`
-      ].map((list, j) => {
-        linkgoal.push({
-          from: `${item.id}.${i + 1}xx`,
-          to: `${item.id}.${j + 1}xxx`,
-        });
-      });
-    });
+    // item.innovations.map((listitem, i) => {
+    //   item[
+    //     `${
+    //       paramsQuery.goal_id == 1
+    //         ? "bcg"
+    //         : paramsQuery.goal_id == 2
+    //         ? "sdgs"
+    //         : paramsQuery.goal_id == 3
+    //         ? "curve"
+    //         : paramsQuery.goal_id == 4
+    //         ? "cluster"
+    //         : ""
+    //     }`
+    //   ].map((list, j) => {
+    //     linkgoal.push({
+    //       from: `${item.id}.${i + 1}xx`,
+    //       to: `${item.id}.${j + 1}xxx`,
+    //     });
+    //   });
+    // });
   });
 
-  helper.applyArray(parentNodes, childNodes);
-  helper.applyArray(parentNodes, childNodesInnovations);
+  // helper.applyArray(parentNodes, childNodes);
+  // helper.applyArray(parentNodes, childNodesInnovations);
   helper.applyArray(parentNodes, childNodeGoal);
   helper.applyArray(parentNodes, childNodesConcepts);
 
@@ -595,8 +613,8 @@ async function getGoal(paramsQuery) {
     };
   });
 
-  helper.applyArray(links, linksknow);
-  helper.applyArray(links, linkgoal);
+  // helper.applyArray(links, linksknow);
+  // helper.applyArray(links, linkgoal);
   helper.applyArray(links, linkconcept);
 
   return {
@@ -638,25 +656,25 @@ async function getImpact(paramsQuery) {
 
   // console.log(final_impact);
 
-  let knowledges = [];
-  for (let i = 0; i < priq.length; i++) {
-    const rows = await db.query(
-      `SELECT progress_report_knowledge.knowledge_id,
-              progress_report_knowledge.knowledge_name,
-              progress_report_knowledge.knowledge_detail,
-              progress_report.concept_proposal_id,
-              progress_report.progress_report_id 
-        FROM progress_report_knowledge 
-      INNER JOIN progress_report ON progress_report.progress_report_id = progress_report_knowledge.progress_report_id 
-      WHERE progress_report_knowledge.progress_report_id = ${priq[i]} `
-    );
-    const data = helper.emptyOrRows(rows);
-    data.map((item) => knowledges.push(item));
-  }
+  // let knowledges = [];
+  // for (let i = 0; i < priq.length; i++) {
+  //   const rows = await db.query(
+  //     `SELECT progress_report_knowledge.knowledge_id,
+  //             progress_report_knowledge.knowledge_name,
+  //             progress_report_knowledge.knowledge_detail,
+  //             progress_report.concept_proposal_id,
+  //             progress_report.progress_report_id
+  //       FROM progress_report_knowledge
+  //     INNER JOIN progress_report ON progress_report.progress_report_id = progress_report_knowledge.progress_report_id
+  //     WHERE progress_report_knowledge.progress_report_id = ${priq[i]} `
+  //   );
+  //   const data = helper.emptyOrRows(rows);
+  //   data.map((item) => knowledges.push(item));
+  // }
 
   let locations = [];
-  let concepts = [];
-  let innovations = [];
+  // let concepts = [];
+  // let innovations = [];
   for (let i = 0; i < cciq.length; i++) {
     const rows = await db.query(
       `SELECT * FROM concept_proposal
@@ -674,41 +692,47 @@ async function getImpact(paramsQuery) {
         lat: item.concept_proposal_latitude,
         lon: item.concept_proposal_longitude,
       });
-      concepts.push({});
+      // concepts.push({});
     });
 
-    const rows_innovations = await db.query(
-      `SELECT * FROM progress_report_output INNER JOIN progress_report 
-          ON progress_report.progress_report_id = progress_report_output.progress_report_id 
-        WHERE progress_report.concept_proposal_id = ${cciq[i]}`
-    );
+    // const rows_innovations = await db.query(
+    //   `SELECT * FROM progress_report_output INNER JOIN progress_report
+    //       ON progress_report.progress_report_id = progress_report_output.progress_report_id
+    //     WHERE progress_report.concept_proposal_id = ${cciq[i]}`
+    // );
 
-    const data1 = helper.emptyOrRows(rows_innovations);
-    data1.map((listvalue) => {
-      innovations.push({
-        output_id: listvalue.output_id,
-        concept_proposal_id: listvalue.concept_proposal_id,
-        progress_report_id: listvalue.progress_report_id,
-        output_name: listvalue.output_name,
-        output_detail: listvalue.output_detail,
-      });
-    });
+    // const data1 = helper.emptyOrRows(rows_innovations);
+    // data1.map((listvalue) => {
+    //   innovations.push({
+    //     output_id: listvalue.output_id,
+    //     concept_proposal_id: listvalue.concept_proposal_id,
+    //     progress_report_id: listvalue.progress_report_id,
+    //     output_name: listvalue.output_name,
+    //     output_detail: listvalue.output_detail,
+    //   });
+    // });
   }
 
-  const results_locations = await helper.compareArrayToAdd(
-    locations,
-    knowledges,
-    "concept_proposal_id"
-  );
+  // const results_locations = await helper.compareArrayToAdd(
+  //   locations,
+  //   knowledges,
+  //   "concept_proposal_id"
+  // );
 
-  const results_innovations = await helper.compareArrayToAdd(
-    results_locations,
-    innovations,
-    "concept_proposal_id"
-  );
+  // const results_innovations = await helper.compareArrayToAdd(
+  //   results_locations,
+  //   innovations,
+  //   "concept_proposal_id"
+  // );
+
+  // const results = await helper.compareArrayToAdd(
+  //   results_innovations,
+  //   final_impact,
+  //   "concept_proposal_id"
+  // );
 
   const results = await helper.compareArrayToAdd(
-    results_innovations,
+    locations,
     final_impact,
     "concept_proposal_id"
   );
@@ -725,8 +749,8 @@ async function getImpact(paramsQuery) {
       concept_proposal_name_th: listvalue.concept_proposal_name_th,
       lat: listvalue.lat,
       lon: listvalue.lon,
-      knowledges: listvalue.knowledges,
-      innovations: listvalue.innovations,
+      // knowledges: listvalue.knowledges,
+      // innovations: listvalue.innovations,
       impacts: listvalue.impacts,
       img: "https://logodix.com/logo/487697.png",
     })
@@ -745,33 +769,33 @@ async function getImpact(paramsQuery) {
       lat: listvalue.lat,
       lon: listvalue.lon,
       img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
-        listvalue.project_type == 1 ? "งานวิจัย.png" : "บริการวิชาการ.png"
+        listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
       }`,
     });
 
-    listvalue.knowledges.map((item, index) => {
-      childNodes.push({
-        id: `${listvalue.id}.${index + 1}xn`,
-        type: "child",
-        knowledge_name: item.knowledge_name,
-        knowledge_detail: item.knowledge_detail,
-        lat: listvalue.lat,
-        lon: listvalue.lon,
-        img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/knowledge-icon.png",
-      });
-    });
+    // listvalue.knowledges.map((item, index) => {
+    //   childNodes.push({
+    //     id: `${listvalue.id}.${index + 1}xn`,
+    //     type: "child",
+    //     knowledge_name: item.knowledge_name,
+    //     knowledge_detail: item.knowledge_detail,
+    //     lat: listvalue.lat,
+    //     lon: listvalue.lon,
+    //     img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/knowledge-icon.png",
+    //   });
+    // });
 
-    listvalue.innovations.map((item, index) => {
-      childNodesInnovations.push({
-        id: `${listvalue.id}.${index + 1}xx`,
-        type: "child",
-        output_name: item.output_name,
-        output_detail: item.output_detail,
-        lat: listvalue.lat,
-        lon: listvalue.lon,
-        img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/Innovation-icon.png",
-      });
-    });
+    // listvalue.innovations.map((item, index) => {
+    //   childNodesInnovations.push({
+    //     id: `${listvalue.id}.${index + 1}xx`,
+    //     type: "child",
+    //     output_name: item.output_name,
+    //     output_detail: item.output_detail,
+    //     lat: listvalue.lat,
+    //     lon: listvalue.lon,
+    //     img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/Innovation-icon.png",
+    //   });
+    // });
 
     listvalue.impacts.map((item, index) => {
       childNodeImpacts.push({
@@ -799,36 +823,42 @@ async function getImpact(paramsQuery) {
   let linkimpact = [];
   let linkconcept = [];
   parentNodes.map((item, i) => {
-    item.knowledges.map((list, j) => {
+    item.impacts.map((list, j) => {
       linkconcept.push({
         from: `${item.id}.${i + 1}`,
-        to: `${item.id}.${j + 1}xn`,
+        to: `${item.id}.${j + 1}xxx`,
       });
     });
+    // item.knowledges.map((list, j) => {
+    //   linkconcept.push({
+    //     from: `${item.id}.${i + 1}`,
+    //     to: `${item.id}.${j + 1}xn`,
+    //   });
+    // });
 
-    item.knowledges.map((list, i) => {
-      item.innovations.map((listinno, j) => {
-        linksknow.push({
-          from: `${item.id}.${i + 1}xn`,
-          to: `${item.id}.${j + 1}xx`,
-        });
-      });
-    });
+    // item.knowledges.map((list, i) => {
+    //   item.innovations.map((listinno, j) => {
+    //     linksknow.push({
+    //       from: `${item.id}.${i + 1}xn`,
+    //       to: `${item.id}.${j + 1}xx`,
+    //     });
+    //   });
+    // });
 
-    item.innovations.map((listitem, i) => {
-      item.impacts.map((list, j) => {
-        linkimpact.push({
-          from: `${item.id}.${i + 1}xx`,
-          to: `${item.id}.${j + 1}xxx`,
-        });
-      });
-    });
+    // item.innovations.map((listitem, i) => {
+    //   item.impacts.map((list, j) => {
+    //     linkimpact.push({
+    //       from: `${item.id}.${i + 1}xx`,
+    //       to: `${item.id}.${j + 1}xxx`,
+    //     });
+    //   });
+    // });
   });
   // console.log(linksknow);
   // console.log(linkimpact);
 
   helper.applyArray(parentNodes, childNodes);
-  helper.applyArray(parentNodes, childNodesInnovations);
+  // helper.applyArray(parentNodes, childNodesInnovations);
   helper.applyArray(parentNodes, childNodeImpacts);
   helper.applyArray(parentNodes, childNodesConcepts);
 
@@ -839,8 +869,8 @@ async function getImpact(paramsQuery) {
     };
   });
 
-  helper.applyArray(links, linksknow);
-  helper.applyArray(links, linkimpact);
+  // helper.applyArray(links, linksknow);
+  // helper.applyArray(links, linkimpact);
   helper.applyArray(links, linkconcept);
 
   return {
