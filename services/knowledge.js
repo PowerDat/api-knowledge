@@ -1128,6 +1128,7 @@ async function getKnowledgeByGrouup(paramsQuery) {
       concept_proposal_locations.push({
         concept_proposal_id: listvalue.concept_proposal_id,
         concept_proposal_name: listvalue.concept_proposal_name,
+        concept_proposal_name_th: listvalue.concept_proposal_name_th,
         lat: listvalue.concept_proposal_latitude,
         lon: listvalue.concept_proposal_longitude,
         project_type: listvalue.project_type_id,
@@ -1195,6 +1196,7 @@ async function getKnowledgeByGrouup(paramsQuery) {
       type: "parent",
       concept_proposal_id: listvalue.concept_proposal_id,
       concept_proposal_name: listvalue.concept_proposal_name,
+      concept_proposal_name_th: listvalue.concept_proposal_name_th,
       lat: listvalue.lat,
       lon: listvalue.lon,
       knowledges: listvalue.knowledges,
@@ -1361,6 +1363,7 @@ async function getNewKnowledge() {
       concept_proposal_locations.push({
         concept_proposal_id: listvalue.concept_proposal_id,
         concept_proposal_name: listvalue.concept_proposal_name,
+        concept_proposal_name_th: listvalue.concept_proposal_name_th,
         project_type: listvalue.project_type_id,
         lat: listvalue.concept_proposal_latitude,
         lon: listvalue.concept_proposal_longitude,
@@ -1419,6 +1422,7 @@ async function getNewKnowledge() {
         concept_proposal_id: listvalue.concept_proposal_id,
         outcome_knowledge_name: item.outcome_knowledge_name,
         outcome_knowledge_detail: item.outcome_knowledge_detail,
+        concept_proposal_name_th: item.concept_proposal_name_th,
         lat: listvalue.lat,
         lon: listvalue.lon,
         img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/New-knowledge-icon.png",
