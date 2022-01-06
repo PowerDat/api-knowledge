@@ -646,6 +646,7 @@ async function getGoal(paramsQuery) {
     ].map((item, index) => {
       childNodeGoal.push({
         id: `${listvalue.id}.${index + 1}`,
+        concept_proposal_id: listvalue.concept_proposal_id,
         type: "child",
         [paramsQuery.goal_id == 1
           ? "bcg"
@@ -986,6 +987,7 @@ async function getImpact(paramsQuery) {
       childNodeImpacts.push({
         id: `${listvalue.id}.${index + 1}`,
         type: "child",
+        concept_proposal_id: listvalue.concept_proposal_id,
         impact_name: item.impacts,
         lat: listvalue.lat,
         lon: listvalue.lon,
