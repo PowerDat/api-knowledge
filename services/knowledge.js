@@ -76,7 +76,7 @@ async function getOutput(paramsQuery) {
   );
 
   groupCencept.map((v) => {
-    if (v.data[0].knowledges.length > 1 || v.data[0].innovations.length > 1) {
+    if (v.data[0].knowledges.length >= 1 || v.data[0].innovations.length >= 1) {
       const o = v.data.slice(1);
       // console.log(o);
       o.map((item) => {
@@ -112,7 +112,9 @@ async function getOutput(paramsQuery) {
       lon: listvalue.lon,
       innovations: listvalue.innovations,
       knowledges: listvalue.knowledges,
-      img: "https://logodix.com/logo/487697.png",
+      img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
+        listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
+      }`,
     })
   );
 
@@ -140,7 +142,7 @@ async function getOutput(paramsQuery) {
         output_detail: item.output_detail,
         lat: listvalue.lat,
         lon: listvalue.lon,
-        img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/Innovation-icon.png",
+        img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/Innovation-icon%20(2).png",
       });
     });
     listvalue.knowledges.map((item, index) => {
@@ -500,27 +502,59 @@ async function getGoal(paramsQuery) {
 
   const results = await goalPoint();
 
-  // const groupCencept = helper.groupBy(results, "concept_proposal_id");
+  const groupCencept = helper.groupBy(results, "concept_proposal_id");
 
-  // groupCencept.map((v) => {
-  //   if (v.data[0].bcg.length > 1) {
-  //     const o = v.data.slice(1);
-  //     console.log(o);
-  //     o.map((item) => {
-  //       item.bcg = [];
-  //     });
-  //   }
-  // });
+  groupCencept.map((v) => {
+    if (v.data[0].bcg) {
+      if (v.data[0].bcg.length >= 1) {
+        const o = v.data.slice(1);
+        console.log(o);
+        o.map((item) => {
+          item.bcg = [];
+        });
+      }
+    }
 
-  // // console.log(groupCencept);
+    if (v.data[0].sdgs) {
+      if (v.data[0].sdgs.length >= 1) {
+        const o = v.data.slice(1);
+        console.log(o);
+        o.map((item) => {
+          item.sdgs = [];
+        });
+      }
+    }
 
-  // const prepareNodes = [];
-  // groupCencept.map((listvalue, index) => {
-  //   listvalue.data.map((item) => prepareNodes.push(item));
-  // });
+    if (v.data[0].curve) {
+      if (v.data[0].curve.length >= 1) {
+        const o = v.data.slice(1);
+        console.log(o);
+        o.map((item) => {
+          item.curve = [];
+        });
+      }
+    }
+
+    if (v.data[0].cluster) {
+      if (v.data[0].cluster.length >= 1) {
+        const o = v.data.slice(1);
+        console.log(o);
+        o.map((item) => {
+          item.cluster = [];
+        });
+      }
+    }
+  });
+
+  // console.log(groupCencept);
+
+  const prepareNodes = [];
+  groupCencept.map((listvalue, index) => {
+    listvalue.data.map((item) => prepareNodes.push(item));
+  });
 
   const parentNodes = [];
-  results.map((listvalue, index) =>
+  prepareNodes.map((listvalue, index) =>
     parentNodes.push({
       id: index + 1,
       type: "parent",
@@ -550,7 +584,9 @@ async function getGoal(paramsQuery) {
           : paramsQuery.goal_id == 4
           ? listvalue.cluster
           : "",
-      img: "https://logodix.com/logo/487697.png",
+          img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
+            listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
+          }`,
     })
   );
 
@@ -559,17 +595,17 @@ async function getGoal(paramsQuery) {
   // const childNodesInnovations = [];
   const childNodeGoal = [];
   parentNodes.map((listvalue, i) => {
-    childNodesConcepts.push({
-      id: `${listvalue.id}.${i + 1}`,
-      type: "child",
-      concept_proposal_id: listvalue.concept_proposal_id,
-      concept_proposal_name_th: listvalue.concept_proposal_name_th,
-      lat: listvalue.lat,
-      lon: listvalue.lon,
-      img: `https://researcher.kims-rmuti.com/icon/${
-        listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
-      }`,
-    });
+    // childNodesConcepts.push({
+    //   id: `${listvalue.id}.${i + 1}`,
+    //   type: "child",
+    //   concept_proposal_id: listvalue.concept_proposal_id,
+    //   concept_proposal_name_th: listvalue.concept_proposal_name_th,
+    //   lat: listvalue.lat,
+    //   lon: listvalue.lon,
+    //   img: `https://researcher.kims-rmuti.com/icon/${
+    //     listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
+    //   }`,
+    // });
 
     // listvalue.knowledges.map((item, index) => {
     //   childNodes.push({
@@ -609,7 +645,7 @@ async function getGoal(paramsQuery) {
       }`
     ].map((item, index) => {
       childNodeGoal.push({
-        id: `${listvalue.id}.${index + 1}xxx`,
+        id: `${listvalue.id}.${index + 1}`,
         type: "child",
         [paramsQuery.goal_id == 1
           ? "bcg"
@@ -641,69 +677,100 @@ async function getGoal(paramsQuery) {
   // let linksknow = [];
   // let linkgoal = [];
   let linkconcept = [];
-  parentNodes.map((item, i) => {
-    item[
-      `${
-        paramsQuery.goal_id == 1
-          ? "bcg"
-          : paramsQuery.goal_id == 2
-          ? "sdgs"
-          : paramsQuery.goal_id == 3
-          ? "curve"
-          : paramsQuery.goal_id == 4
-          ? "cluster"
-          : ""
-      }`
-    ].map((list, j) => {
-      linkconcept.push({
-        from: `${item.id}.${i + 1}`,
-        to: `${item.id}.${j + 1}xxx`,
-      });
-    });
-    // item.knowledges.map((list, j) => {
-    //   linkconcept.push({
-    //     from: `${item.id}.${i + 1}`,
-    //     to: `${item.id}.${j + 1}xn`,
-    //   });
-    // });
+  // parentNodes.map((item, i) => {
+  //   item[
+  //     `${
+  //       paramsQuery.goal_id == 1
+  //         ? "bcg"
+  //         : paramsQuery.goal_id == 2
+  //         ? "sdgs"
+  //         : paramsQuery.goal_id == 3
+  //         ? "curve"
+  //         : paramsQuery.goal_id == 4
+  //         ? "cluster"
+  //         : ""
+  //     }`
+  //   ].map((list, j) => {
+  //     linkconcept.push({
+  //       from: `${item.id}.${i + 1}`,
+  //       to: `${item.id}.${j + 1}xxx`,
+  //     });
+  //   });
+  //   // item.knowledges.map((list, j) => {
+  //   //   linkconcept.push({
+  //   //     from: `${item.id}.${i + 1}`,
+  //   //     to: `${item.id}.${j + 1}xn`,
+  //   //   });
+  //   // });
 
-    // item.knowledges.map((list, i) => {
-    //   item.innovations.map((listinno, j) => {
-    //     linksknow.push({
-    //       from: `${item.id}.${i + 1}xn`,
-    //       to: `${item.id}.${j + 1}xx`,
-    //     });
-    //   });
-    // });
+  //   // item.knowledges.map((list, i) => {
+  //   //   item.innovations.map((listinno, j) => {
+  //   //     linksknow.push({
+  //   //       from: `${item.id}.${i + 1}xn`,
+  //   //       to: `${item.id}.${j + 1}xx`,
+  //   //     });
+  //   //   });
+  //   // });
 
-    // item.innovations.map((listitem, i) => {
-    //   item[
-    //     `${
-    //       paramsQuery.goal_id == 1
-    //         ? "bcg"
-    //         : paramsQuery.goal_id == 2
-    //         ? "sdgs"
-    //         : paramsQuery.goal_id == 3
-    //         ? "curve"
-    //         : paramsQuery.goal_id == 4
-    //         ? "cluster"
-    //         : ""
-    //     }`
-    //   ].map((list, j) => {
-    //     linkgoal.push({
-    //       from: `${item.id}.${i + 1}xx`,
-    //       to: `${item.id}.${j + 1}xxx`,
-    //     });
-    //   });
-    // });
-  });
+  //   // item.innovations.map((listitem, i) => {
+  //   //   item[
+  //   //     `${
+  //   //       paramsQuery.goal_id == 1
+  //   //         ? "bcg"
+  //   //         : paramsQuery.goal_id == 2
+  //   //         ? "sdgs"
+  //   //         : paramsQuery.goal_id == 3
+  //   //         ? "curve"
+  //   //         : paramsQuery.goal_id == 4
+  //   //         ? "cluster"
+  //   //         : ""
+  //   //     }`
+  //   //   ].map((list, j) => {
+  //   //     linkgoal.push({
+  //   //       from: `${item.id}.${i + 1}xx`,
+  //   //       to: `${item.id}.${j + 1}xxx`,
+  //   //     });
+  //   //   });
+  //   // });
+  // });
 
   // helper.applyArray(parentNodes, childNodes);
   // helper.applyArray(parentNodes, childNodesInnovations);
+
+  const groupNodes = helper.groupBy(parentNodes, "concept_proposal_id");
+  console.log("sss", groupNodes);
+
+  let linkNode = [];
+  const l = groupNodes.map((item) => {
+    const linknode = item.data.map((link) => {
+      return { from: link.id, to: link.id + 1 };
+    });
+
+    linknode.pop();
+
+    // console.log("sssa", linknode[0]);
+    if (linknode[0]) {
+      let lastone = {
+        from: linknode[0].from,
+        to: linknode[linknode.length - 1].to,
+      };
+      linknode.push(lastone);
+    }
+
+    return { links: linknode };
+  });
+
+  l.map((item) => {
+    // item.links.pop();
+    item.links.map((list) => linkNode.push(list));
+  });
+
+  console.log(linkNode);
+
   helper.applyArray(parentNodes, childNodeGoal);
   helper.applyArray(parentNodes, childNodesConcepts);
 
-  const links = childNodesConcepts.map((listvalue) => {
+  const links = childNodeGoal.map((listvalue) => {
     return {
       from: listvalue.id | 0,
       to: listvalue.id,
@@ -713,6 +780,7 @@ async function getGoal(paramsQuery) {
   // helper.applyArray(links, linksknow);
   // helper.applyArray(links, linkgoal);
   helper.applyArray(links, linkconcept);
+  helper.applyArray(links, linkNode);
 
   return {
     nodes: parentNodes,
@@ -834,10 +902,27 @@ async function getImpact(paramsQuery) {
     "concept_proposal_id"
   );
 
+  const groupCencept = helper.groupBy(results, "concept_proposal_id");
+
+  groupCencept.map((v) => {
+    if (v.data[0].impacts.length >= 1) {
+      const o = v.data.slice(1);
+      // console.log(o);
+      o.map((item) => {
+        item.impacts = [];
+      });
+    }
+  });
+
+  const prepareNodes = [];
+  groupCencept.map((listvalue, index) => {
+    listvalue.data.map((item) => prepareNodes.push(item));
+  });
+
   // console.log(results);
   // console.log(final_impact);
   const parentNodes = [];
-  results.map((listvalue, index) =>
+  prepareNodes.map((listvalue, index) =>
     parentNodes.push({
       id: index + 1,
       type: "parent",
@@ -850,7 +935,9 @@ async function getImpact(paramsQuery) {
       // knowledges: listvalue.knowledges,
       // innovations: listvalue.innovations,
       impacts: listvalue.impacts,
-      img: "https://logodix.com/logo/487697.png",
+      img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
+        listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
+      }`,
     })
   );
 
@@ -859,17 +946,17 @@ async function getImpact(paramsQuery) {
   const childNodesInnovations = [];
   const childNodeImpacts = [];
   parentNodes.map((listvalue, i) => {
-    childNodesConcepts.push({
-      id: `${listvalue.id}.${i + 1}`,
-      type: "child",
-      concept_proposal_id: listvalue.concept_proposal_id,
-      concept_proposal_name_th: listvalue.concept_proposal_name_th,
-      lat: listvalue.lat,
-      lon: listvalue.lon,
-      img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
-        listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
-      }`,
-    });
+    // childNodesConcepts.push({
+    //   id: `${listvalue.id}.${i + 1}`,
+    //   type: "child",
+    //   concept_proposal_id: listvalue.concept_proposal_id,
+    //   concept_proposal_name_th: listvalue.concept_proposal_name_th,
+    //   lat: listvalue.lat,
+    //   lon: listvalue.lon,
+    //   img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
+    //     listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
+    //   }`,
+    // });
 
     // listvalue.knowledges.map((item, index) => {
     //   childNodes.push({
@@ -897,7 +984,7 @@ async function getImpact(paramsQuery) {
 
     listvalue.impacts.map((item, index) => {
       childNodeImpacts.push({
-        id: `${listvalue.id}.${index + 1}xxx`,
+        id: `${listvalue.id}.${index + 1}`,
         type: "child",
         impact_name: item.impacts,
         lat: listvalue.lat,
@@ -920,47 +1007,74 @@ async function getImpact(paramsQuery) {
   let linksknow = [];
   let linkimpact = [];
   let linkconcept = [];
-  parentNodes.map((item, i) => {
-    item.impacts.map((list, j) => {
-      linkconcept.push({
-        from: `${item.id}.${i + 1}`,
-        to: `${item.id}.${j + 1}xxx`,
-      });
-    });
-    // item.knowledges.map((list, j) => {
-    //   linkconcept.push({
-    //     from: `${item.id}.${i + 1}`,
-    //     to: `${item.id}.${j + 1}xn`,
-    //   });
-    // });
+  // parentNodes.map((item, i) => {
+  //   item.impacts.map((list, j) => {
+  //     linkconcept.push({
+  //       from: `${item.id}.${i + 1}`,
+  //       to: `${item.id}.${j + 1}xxx`,
+  //     });
+  //   });
+  //   // item.knowledges.map((list, j) => {
+  //   //   linkconcept.push({
+  //   //     from: `${item.id}.${i + 1}`,
+  //   //     to: `${item.id}.${j + 1}xn`,
+  //   //   });
+  //   // });
 
-    // item.knowledges.map((list, i) => {
-    //   item.innovations.map((listinno, j) => {
-    //     linksknow.push({
-    //       from: `${item.id}.${i + 1}xn`,
-    //       to: `${item.id}.${j + 1}xx`,
-    //     });
-    //   });
-    // });
+  //   // item.knowledges.map((list, i) => {
+  //   //   item.innovations.map((listinno, j) => {
+  //   //     linksknow.push({
+  //   //       from: `${item.id}.${i + 1}xn`,
+  //   //       to: `${item.id}.${j + 1}xx`,
+  //   //     });
+  //   //   });
+  //   // });
 
-    // item.innovations.map((listitem, i) => {
-    //   item.impacts.map((list, j) => {
-    //     linkimpact.push({
-    //       from: `${item.id}.${i + 1}xx`,
-    //       to: `${item.id}.${j + 1}xxx`,
-    //     });
-    //   });
-    // });
-  });
+  //   // item.innovations.map((listitem, i) => {
+  //   //   item.impacts.map((list, j) => {
+  //   //     linkimpact.push({
+  //   //       from: `${item.id}.${i + 1}xx`,
+  //   //       to: `${item.id}.${j + 1}xxx`,
+  //   //     });
+  //   //   });
+  //   // });
+  // });
   // console.log(linksknow);
   // console.log(linkimpact);
+
+  const groupNodes = helper.groupBy(parentNodes, "concept_proposal_id");
+  console.log("sss", groupNodes);
+
+  let linkNode = [];
+  const l = groupNodes.map((item) => {
+    const linknode = item.data.map((link) => {
+      return { from: link.id, to: link.id + 1 };
+    });
+    linknode.pop();
+    // console.log("sssa", linknode[0]);
+    if (linknode[0]) {
+      let lastone = {
+        from: linknode[0].from,
+        to: linknode[linknode.length - 1].to,
+      };
+      linknode.push(lastone);
+    }
+
+    return { links: linknode };
+  });
+
+  l.map((item) => {
+    item.links.map((list) => linkNode.push(list));
+  });
+
+  console.log(linkNode);
 
   helper.applyArray(parentNodes, childNodes);
   // helper.applyArray(parentNodes, childNodesInnovations);
   helper.applyArray(parentNodes, childNodeImpacts);
   helper.applyArray(parentNodes, childNodesConcepts);
 
-  const links = childNodesConcepts.map((listvalue) => {
+  const links = childNodeImpacts.map((listvalue) => {
     return {
       from: listvalue.id | 0,
       to: listvalue.id,
@@ -970,6 +1084,7 @@ async function getImpact(paramsQuery) {
   // helper.applyArray(links, linksknow);
   // helper.applyArray(links, linkimpact);
   helper.applyArray(links, linkconcept);
+  helper.applyArray(links, linkNode);
 
   return {
     nodes: parentNodes,
@@ -1015,6 +1130,7 @@ async function getKnowledgeByGrouup(paramsQuery) {
         concept_proposal_name: listvalue.concept_proposal_name,
         lat: listvalue.concept_proposal_latitude,
         lon: listvalue.concept_proposal_longitude,
+        project_type: listvalue.project_type_id,
       })
     );
 
@@ -1056,7 +1172,7 @@ async function getKnowledgeByGrouup(paramsQuery) {
   const groupCencept = helper.groupBy(results, "concept_proposal_id");
 
   groupCencept.map((v) => {
-    if (v.data[0].knowledges.length > 1 || v.data[0].innovations.length > 1) {
+    if (v.data[0].knowledges.length >= 1 || v.data[0].innovations.length >= 1) {
       const o = v.data.slice(1);
       // console.log(o);
       o.map((item) => {
@@ -1083,7 +1199,9 @@ async function getKnowledgeByGrouup(paramsQuery) {
       lon: listvalue.lon,
       knowledges: listvalue.knowledges,
       innovations: listvalue.innovations,
-      img: "https://logodix.com/logo/487697.png",
+      img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
+        listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
+      }`,
     })
   );
 
@@ -1114,7 +1232,7 @@ async function getKnowledgeByGrouup(paramsQuery) {
         output_detail: item.output_detail,
         lat: listvalue.lat,
         lon: listvalue.lon,
-        img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/Innovation-icon.png",
+        img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/Innovation-icon%20(2).png",
       })
     )
   );
@@ -1243,6 +1361,7 @@ async function getNewKnowledge() {
       concept_proposal_locations.push({
         concept_proposal_id: listvalue.concept_proposal_id,
         concept_proposal_name: listvalue.concept_proposal_name,
+        project_type: listvalue.project_type_id,
         lat: listvalue.concept_proposal_latitude,
         lon: listvalue.concept_proposal_longitude,
       })
@@ -1259,7 +1378,7 @@ async function getNewKnowledge() {
 
   const groupCencept = helper.groupBy(results, "concept_proposal_id");
   groupCencept.map((v) => {
-    if (v.data[0].new_knowledges.length > 1) {
+    if (v.data[0].new_knowledges.length >= 1) {
       const o = v.data.slice(1);
       // console.log(o);
       o.map((item) => {
@@ -1285,7 +1404,9 @@ async function getNewKnowledge() {
       lat: listvalue.lat,
       lon: listvalue.lon,
       new_knowledges: listvalue.new_knowledges,
-      img: "https://logodix.com/logo/487697.png",
+      img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
+        listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
+      }`,
     })
   );
 
