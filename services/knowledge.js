@@ -70,6 +70,28 @@ async function getOutput(paramsQuery) {
 
   console.log(results_knowledges);
 
+  const groupCencept = helper.groupBy(
+    results_knowledges,
+    "concept_proposal_id"
+  );
+
+  groupCencept.map((v) => {
+    if (v.data[0].knowledges.length > 1 || v.data[0].innovations.length > 1) {
+      const o = v.data.slice(1);
+      // console.log(o);
+      o.map((item) => {
+        item.knowledges = [];
+        item.innovations = [];
+      });
+    }
+  });
+
+  const prepareNodes = [];
+  groupCencept.map((listvalue, index) => {
+    listvalue.data.map((item) => prepareNodes.push(item));
+  });
+  console.log(prepareNodes);
+
   // const results = concept_proposal_locations.map((item) => {
   //   const arrayResult = data.filter(
   //     (itemInArray) =>
@@ -79,7 +101,7 @@ async function getOutput(paramsQuery) {
   // });
 
   const parentNodes = [];
-  results_knowledges.map((listvalue, index) =>
+  prepareNodes.map((listvalue, index) =>
     parentNodes.push({
       id: index + 1,
       type: "parent",
@@ -98,21 +120,22 @@ async function getOutput(paramsQuery) {
   const childNodeKnowledge = [];
   const childNodesConcepts = [];
   parentNodes.map((listvalue, i) => {
-    childNodesConcepts.push({
-      id: `${listvalue.id}.${i + 1}`,
-      type: "child",
-      concept_proposal_id: listvalue.concept_proposal_id,
-      concept_proposal_name_th: listvalue.concept_proposal_name_th,
-      lat: listvalue.lat,
-      lon: listvalue.lon,
-      img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
-        listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
-      }`,
-    });
+    // childNodesConcepts.push({
+    //   id: `${listvalue.id}.${i + 1}`,
+    //   type: "child",
+    //   concept_proposal_id: listvalue.concept_proposal_id,
+    //   concept_proposal_name_th: listvalue.concept_proposal_name_th,
+    //   lat: listvalue.lat,
+    //   lon: listvalue.lon,
+    //   img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
+    //     listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
+    //   }`,
+    // });
     listvalue.innovations.map((item, index) => {
       childNodes.push({
-        id: `${listvalue.id}.${index + 1}xn`,
+        id: `${listvalue.id}.${index + 1}`,
         type: "child",
+        concept_proposal_id: item.concept_proposal_id,
         output_name: item.output_name,
         output_detail: item.output_detail,
         lat: listvalue.lat,
@@ -122,8 +145,9 @@ async function getOutput(paramsQuery) {
     });
     listvalue.knowledges.map((item, index) => {
       childNodeKnowledge.push({
-        id: `${listvalue.id}.${index + 1}xx`,
+        id: `${listvalue.id}.${index + 1}xn`,
         type: "child",
+        concept_proposal_id: item.concept_proposal_id,
         knowledge_name: item.knowledge_name,
         knowledge_detail: item.knowledge_detail,
         lat: listvalue.lat,
@@ -137,36 +161,88 @@ async function getOutput(paramsQuery) {
 
   let linksknow = [];
   let linkconcept = [];
+  let linkinkn = [];
   parentNodes.map((item, i) => {
-    item.knowledges.map((list, j) => {
-      linkconcept.push({
-        from: `${item.id}.${i + 1}`,
-        to: `${item.id}.${j + 1}xx`,
-      });
-    });
+    // item.knowledges.map((list, j) => {
+    //   linkconcept.push({
+    //     from: `${item.id}.${i + 1}`,
+    //     to: `${item.id}.${j + 1}xx`,
+    //   });
+    // });
 
-    item.knowledges.map((list, i) => {
-      item.innovations.map((listinno, j) => {
+    item.innovations.map((listinno, i) => {
+      item.knowledges.map((list, j) => {
         linksknow.push({
-          from: `${item.id}.${i + 1}xx`,
+          from: `${item.id}.${i + 1}`,
           to: `${item.id}.${j + 1}xn`,
         });
       });
     });
+
+    item.knowledges.map((list, i) => {
+      item.knowledges.map((list, j) => {
+        linkinkn.push({
+          from: `${item.id}.${i + 1}xn`,
+          to: `${item.id}.${j + 1}xn`,
+        });
+      });
+    });
+
+    // item.knowledges.map((list, i) => {
+    //   item.innovations.map((listinno, j) => {
+    //     linksknow.push({
+    //       from: `${item.id}.${i + 1}`,
+    //       to: `${item.id}.${j + 1}xn`,
+    //     });
+    //   });
+    // });
   });
+
+  const groupNodes = helper.groupBy(parentNodes, "concept_proposal_id");
+  console.log("sss", groupNodes);
+
+  let linkNode = [];
+  const l = groupNodes.map((item) => {
+    const linknode = item.data.map((link) => {
+      return { from: link.id, to: link.id + 1 };
+    });
+
+    linknode.pop();
+
+    // console.log("sssa", linknode[0]);
+    if (linknode[0]) {
+      let lastone = {
+        from: linknode[0].from,
+        to: linknode[linknode.length - 1].to,
+      };
+      linknode.push(lastone);
+    }
+
+    return { links: linknode };
+  });
+
+  l.map((item) => {
+    // item.links.pop();
+    item.links.map((list) => linkNode.push(list));
+  });
+
+  console.log(linkNode);
 
   helper.applyArray(parentNodes, childNodes);
   helper.applyArray(parentNodes, childNodeKnowledge);
   helper.applyArray(parentNodes, childNodesConcepts);
 
-  const links = childNodesConcepts.map((listvalue) => {
+  const links = childNodes.map((listvalue) => {
     return {
       from: listvalue.id | 0,
       to: listvalue.id,
     };
   });
+
   helper.applyArray(links, linksknow);
   helper.applyArray(links, linkconcept);
+  helper.applyArray(links, linkinkn);
+  helper.applyArray(links, linkNode);
 
   return {
     nodes: parentNodes,
@@ -423,6 +499,25 @@ async function getGoal(paramsQuery) {
   };
 
   const results = await goalPoint();
+
+  // const groupCencept = helper.groupBy(results, "concept_proposal_id");
+
+  // groupCencept.map((v) => {
+  //   if (v.data[0].bcg.length > 1) {
+  //     const o = v.data.slice(1);
+  //     console.log(o);
+  //     o.map((item) => {
+  //       item.bcg = [];
+  //     });
+  //   }
+  // });
+
+  // // console.log(groupCencept);
+
+  // const prepareNodes = [];
+  // groupCencept.map((listvalue, index) => {
+  //   listvalue.data.map((item) => prepareNodes.push(item));
+  // });
 
   const parentNodes = [];
   results.map((listvalue, index) =>
@@ -959,6 +1054,18 @@ async function getKnowledgeByGrouup(paramsQuery) {
   // console.log(results);
 
   const groupCencept = helper.groupBy(results, "concept_proposal_id");
+
+  groupCencept.map((v) => {
+    if (v.data[0].knowledges.length > 1 || v.data[0].innovations.length > 1) {
+      const o = v.data.slice(1);
+      // console.log(o);
+      o.map((item) => {
+        item.knowledges = [];
+        item.innovations = [];
+      });
+    }
+  });
+
   const prepareNodes = [];
   groupCencept.map((listvalue, index) => {
     listvalue.data.map((item) => prepareNodes.push(item));
@@ -1002,6 +1109,7 @@ async function getKnowledgeByGrouup(paramsQuery) {
       childNodesInnovations.push({
         id: `${listvalue.id}.${index + 1}00`,
         type: "child",
+        concept_proposal_id: item.concept_proposal_id,
         output_name: item.output_name,
         output_detail: item.output_detail,
         lat: listvalue.lat,
@@ -1014,6 +1122,7 @@ async function getKnowledgeByGrouup(paramsQuery) {
   // console.log(parentNodes);
 
   let linksknow = [];
+  let linkinno = [];
   parentNodes.map((item) => {
     item.knowledges.map((list, i) => {
       item.innovations.map((listinno, j) => {
@@ -1023,8 +1132,47 @@ async function getKnowledgeByGrouup(paramsQuery) {
         });
       });
     });
+
+    item.innovations.map((listinno, i) => {
+      item.innovations.map((list, j) => {
+        linkinno.push({
+          from: `${item.id}.${i + 1}00`,
+          to: `${item.id}.${j + 1}00`,
+        });
+      });
+    });
   });
   console.log(linksknow);
+
+  const groupNodes = helper.groupBy(parentNodes, "concept_proposal_id");
+  console.log("sss", groupNodes);
+
+  let linkNode = [];
+  const l = groupNodes.map((item) => {
+    const linknode = item.data.map((link) => {
+      return { from: link.id, to: link.id + 1 };
+    });
+
+    linknode.pop();
+
+    // console.log("sssa", linknode[0]);
+    if (linknode[0]) {
+      let lastone = {
+        from: linknode[0].from,
+        to: linknode[linknode.length - 1].to,
+      };
+      linknode.push(lastone);
+    }
+
+    return { links: linknode };
+  });
+
+  l.map((item) => {
+    // item.links.pop();
+    item.links.map((list) => linkNode.push(list));
+  });
+
+  console.log(linkNode);
 
   helper.applyArray(parentNodes, childNodes);
   helper.applyArray(parentNodes, childNodesInnovations);
@@ -1037,6 +1185,9 @@ async function getKnowledgeByGrouup(paramsQuery) {
   });
 
   helper.applyArray(links, linksknow);
+  helper.applyArray(links, linkNode);
+  helper.applyArray(links, linkinno);
+
   return {
     nodes: parentNodes,
     links: links,
@@ -1107,6 +1258,18 @@ async function getNewKnowledge() {
   });
 
   const groupCencept = helper.groupBy(results, "concept_proposal_id");
+  groupCencept.map((v) => {
+    if (v.data[0].new_knowledges.length > 1) {
+      const o = v.data.slice(1);
+      // console.log(o);
+      o.map((item) => {
+        item.new_knowledges = [];
+      });
+    }
+  });
+
+  // console.log("con", concept);
+
   const prepareNodes = [];
   groupCencept.map((listvalue, index) => {
     listvalue.data.map((item) => prepareNodes.push(item));
@@ -1142,6 +1305,45 @@ async function getNewKnowledge() {
     )
   );
 
+  const groupNodes = helper.groupBy(parentNodes, "concept_proposal_id");
+  console.log("sss", groupNodes);
+
+  let linkNode = [];
+  const l = groupNodes.map((item) => {
+    const linknode = item.data.map((link) => {
+      return { from: link.id, to: link.id + 1 };
+    });
+
+    linknode.pop();
+
+    // console.log("sssa", linknode[0]);
+    if (linknode[0]) {
+      let lastone = {
+        from: linknode[0].from,
+        to: linknode[linknode.length - 1].to,
+      };
+      linknode.push(lastone);
+    }
+
+    return { links: linknode };
+  });
+
+  l.map((item) => {
+    // item.links.pop();
+    item.links.map((list) => linkNode.push(list));
+  });
+
+  console.log(linkNode);
+
+  // linkfrom.pop();
+  // linkto.shift();
+
+  // let linksNodes = linkfrom.map((item, i) =>
+  //   Object.assign({}, item, linkto[i])
+  // );
+
+  // console.log(linkfrom);
+
   helper.applyArray(parentNodes, childNodes);
 
   const links = childNodes.map((listvalue) => {
@@ -1151,10 +1353,14 @@ async function getNewKnowledge() {
     };
   });
 
+  helper.applyArray(links, linkNode);
+
   return {
     nodes: parentNodes,
     links: links,
   };
+
+  // return parentNodes;
 }
 
 module.exports = {
