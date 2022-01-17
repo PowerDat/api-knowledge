@@ -415,7 +415,7 @@ async function getDetail(group) {
   if (group.groupName == "SDGS") {
     return realData.filter((x) => x.group_name === group.groupName);
   }
-  if (group.groupName == "10s Cruve") {
+  if (group.groupName == "10s Curve") {
     return realData.filter((x) => x.group_name === group.groupName);
   }
   if (group.groupName == "RMUTI Cluster") {
