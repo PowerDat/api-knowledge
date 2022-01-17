@@ -296,7 +296,7 @@ async function getDetail(group) {
           concept_id: v.concept_proposal_id,
           project_name_th: v.concept_proposal_name_th,
           project_name_en: v.concept_proposal_name_en,
-          group_name: "10S CURVE",
+          group_name: "10s Curve",
         });
       });
     }
