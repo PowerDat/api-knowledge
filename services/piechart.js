@@ -308,7 +308,7 @@ async function getDetail(group) {
       });
       goal.map((val) => {
         cluster.push({
-          title: val.cluster_name,
+          title: val.cluster_name.replace(/&/g, "and"),
           detail: null,
           image: null,
           concept_id: v.concept_proposal_id,
@@ -423,7 +423,7 @@ async function getDetail(group) {
   }
 
   if (group.groupName) {
-    // console.log( group.groupName);
+   
     const filterData = realData.filter((x) => x.title === group.groupName);
     return filterData;
   }else {
