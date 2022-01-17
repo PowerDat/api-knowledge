@@ -111,7 +111,7 @@ async function getPieChart() {
   });
 
   let clusterLabels = [...new Set(newCluserlabels)].map((v) => {
-    return { label: v };
+    return { label: v.replace(/&/g, "and") };
   });
 
   let curveLabels = [...new Set(newCurvelabels)].map((v) => {
