@@ -14,7 +14,7 @@ router.get("/get/chart/piechart", async function (req, res, next) {
 
 router.get("/get/chart/piechart/detail", async function (req, res, next) {
   try {
-    res.json(await piechart.getDetail());
+    res.json(await piechart.getDetail(req.query));
   } catch (err) {
     console.error(`Error while getting new Knowledge `, err.message);
     next(err);
