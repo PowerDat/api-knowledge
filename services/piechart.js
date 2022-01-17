@@ -406,6 +406,9 @@ async function getDetail(group) {
   if (group.groupName == "องค์ความรู้ใหม่") {
     return realData.filter((x) => x.group_name === group.groupName);
   }
+  if (group.groupName == "ผลกระทบ") {
+    return realData.filter((x) => x.group_name === group.groupName);
+  }
   if (group.groupName == "BCG") {
     return realData.filter((x) => x.group_name === group.groupName);
   }
