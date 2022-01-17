@@ -216,6 +216,28 @@ async function getDetail(group) {
     return obj;
   }
 
+  const prefix_obj = await getObj(
+    `SELECT * FROM user_prefix`,
+    "prefix_id",
+    "prefix_name_th"
+  );
+
+  async function getUser() {
+    const users = await db.query(`select * from bb_user `);
+    const data = helper.emptyOrRows(users);
+    const array = data.map((list, index) => {
+      return {
+        [list.user_idcard]: `${prefix_obj[list.prefix_id]}${
+          list.user_first_name_th
+        } ${list.user_last_name_th}`,
+      };
+    });
+    const obj = Object.assign({}, ...array);
+    return obj;
+  }
+
+  const user_obj = await getUser();
+
   const impactObj = await getObj(
     `SELECT * FROM bd_outcome_impact`,
     "impact_id",
@@ -260,6 +282,7 @@ async function getDetail(group) {
           concept_id: v.concept_proposal_id,
           project_name_th: v.concept_proposal_name_th,
           project_name_en: v.concept_proposal_name_en,
+          researcher: user_obj[v.user_idcard],
           group_name: "BCG",
         });
       });
@@ -278,6 +301,7 @@ async function getDetail(group) {
           concept_id: v.concept_proposal_id,
           project_name_th: v.concept_proposal_name_th,
           project_name_en: v.concept_proposal_name_en,
+          researcher: user_obj[v.user_idcard],
           group_name: "SDGS",
         });
       });
@@ -296,6 +320,7 @@ async function getDetail(group) {
           concept_id: v.concept_proposal_id,
           project_name_th: v.concept_proposal_name_th,
           project_name_en: v.concept_proposal_name_en,
+          researcher: user_obj[v.user_idcard],
           group_name: "10s Curve",
         });
       });
@@ -314,6 +339,7 @@ async function getDetail(group) {
           concept_id: v.concept_proposal_id,
           project_name_th: v.concept_proposal_name_th,
           project_name_en: v.concept_proposal_name_en,
+          researcher: user_obj[v.user_idcard],
           group_name: "RMUTI Cluster",
         });
       });
@@ -336,6 +362,7 @@ async function getDetail(group) {
         concept_id: v.concept_proposal_id,
         project_name_th: v.concept_proposal_name_th,
         project_name_en: v.concept_proposal_name_en,
+        researcher: user_obj[v.user_idcard],
         group_name: "ผลกระทบ",
       });
     });
@@ -353,6 +380,7 @@ async function getDetail(group) {
       concept_id: v.concept_proposal_id,
       project_name_th: v.concept_proposal_name_th,
       project_name_en: v.concept_proposal_name_en,
+      researcher: user_obj[v.user_idcard],
       group_name: "นวัตกรรม",
     });
   });
@@ -365,18 +393,20 @@ async function getDetail(group) {
       concept_id: v.concept_proposal_id,
       project_name_th: v.concept_proposal_name_th,
       project_name_en: v.concept_proposal_name_en,
+      researcher: user_obj[v.user_idcard],
       group_name: "องค์ความรู้ใหม่",
     });
   });
 
-  knowledgeData.map((v, i) => {
+  knowledgeData.map(async (v, i) => {
     realData.push({
-      title: v.knowledge_name,
-      detail: v.knowledge_detail,
+      title: v.knowledge_group_category,
+      detail: `<strong>${v.knowledge_name}</strong>: ${v.knowledge_detail}`,
       image: v.knowledge_image,
       concept_id: v.concept_proposal_id,
       project_name_th: v.concept_proposal_name_th,
       project_name_en: v.concept_proposal_name_en,
+      researcher: user_obj[v.user_idcard],
       group_name: "องค์ความรู้เดิม",
     });
   });
@@ -423,14 +453,11 @@ async function getDetail(group) {
   }
 
   if (group.groupName) {
-   
     const filterData = realData.filter((x) => x.title === group.groupName);
     return filterData;
-  }else {
+  } else {
     return realData;
   }
-
- 
 }
 
 module.exports = {
