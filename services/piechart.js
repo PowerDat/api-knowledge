@@ -152,7 +152,7 @@ async function getPieChart() {
       groups: sdgsLabels,
     },
     {
-      label: "10s CURVE",
+      label: "10s Curve",
       groups: curveLabels,
     },
     {
