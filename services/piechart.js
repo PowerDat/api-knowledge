@@ -148,7 +148,7 @@ async function getPieChart() {
       groups: bcgLabels,
     },
     {
-      label: "SDGS",
+      label: "SDGs",
       groups: sdgsLabels,
     },
     {
@@ -302,7 +302,7 @@ async function getDetail(group) {
           project_name_th: v.concept_proposal_name_th,
           project_name_en: v.concept_proposal_name_en,
           researcher: user_obj[v.user_idcard],
-          group_name: "SDGS",
+          group_name: "SDGs",
         });
       });
     }
@@ -442,7 +442,7 @@ async function getDetail(group) {
   if (group.groupName == "BCG") {
     return realData.filter((x) => x.group_name === group.groupName);
   }
-  if (group.groupName == "SDGS") {
+  if (group.groupName == "SDGs") {
     return realData.filter((x) => x.group_name === group.groupName);
   }
   if (group.groupName == "10s Curve") {
