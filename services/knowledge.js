@@ -1406,6 +1406,8 @@ async function getNewKnowledge() {
       type: "parent",
       concept_proposal_id: listvalue.concept_proposal_id,
       concept_proposal_name: listvalue.concept_proposal_name,
+      concept_proposal_name_th: listvalue.concept_proposal_name_th,
+
       lat: listvalue.lat,
       lon: listvalue.lon,
       new_knowledges: listvalue.new_knowledges,
