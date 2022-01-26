@@ -584,9 +584,9 @@ async function getGoal(paramsQuery) {
           : paramsQuery.goal_id == 4
           ? listvalue.cluster
           : "",
-          img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
-            listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
-          }`,
+      img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
+        listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
+      }`,
     })
   );
 
@@ -1340,7 +1340,7 @@ async function getNewKnowledge() {
     `
   );
   const data = helper.emptyOrRows(rows);
-  console.log(data);
+  // console.log(data);
   let concept_proposal_id = [];
   let project_id = [];
   data.map((listvalue) => {
@@ -1373,7 +1373,52 @@ async function getNewKnowledge() {
     );
   }
 
-  const results = concept_proposal_locations.map((item) => {
+  // console.log(concept_proposal_locations);
+
+  // start here 
+  const newlocation = helper.groupBy(
+    concept_proposal_locations,
+    "concept_proposal_id"
+  );
+  const conceptlocation = newlocation.map((val) => val.data[0]);
+  const conceptid = conceptlocation.map((val) => val.concept_proposal_id);
+
+  const co_locations = [];
+  for (let i = 0; i < conceptid.length; i++) {
+    const co_concept = await db.query(`
+      SELECT 
+        cp.project_type_id,
+        cp.concept_proposal_name_th,
+        ccf.concept_proposal_id, 
+        cr.co_researcher_name_th, 
+        cr.co_researcher_latitude, 
+        cr.co_researcher_longitude, 
+        cr.co_researcher_image
+      FROM co_concept_fk ccf 
+        INNER JOIN co_researcher cr 
+      ON cr.co_researcher_id = ccf.co_researcher_id
+        INNER JOIN concept_proposal cp
+      ON cp.concept_proposal_id = ccf.concept_proposal_id
+        WHERE ccf.concept_proposal_id = ${conceptid[i]}`);
+
+    co_concept.map((val) =>
+      co_locations.push({
+        concept_proposal_id: val.concept_proposal_id,
+        concept_proposal_name: val.co_researcher_name_th,
+        concept_proposal_name_th: val.concept_proposal_name_th,
+        lat: val.co_researcher_latitude,
+        lon: val.co_researcher_longitude,
+        project_type: val.project_type_id,
+      })
+    );
+  }
+
+  conceptlocation.map((val) => co_locations.push(val));
+  console.log(co_locations);
+
+  // end here
+
+  const results = co_locations.map((item) => {
     const arrayResult = data.filter(
       (itemInArray) =>
         itemInArray.concept_proposal_id === item.concept_proposal_id
@@ -1400,7 +1445,7 @@ async function getNewKnowledge() {
   });
 
   const parentNodes = [];
-  prepareNodes.map((listvalue, index) =>
+  prepareNodes.map((listvalue, index) => {
     parentNodes.push({
       id: index + 1,
       type: "parent",
@@ -1414,8 +1459,8 @@ async function getNewKnowledge() {
       img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
         listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
       }`,
-    })
-  );
+    });
+  });
 
   const childNodes = [];
   parentNodes.map((listvalue) =>
@@ -1435,7 +1480,7 @@ async function getNewKnowledge() {
   );
 
   const groupNodes = helper.groupBy(parentNodes, "concept_proposal_id");
-  console.log("sss", groupNodes);
+  // console.log("sss", groupNodes);
 
   let linkNode = [];
   const l = groupNodes.map((item) => {
@@ -1462,7 +1507,7 @@ async function getNewKnowledge() {
     item.links.map((list) => linkNode.push(list));
   });
 
-  console.log(linkNode);
+  // console.log(linkNode);
 
   // linkfrom.pop();
   // linkto.shift();
