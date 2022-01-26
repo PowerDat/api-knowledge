@@ -861,6 +861,8 @@ async function getImpact(paramsQuery) {
       // concepts.push({});
     });
 
+    
+
     // const rows_innovations = await db.query(
     //   `SELECT * FROM progress_report_output INNER JOIN progress_report
     //       ON progress_report.progress_report_id = progress_report_output.progress_report_id
@@ -1372,6 +1374,9 @@ async function getNewKnowledge() {
       })
     );
   }
+
+  const newproposal = helper.groupBy (concept_proposal_locations,"conconcept_proposal_id")
+  console.log(newproposal);
 
   const results = concept_proposal_locations.map((item) => {
     const arrayResult = data.filter(
