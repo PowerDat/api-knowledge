@@ -439,21 +439,7 @@ async function getGoal(paramsQuery) {
   let priq = [...new Set(progress_report_id)];
   let cciq = [...new Set(concept_proposal_id)];
 
-  // let knowledges = [];
-  // for (let i = 0; i < priq.length; i++) {
-  //   const rows = await db.query(
-  //     `SELECT progress_report_knowledge.knowledge_id,
-  //             progress_report_knowledge.knowledge_name,
-  //             progress_report_knowledge.knowledge_detail,
-  //             progress_report.concept_proposal_id,
-  //             progress_report.progress_report_id
-  //       FROM progress_report_knowledge
-  //     INNER JOIN progress_report ON progress_report.progress_report_id = progress_report_knowledge.progress_report_id
-  //     WHERE progress_report_knowledge.progress_report_id = ${priq[i]} `
-  //   );
-  //   const data = helper.emptyOrRows(rows);
-  //   data.map((item) => knowledges.push(item));
-  // }
+  
 
   let locations = [];
   // let concepts = [];
@@ -478,61 +464,79 @@ async function getGoal(paramsQuery) {
       // concepts.push({});
     });
 
-    // const rows_innovations = await db.query(
-    //   `SELECT * FROM progress_report_output INNER JOIN progress_report
-    //       ON progress_report.progress_report_id = progress_report_output.progress_report_id
-    //     WHERE progress_report.concept_proposal_id = ${cciq[i]}`
-    // );
+     // start here 
+ const newlocation = helper.groupBy(
+  locations,
+  "concept_proposal_id"
+);
+const conceptlocation = newlocation.map((val) => val.data[0]);
+const conceptid = conceptlocation.map((val) => val.concept_proposal_id);
 
-    // const data1 = helper.emptyOrRows(rows_innovations);
-    // data1.map((listvalue) => {
-    //   innovations.push({
-    //     output_id: listvalue.output_id,
-    //     concept_proposal_id: listvalue.concept_proposal_id,
-    //     progress_report_id: listvalue.progress_report_id,
-    //     output_name: listvalue.output_name,
-    //     output_detail: listvalue.output_detail,
-    //   });
-    // });
+const co_locations = [];
+for (let i = 0; i < conceptid.length; i++) {
+  const co_concept = await db.query(`
+    SELECT 
+      cp.project_type_id,
+      cp.concept_proposal_name_th,
+      ccf.concept_proposal_id, 
+      cr.co_researcher_name_th, 
+      cr.co_researcher_latitude, 
+      cr.co_researcher_longitude, 
+      cr.co_researcher_image
+    FROM co_concept_fk ccf 
+      INNER JOIN co_researcher cr 
+    ON cr.co_researcher_id = ccf.co_researcher_id
+      INNER JOIN concept_proposal cp
+    ON cp.concept_proposal_id = ccf.concept_proposal_id
+      WHERE ccf.concept_proposal_id = ${conceptid[i]}`);
+
+  co_concept.map((val) =>
+    co_locations.push({
+      concept_proposal_id: val.concept_proposal_id,
+      concept_proposal_name: val.co_researcher_name_th,
+      concept_proposal_name_th: val.concept_proposal_name_th,
+      lat: val.co_researcher_latitude,
+      lon: val.co_researcher_longitude,
+      project_type: val.project_type_id,
+    })
+  );
+}
+
+conceptlocation.map((val) => co_locations.push(val));
+console.log(co_locations);
+
+// end here
+
+    
   }
 
-  // const results_locations = await helper.compareArrayToAdd(
-  //   locations,
-  //   knowledges,
-  //   "concept_proposal_id"
-  // );
-
-  // const results_innovations = await helper.compareArrayToAdd(
-  //   results_locations,
-  //   innovations,
-  //   "concept_proposal_id"
-  // );
+ 
 
   const goalPoint = async () => {
     if (paramsQuery.goal_id == 1) {
       return await helper.compareArrayToAdd(
-        locations,
+        co_locations,
         bcg_array,
         "concept_proposal_id"
       );
     }
     if (paramsQuery.goal_id == 2) {
       return await helper.compareArrayToAdd(
-        locations,
+        co_locations,
         sdgs_array,
         "concept_proposal_id"
       );
     }
     if (paramsQuery.goal_id == 3) {
       return await helper.compareArrayToAdd(
-        locations,
+        co_locations,
         curve_array,
         "concept_proposal_id"
       );
     }
     if (paramsQuery.goal_id == 4) {
       return await helper.compareArrayToAdd(
-        locations,
+        co_locations,
         cluster_array,
         "concept_proposal_id"
       );
@@ -877,7 +881,7 @@ async function getImpact(paramsQuery) {
         project_type: item.project_type_id,
         lat: item.concept_proposal_latitude,
         lon: item.concept_proposal_longitude,
-      });
+      })
       // concepts.push({});
     });
 
@@ -972,41 +976,7 @@ async function getImpact(paramsQuery) {
     const childNodesInnovations = [];
     const childNodeImpacts = [];
     parentNodes.map((listvalue, i) => {
-      // childNodesConcepts.push({
-      //   id: `${listvalue.id}.${i + 1}`,
-      //   type: "child",
-      //   concept_proposal_id: listvalue.concept_proposal_id,
-      //   concept_proposal_name_th: listvalue.concept_proposal_name_th,
-      //   lat: listvalue.lat,
-      //   lon: listvalue.lon,
-      //   img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
-      //     listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
-      //   }`,
-      // });
-
-      // listvalue.knowledges.map((item, index) => {
-      //   childNodes.push({
-      //     id: `${listvalue.id}.${index + 1}xn`,
-      //     type: "child",
-      //     knowledge_name: item.knowledge_name,
-      //     knowledge_detail: item.knowledge_detail,
-      //     lat: listvalue.lat,
-      //     lon: listvalue.lon,
-      //     img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/knowledge-icon.png",
-      //   });
-      // });
-
-      // listvalue.innovations.map((item, index) => {
-      //   childNodesInnovations.push({
-      //     id: `${listvalue.id}.${index + 1}xx`,
-      //     type: "child",
-      //     output_name: item.output_name,
-      //     output_detail: item.output_detail,
-      //     lat: listvalue.lat,
-      //     lon: listvalue.lon,
-      //     img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/Innovation-icon.png",
-      //   });
-      // });
+      
 
       listvalue.impacts.map((item, index) => {
         childNodeImpacts.push({
@@ -1607,4 +1577,3 @@ async function getImpact(paramsQuery) {
     getImpact,
     getGoal,
   };
-}
