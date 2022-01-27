@@ -56,8 +56,51 @@ async function getOutput(paramsQuery) {
 
   // console.log(knowledges);
 
-  const results_locations = await helper.compareArrayToAdd(
+  // start here 
+  const newlocation = helper.groupBy(
     concept_proposal_locations,
+    "concept_proposal_id"
+  );
+  const conceptlocation = newlocation.map((val) => val.data[0]);
+  const conceptid = conceptlocation.map((val) => val.concept_proposal_id);
+
+  const co_locations = [];
+  for (let i = 0; i < conceptid.length; i++) {
+    const co_concept = await db.query(`
+      SELECT 
+        cp.project_type_id,
+        cp.concept_proposal_name_th,
+        ccf.concept_proposal_id, 
+        cr.co_researcher_name_th, 
+        cr.co_researcher_latitude, 
+        cr.co_researcher_longitude, 
+        cr.co_researcher_image
+      FROM co_concept_fk ccf 
+        INNER JOIN co_researcher cr 
+      ON cr.co_researcher_id = ccf.co_researcher_id
+        INNER JOIN concept_proposal cp
+      ON cp.concept_proposal_id = ccf.concept_proposal_id
+        WHERE ccf.concept_proposal_id = ${conceptid[i]}`);
+
+    co_concept.map((val) =>
+      co_locations.push({
+        concept_proposal_id: val.concept_proposal_id,
+        concept_proposal_name: val.co_researcher_name_th,
+        concept_proposal_name_th: val.concept_proposal_name_th,
+        lat: val.co_researcher_latitude,
+        lon: val.co_researcher_longitude,
+        project_type: val.project_type_id,
+      })
+    );
+  }
+
+  conceptlocation.map((val) => co_locations.push(val));
+  console.log(co_locations);
+
+  // end here
+
+  const results_locations = await helper.compareArrayToAdd(
+    co_concept,
     data,
     "concept_proposal_id"
   );
@@ -112,9 +155,8 @@ async function getOutput(paramsQuery) {
       lon: listvalue.lon,
       innovations: listvalue.innovations,
       knowledges: listvalue.knowledges,
-      img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
-        listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
-      }`,
+      img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
+        }`,
     })
   );
 
@@ -263,18 +305,18 @@ async function getGoal(paramsQuery) {
         ? goals.push(listvalue)
         : []
       : paramsQuery.goal_id == 2
-      ? listvalue.sdgs_id
-        ? goals.push(listvalue)
-        : []
-      : paramsQuery.goal_id == 3
-      ? listvalue.curve_id
-        ? goals.push(listvalue)
-        : []
-      : paramsQuery.goal_id == 4
-      ? listvalue.cluster_id
-        ? goals.push(listvalue)
-        : []
-      : [];
+        ? listvalue.sdgs_id
+          ? goals.push(listvalue)
+          : []
+        : paramsQuery.goal_id == 3
+          ? listvalue.curve_id
+            ? goals.push(listvalue)
+            : []
+          : paramsQuery.goal_id == 4
+            ? listvalue.cluster_id
+              ? goals.push(listvalue)
+              : []
+            : [];
   });
 
   function getUniqueListBy(arr, key) {
@@ -320,8 +362,7 @@ async function getGoal(paramsQuery) {
     for (let i = 0; i < sdgs.length; i++) {
       for (let j = 0; j < JSON.parse(sdgs[i].sdgs_id).length; j++) {
         const rows = await db.query(
-          `SELECT * FROM bd_sdgs where sdgs_id = ${
-            JSON.parse(sdgs[i].sdgs_id)[j]
+          `SELECT * FROM bd_sdgs where sdgs_id = ${JSON.parse(sdgs[i].sdgs_id)[j]
           }`
         );
         const data = helper.emptyOrRows(rows);
@@ -348,8 +389,7 @@ async function getGoal(paramsQuery) {
     for (let i = 0; i < curve.length; i++) {
       for (let j = 0; j < JSON.parse(curve[i].curve_id).length; j++) {
         const rows = await db.query(
-          `SELECT * FROM bd_10s_curve where curve_id = ${
-            JSON.parse(curve[i].curve_id)[j]
+          `SELECT * FROM bd_10s_curve where curve_id = ${JSON.parse(curve[i].curve_id)[j]
           }`
         );
         const data = helper.emptyOrRows(rows);
@@ -376,8 +416,7 @@ async function getGoal(paramsQuery) {
     for (let i = 0; i < cluster.length; i++) {
       for (let j = 0; j < JSON.parse(cluster[i].cluster_id).length; j++) {
         const rows = await db.query(
-          `SELECT * FROM bd_cluster where cluster_id = ${
-            JSON.parse(cluster[i].cluster_id)[j]
+          `SELECT * FROM bd_cluster where cluster_id = ${JSON.parse(cluster[i].cluster_id)[j]
           }`
         );
         const data = helper.emptyOrRows(rows);
@@ -569,24 +608,23 @@ async function getGoal(paramsQuery) {
       [paramsQuery.goal_id == 1
         ? "bcg"
         : paramsQuery.goal_id == 2
-        ? "sdgs"
-        : paramsQuery.goal_id == 3
-        ? "curve"
-        : paramsQuery.goal_id == 4
-        ? "cluster"
-        : ""]:
+          ? "sdgs"
+          : paramsQuery.goal_id == 3
+            ? "curve"
+            : paramsQuery.goal_id == 4
+              ? "cluster"
+              : ""]:
         paramsQuery.goal_id == 1
           ? listvalue.bcg
           : paramsQuery.goal_id == 2
-          ? listvalue.sdgs
-          : paramsQuery.goal_id == 3
-          ? listvalue.curve
-          : paramsQuery.goal_id == 4
-          ? listvalue.cluster
-          : "",
-          img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
-            listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
-          }`,
+            ? listvalue.sdgs
+            : paramsQuery.goal_id == 3
+              ? listvalue.curve
+              : paramsQuery.goal_id == 4
+                ? listvalue.cluster
+                : "",
+      img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
+        }`,
     })
   );
 
@@ -632,16 +670,15 @@ async function getGoal(paramsQuery) {
     // });
 
     listvalue[
-      `${
-        paramsQuery.goal_id == 1
-          ? "bcg"
-          : paramsQuery.goal_id == 2
+      `${paramsQuery.goal_id == 1
+        ? "bcg"
+        : paramsQuery.goal_id == 2
           ? "sdgs"
           : paramsQuery.goal_id == 3
-          ? "curve"
-          : paramsQuery.goal_id == 4
-          ? "cluster"
-          : ""
+            ? "curve"
+            : paramsQuery.goal_id == 4
+              ? "cluster"
+              : ""
       }`
     ].map((item, index) => {
       childNodeGoal.push({
@@ -651,21 +688,21 @@ async function getGoal(paramsQuery) {
         [paramsQuery.goal_id == 1
           ? "bcg"
           : paramsQuery.goal_id == 2
-          ? "sdgs"
-          : paramsQuery.goal_id == 3
-          ? "curve"
-          : paramsQuery.goal_id == 4
-          ? "cluster"
-          : ""]:
+            ? "sdgs"
+            : paramsQuery.goal_id == 3
+              ? "curve"
+              : paramsQuery.goal_id == 4
+                ? "cluster"
+                : ""]:
           paramsQuery.goal_id == 1
             ? item.bcg_name
             : paramsQuery.goal_id == 2
-            ? item.sdgs_name
-            : paramsQuery.goal_id == 3
-            ? item.curve_name
-            : paramsQuery.goal_id == 4
-            ? item.cluster_name
-            : "",
+              ? item.sdgs_name
+              : paramsQuery.goal_id == 3
+                ? item.curve_name
+                : paramsQuery.goal_id == 4
+                  ? item.cluster_name
+                  : "",
         lat: listvalue.lat,
         lon: listvalue.lon,
         img: `https://researcher.kims-rmuti.com/icon/${item.img}`,
@@ -820,23 +857,6 @@ async function getImpact(paramsQuery) {
   let priq = [...new Set(progress_report_id)];
   let cciq = [...new Set(concept_proposal_id)];
 
-  // console.log(final_impact);
-
-  // let knowledges = [];
-  // for (let i = 0; i < priq.length; i++) {
-  //   const rows = await db.query(
-  //     `SELECT progress_report_knowledge.knowledge_id,
-  //             progress_report_knowledge.knowledge_name,
-  //             progress_report_knowledge.knowledge_detail,
-  //             progress_report.concept_proposal_id,
-  //             progress_report.progress_report_id
-  //       FROM progress_report_knowledge
-  //     INNER JOIN progress_report ON progress_report.progress_report_id = progress_report_knowledge.progress_report_id
-  //     WHERE progress_report_knowledge.progress_report_id = ${priq[i]} `
-  //   );
-  //   const data = helper.emptyOrRows(rows);
-  //   data.map((item) => knowledges.push(item));
-  // }
 
   let locations = [];
   // let concepts = [];
@@ -861,474 +881,515 @@ async function getImpact(paramsQuery) {
       // concepts.push({});
     });
 
-    
+    // start here 
+    const newlocation = helper.groupBy(
+      locations,
+      "concept_proposal_id"
+    );
+    const conceptlocation = newlocation.map((val) => val.data[0]);
+    const conceptid = conceptlocation.map((val) => val.concept_proposal_id);
 
-    // const rows_innovations = await db.query(
-    //   `SELECT * FROM progress_report_output INNER JOIN progress_report
-    //       ON progress_report.progress_report_id = progress_report_output.progress_report_id
-    //     WHERE progress_report.concept_proposal_id = ${cciq[i]}`
-    // );
+    const co_locations = [];
+    for (let i = 0; i < conceptid.length; i++) {
+      const co_concept = await db.query(`
+      SELECT 
+        cp.project_type_id,
+        cp.concept_proposal_name_th,
+        ccf.concept_proposal_id, 
+        cr.co_researcher_name_th, 
+        cr.co_researcher_latitude, 
+        cr.co_researcher_longitude, 
+        cr.co_researcher_image
+      FROM co_concept_fk ccf 
+        INNER JOIN co_researcher cr 
+      ON cr.co_researcher_id = ccf.co_researcher_id
+        INNER JOIN concept_proposal cp
+      ON cp.concept_proposal_id = ccf.concept_proposal_id
+        WHERE ccf.concept_proposal_id = ${conceptid[i]}`);
 
-    // const data1 = helper.emptyOrRows(rows_innovations);
-    // data1.map((listvalue) => {
-    //   innovations.push({
-    //     output_id: listvalue.output_id,
-    //     concept_proposal_id: listvalue.concept_proposal_id,
-    //     progress_report_id: listvalue.progress_report_id,
-    //     output_name: listvalue.output_name,
-    //     output_detail: listvalue.output_detail,
-    //   });
-    // });
-  }
-
-  // const results_locations = await helper.compareArrayToAdd(
-  //   locations,
-  //   knowledges,
-  //   "concept_proposal_id"
-  // );
-
-  // const results_innovations = await helper.compareArrayToAdd(
-  //   results_locations,
-  //   innovations,
-  //   "concept_proposal_id"
-  // );
-
-  // const results = await helper.compareArrayToAdd(
-  //   results_innovations,
-  //   final_impact,
-  //   "concept_proposal_id"
-  // );
-
-  const results = await helper.compareArrayToAdd(
-    locations,
-    final_impact,
-    "concept_proposal_id"
-  );
-
-  const groupCencept = helper.groupBy(results, "concept_proposal_id");
-
-  groupCencept.map((v) => {
-    if (v.data[0].impacts.length >= 1) {
-      const o = v.data.slice(1);
-      // console.log(o);
-      o.map((item) => {
-        item.impacts = [];
-      });
+      co_concept.map((val) =>
+        co_locations.push({
+          concept_proposal_id: val.concept_proposal_id,
+          concept_proposal_name: val.co_researcher_name_th,
+          concept_proposal_name_th: val.concept_proposal_name_th,
+          lat: val.co_researcher_latitude,
+          lon: val.co_researcher_longitude,
+          project_type: val.project_type_id,
+        })
+      );
     }
-  });
 
-  const prepareNodes = [];
-  groupCencept.map((listvalue, index) => {
-    listvalue.data.map((item) => prepareNodes.push(item));
-  });
+    conceptlocation.map((val) => co_locations.push(val));
+    console.log(co_locations);
 
-  // console.log(results);
-  // console.log(final_impact);
-  const parentNodes = [];
-  prepareNodes.map((listvalue, index) =>
-    parentNodes.push({
-      id: index + 1,
-      type: "parent",
-      concept_proposal_id: listvalue.concept_proposal_id,
-      concept_proposal_name: listvalue.concept_proposal_name,
-      concept_proposal_name_th: listvalue.concept_proposal_name_th,
-      lat: listvalue.lat,
-      lon: listvalue.lon,
-      project_type: listvalue.project_type,
-      // knowledges: listvalue.knowledges,
-      // innovations: listvalue.innovations,
-      impacts: listvalue.impacts,
-      img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
-        listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
-      }`,
-    })
-  );
+    // end here
+    const results = await helper.compareArrayToAdd(
+      co_locations,
+      final_impact,
+      "concept_proposal_id"
+    );
 
-  const childNodes = [];
-  const childNodesConcepts = [];
-  const childNodesInnovations = [];
-  const childNodeImpacts = [];
-  parentNodes.map((listvalue, i) => {
-    // childNodesConcepts.push({
-    //   id: `${listvalue.id}.${i + 1}`,
-    //   type: "child",
-    //   concept_proposal_id: listvalue.concept_proposal_id,
-    //   concept_proposal_name_th: listvalue.concept_proposal_name_th,
-    //   lat: listvalue.lat,
-    //   lon: listvalue.lon,
-    //   img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
-    //     listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
-    //   }`,
-    // });
+    const groupCencept = helper.groupBy(results, "concept_proposal_id");
 
-    // listvalue.knowledges.map((item, index) => {
-    //   childNodes.push({
-    //     id: `${listvalue.id}.${index + 1}xn`,
-    //     type: "child",
-    //     knowledge_name: item.knowledge_name,
-    //     knowledge_detail: item.knowledge_detail,
-    //     lat: listvalue.lat,
-    //     lon: listvalue.lon,
-    //     img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/knowledge-icon.png",
-    //   });
-    // });
+    groupCencept.map((v) => {
+      if (v.data[0].impacts.length >= 1) {
+        const o = v.data.slice(1);
+        // console.log(o);
+        o.map((item) => {
+          item.impacts = [];
+        });
+      }
+    });
 
-    // listvalue.innovations.map((item, index) => {
-    //   childNodesInnovations.push({
-    //     id: `${listvalue.id}.${index + 1}xx`,
-    //     type: "child",
-    //     output_name: item.output_name,
-    //     output_detail: item.output_detail,
-    //     lat: listvalue.lat,
-    //     lon: listvalue.lon,
-    //     img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/Innovation-icon.png",
-    //   });
-    // });
+    const prepareNodes = [];
+    groupCencept.map((listvalue, index) => {
+      listvalue.data.map((item) => prepareNodes.push(item));
+    });
 
-    listvalue.impacts.map((item, index) => {
-      childNodeImpacts.push({
-        id: `${listvalue.id}.${index + 1}`,
-        type: "child",
+    // console.log(results);
+    // console.log(final_impact);
+    const parentNodes = [];
+    prepareNodes.map((listvalue, index) =>
+      parentNodes.push({
+        id: index + 1,
+        type: "parent",
         concept_proposal_id: listvalue.concept_proposal_id,
-        impact_name: item.impacts,
+        concept_proposal_name: listvalue.concept_proposal_name,
+        concept_proposal_name_th: listvalue.concept_proposal_name_th,
         lat: listvalue.lat,
         lon: listvalue.lon,
-        img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
-          paramsQuery.impact_id == 1
-            ? "Economy-impact.png"
-            : paramsQuery.impact_id == 2
-            ? "New-Social-impact.png"
-            : paramsQuery.impact_id == 3
-            ? "Cultural-impact.png"
-            : "Environmental-impact.png"
-        }`,
+        project_type: listvalue.project_type,
+        // knowledges: listvalue.knowledges,
+        // innovations: listvalue.innovations,
+        impacts: listvalue.impacts,
+        img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
+          }`,
+      })
+    );
+
+    const childNodes = [];
+    const childNodesConcepts = [];
+    const childNodesInnovations = [];
+    const childNodeImpacts = [];
+    parentNodes.map((listvalue, i) => {
+      // childNodesConcepts.push({
+      //   id: `${listvalue.id}.${i + 1}`,
+      //   type: "child",
+      //   concept_proposal_id: listvalue.concept_proposal_id,
+      //   concept_proposal_name_th: listvalue.concept_proposal_name_th,
+      //   lat: listvalue.lat,
+      //   lon: listvalue.lon,
+      //   img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
+      //     listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
+      //   }`,
+      // });
+
+      // listvalue.knowledges.map((item, index) => {
+      //   childNodes.push({
+      //     id: `${listvalue.id}.${index + 1}xn`,
+      //     type: "child",
+      //     knowledge_name: item.knowledge_name,
+      //     knowledge_detail: item.knowledge_detail,
+      //     lat: listvalue.lat,
+      //     lon: listvalue.lon,
+      //     img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/knowledge-icon.png",
+      //   });
+      // });
+
+      // listvalue.innovations.map((item, index) => {
+      //   childNodesInnovations.push({
+      //     id: `${listvalue.id}.${index + 1}xx`,
+      //     type: "child",
+      //     output_name: item.output_name,
+      //     output_detail: item.output_detail,
+      //     lat: listvalue.lat,
+      //     lon: listvalue.lon,
+      //     img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/Innovation-icon.png",
+      //   });
+      // });
+
+      listvalue.impacts.map((item, index) => {
+        childNodeImpacts.push({
+          id: `${listvalue.id}.${index + 1}`,
+          type: "child",
+          concept_proposal_id: listvalue.concept_proposal_id,
+          impact_name: item.impacts,
+          lat: listvalue.lat,
+          lon: listvalue.lon,
+          img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${paramsQuery.impact_id == 1
+              ? "Economy-impact.png"
+              : paramsQuery.impact_id == 2
+                ? "New-Social-impact.png"
+                : paramsQuery.impact_id == 3
+                  ? "Cultural-impact.png"
+                  : "Environmental-impact.png"
+            }`,
+        });
       });
     });
-  });
 
-  console.log(childNodesConcepts);
+    console.log(childNodesConcepts);
 
-  let linksknow = [];
-  let linkimpact = [];
-  let linkconcept = [];
-  // parentNodes.map((item, i) => {
-  //   item.impacts.map((list, j) => {
-  //     linkconcept.push({
-  //       from: `${item.id}.${i + 1}`,
-  //       to: `${item.id}.${j + 1}xxx`,
-  //     });
-  //   });
-  //   // item.knowledges.map((list, j) => {
-  //   //   linkconcept.push({
-  //   //     from: `${item.id}.${i + 1}`,
-  //   //     to: `${item.id}.${j + 1}xn`,
-  //   //   });
-  //   // });
+    let linksknow = [];
+    let linkimpact = [];
+    let linkconcept = [];
+    // parentNodes.map((item, i) => {
+    //   item.impacts.map((list, j) => {
+    //     linkconcept.push({
+    //       from: `${item.id}.${i + 1}`,
+    //       to: `${item.id}.${j + 1}xxx`,
+    //     });
+    //   });
+    //   // item.knowledges.map((list, j) => {
+    //   //   linkconcept.push({
+    //   //     from: `${item.id}.${i + 1}`,
+    //   //     to: `${item.id}.${j + 1}xn`,
+    //   //   });
+    //   // });
 
-  //   // item.knowledges.map((list, i) => {
-  //   //   item.innovations.map((listinno, j) => {
-  //   //     linksknow.push({
-  //   //       from: `${item.id}.${i + 1}xn`,
-  //   //       to: `${item.id}.${j + 1}xx`,
-  //   //     });
-  //   //   });
-  //   // });
+    //   // item.knowledges.map((list, i) => {
+    //   //   item.innovations.map((listinno, j) => {
+    //   //     linksknow.push({
+    //   //       from: `${item.id}.${i + 1}xn`,
+    //   //       to: `${item.id}.${j + 1}xx`,
+    //   //     });
+    //   //   });
+    //   // });
 
-  //   // item.innovations.map((listitem, i) => {
-  //   //   item.impacts.map((list, j) => {
-  //   //     linkimpact.push({
-  //   //       from: `${item.id}.${i + 1}xx`,
-  //   //       to: `${item.id}.${j + 1}xxx`,
-  //   //     });
-  //   //   });
-  //   // });
-  // });
-  // console.log(linksknow);
-  // console.log(linkimpact);
+    //   // item.innovations.map((listitem, i) => {
+    //   //   item.impacts.map((list, j) => {
+    //   //     linkimpact.push({
+    //   //       from: `${item.id}.${i + 1}xx`,
+    //   //       to: `${item.id}.${j + 1}xxx`,
+    //   //     });
+    //   //   });
+    //   // });
+    // });
+    // console.log(linksknow);
+    // console.log(linkimpact);
 
-  const groupNodes = helper.groupBy(parentNodes, "concept_proposal_id");
-  console.log("sss", groupNodes);
+    const groupNodes = helper.groupBy(parentNodes, "concept_proposal_id");
+    console.log("sss", groupNodes);
 
-  let linkNode = [];
-  const l = groupNodes.map((item) => {
-    const linknode = item.data.map((link) => {
-      return { from: link.id, to: link.id + 1 };
+    let linkNode = [];
+    const l = groupNodes.map((item) => {
+      const linknode = item.data.map((link) => {
+        return { from: link.id, to: link.id + 1 };
+      });
+      linknode.pop();
+      // console.log("sssa", linknode[0]);
+      if (linknode[0]) {
+        let lastone = {
+          from: linknode[0].from,
+          to: linknode[linknode.length - 1].to,
+        };
+        linknode.push(lastone);
+      }
+
+      return { links: linknode };
     });
-    linknode.pop();
-    // console.log("sssa", linknode[0]);
-    if (linknode[0]) {
-      let lastone = {
-        from: linknode[0].from,
-        to: linknode[linknode.length - 1].to,
+
+    l.map((item) => {
+      item.links.map((list) => linkNode.push(list));
+    });
+
+    console.log(linkNode);
+
+    helper.applyArray(parentNodes, childNodes);
+    // helper.applyArray(parentNodes, childNodesInnovations);
+    helper.applyArray(parentNodes, childNodeImpacts);
+    helper.applyArray(parentNodes, childNodesConcepts);
+
+    const links = childNodeImpacts.map((listvalue) => {
+      return {
+        from: listvalue.id | 0,
+        to: listvalue.id,
       };
-      linknode.push(lastone);
-    }
+    });
 
-    return { links: linknode };
-  });
+    // helper.applyArray(links, linksknow);
+    // helper.applyArray(links, linkimpact);
+    helper.applyArray(links, linkconcept);
+    helper.applyArray(links, linkNode);
 
-  l.map((item) => {
-    item.links.map((list) => linkNode.push(list));
-  });
-
-  console.log(linkNode);
-
-  helper.applyArray(parentNodes, childNodes);
-  // helper.applyArray(parentNodes, childNodesInnovations);
-  helper.applyArray(parentNodes, childNodeImpacts);
-  helper.applyArray(parentNodes, childNodesConcepts);
-
-  const links = childNodeImpacts.map((listvalue) => {
     return {
-      from: listvalue.id | 0,
-      to: listvalue.id,
+      nodes: parentNodes,
+      links: links,
     };
-  });
+  }
 
-  // helper.applyArray(links, linksknow);
-  // helper.applyArray(links, linkimpact);
-  helper.applyArray(links, linkconcept);
-  helper.applyArray(links, linkNode);
-
-  return {
-    nodes: parentNodes,
-    links: links,
-  };
-}
-
-async function getKnowledgeByGrouup(paramsQuery) {
-  const rows = await db.query(
-    `SELECT * FROM progress_report_knowledge AS PRK 
+  async function getKnowledgeByGrouup(paramsQuery) {
+    const rows = await db.query(
+      `SELECT * FROM progress_report_knowledge AS PRK 
             INNER JOIN progress_report AS PR 
                 ON PR.progress_report_id = PRK.progress_report_id
             INNER JOIN progress_report_knowledge_group AS PRKG
                 ON PRKG.knowledge_group_id = PRK.knowledge_group_id
             WHERE PRKG.knowledge_group_category = "${paramsQuery.groupName}"
     `
-  );
-  const data = helper.emptyOrRows(rows);
-  let concept_proposal_id = [];
+    );
+    const data = helper.emptyOrRows(rows);
+    let concept_proposal_id = [];
 
-  data.map((listvalue) => {
-    concept_proposal_id.push(listvalue.concept_proposal_id);
-  });
+    data.map((listvalue) => {
+      concept_proposal_id.push(listvalue.concept_proposal_id);
+    });
 
-  let cciq = [...new Set(concept_proposal_id)];
+    let cciq = [...new Set(concept_proposal_id)];
 
-  console.log(cciq);
+    console.log(cciq);
 
-  let output_innovations = [];
-  let concept_proposal_locations = [];
-  for (let i = 0; i < cciq.length; i++) {
-    const locations = await db.query(
-      `SELECT * FROM concept_proposal
+    let output_innovations = [];
+    let concept_proposal_locations = [];
+    for (let i = 0; i < cciq.length; i++) {
+      const locations = await db.query(
+        `SELECT * FROM concept_proposal
               INNER JOIN concept_proposal_locations ON concept_proposal.concept_proposal_id = concept_proposal_locations.concept_proposal_id
           WHERE concept_proposal.concept_proposal_id = ${cciq[i]}
         `
+      );
+
+      const data1 = helper.emptyOrRows(locations);
+      data1.map((listvalue) =>
+        concept_proposal_locations.push({
+          concept_proposal_id: listvalue.concept_proposal_id,
+          concept_proposal_name: listvalue.concept_proposal_name,
+          concept_proposal_name_th: listvalue.concept_proposal_name_th,
+          lat: listvalue.concept_proposal_latitude,
+          lon: listvalue.concept_proposal_longitude,
+          project_type: listvalue.project_type_id,
+        })
+      );
+
+      const innovations = await db.query(
+        `SELECT * FROM progress_report_output INNER JOIN progress_report 
+          ON progress_report.progress_report_id = progress_report_output.progress_report_id 
+        WHERE progress_report.concept_proposal_id = ${cciq[i]}`
+      );
+
+      const data = helper.emptyOrRows(innovations);
+      data.map((listvalue) => {
+        output_innovations.push({
+          output_id: listvalue.output_id,
+          concept_proposal_id: listvalue.concept_proposal_id,
+          progress_report_id: listvalue.progress_report_id,
+          output_name: listvalue.output_name,
+          output_detail: listvalue.output_detail,
+        });
+      });
+    }
+    // console.log(output_innovations);
+    const newlocation = helper.groupBy(
+      concept_proposal_locations,
+      "concept_proposal_id"
+    );
+    const conceptlocation = newlocation.map((val) => val.data[0]);
+    const conceptid = conceptlocation.map((val) => val.concept_proposal_id);
+
+    const co_locations = [];
+    for (let i = 0; i < conceptid.length; i++) {
+      const co_concept = await db.query(`
+      SELECT 
+        cp.project_type_id,
+        cp.concept_proposal_name_th,
+        ccf.concept_proposal_id, 
+        cr.co_researcher_name_th, 
+        cr.co_researcher_latitude, 
+        cr.co_researcher_longitude, 
+        cr.co_researcher_image
+      FROM co_concept_fk ccf 
+        INNER JOIN co_researcher cr 
+      ON cr.co_researcher_id = ccf.co_researcher_id
+        INNER JOIN concept_proposal cp
+      ON cp.concept_proposal_id = ccf.concept_proposal_id
+        WHERE ccf.concept_proposal_id = ${conceptid[i]}`);
+
+      co_concept.map((val) =>
+        co_locations.push({
+          concept_proposal_id: val.concept_proposal_id,
+          concept_proposal_name: val.co_researcher_name_th,
+          concept_proposal_name_th: val.concept_proposal_name_th,
+          lat: val.co_researcher_latitude,
+          lon: val.co_researcher_longitude,
+          project_type: val.project_type_id,
+        })
+      );
+    }
+
+    conceptlocation.map((val) => co_locations.push(val));
+    console.log(co_locations);
+
+
+    // console.log(concept_proposal_locations);
+
+    const results_locations = await helper.compareArrayToAdd(
+      co_locations,
+      data,
+      "concept_proposal_id"
     );
 
-    const data1 = helper.emptyOrRows(locations);
-    data1.map((listvalue) =>
-      concept_proposal_locations.push({
+    const results = await helper.compareArrayToAdd(
+      results_locations,
+      output_innovations,
+      "concept_proposal_id"
+    );
+
+    // console.log(results);
+
+    const groupCencept = helper.groupBy(results, "concept_proposal_id");
+
+    groupCencept.map((v) => {
+      if (v.data[0].knowledges.length >= 1 || v.data[0].innovations.length >= 1) {
+        const o = v.data.slice(1);
+        // console.log(o);
+        o.map((item) => {
+          item.knowledges = [];
+          item.innovations = [];
+        });
+      }
+    });
+
+    const prepareNodes = [];
+    groupCencept.map((listvalue, index) => {
+      listvalue.data.map((item) => prepareNodes.push(item));
+    });
+    console.log(prepareNodes);
+
+    const parentNodes = [];
+    prepareNodes.map((listvalue, index) =>
+      parentNodes.push({
+        id: index + 1,
+        type: "parent",
         concept_proposal_id: listvalue.concept_proposal_id,
         concept_proposal_name: listvalue.concept_proposal_name,
         concept_proposal_name_th: listvalue.concept_proposal_name_th,
-        lat: listvalue.concept_proposal_latitude,
-        lon: listvalue.concept_proposal_longitude,
-        project_type: listvalue.project_type_id,
+        lat: listvalue.lat,
+        lon: listvalue.lon,
+        knowledges: listvalue.knowledges,
+        innovations: listvalue.innovations,
+        img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
+          }`,
       })
     );
 
-    const innovations = await db.query(
-      `SELECT * FROM progress_report_output INNER JOIN progress_report 
-          ON progress_report.progress_report_id = progress_report_output.progress_report_id 
-        WHERE progress_report.concept_proposal_id = ${cciq[i]}`
+    const childNodes = [];
+    parentNodes.map((listvalue) =>
+      listvalue.knowledges.map((item, index) =>
+        childNodes.push({
+          id: `${listvalue.id}.${index + 1}`,
+          concept_proposal_id: item.concept_proposal_id,
+          type: "child",
+          knowledge_name: item.knowledge_name,
+          knowledge_detail: item.knowledge_detail,
+          lat: listvalue.lat,
+          lon: listvalue.lon,
+          img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/knowledge-icon.png",
+        })
+      )
     );
 
-    const data = helper.emptyOrRows(innovations);
-    data.map((listvalue) => {
-      output_innovations.push({
-        output_id: listvalue.output_id,
-        concept_proposal_id: listvalue.concept_proposal_id,
-        progress_report_id: listvalue.progress_report_id,
-        output_name: listvalue.output_name,
-        output_detail: listvalue.output_detail,
+    const childNodesInnovations = [];
+    parentNodes.map((listvalue) =>
+      listvalue.innovations.map((item, index) =>
+        childNodesInnovations.push({
+          id: `${listvalue.id}.${index + 1}00`,
+          type: "child",
+          concept_proposal_id: item.concept_proposal_id,
+          output_name: item.output_name,
+          output_detail: item.output_detail,
+          lat: listvalue.lat,
+          lon: listvalue.lon,
+          img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/Innovation-icon%20(2).png",
+        })
+      )
+    );
+
+    // console.log(parentNodes);
+
+    let linksknow = [];
+    let linkinno = [];
+    parentNodes.map((item) => {
+      item.knowledges.map((list, i) => {
+        item.innovations.map((listinno, j) => {
+          linksknow.push({
+            from: `${item.id}.${i + 1}`,
+            to: `${item.id}.${j + 1}00`,
+          });
+        });
       });
-    });
-  }
-  // console.log(output_innovations);
 
-  // console.log(concept_proposal_locations);
-
-  const results_locations = await helper.compareArrayToAdd(
-    concept_proposal_locations,
-    data,
-    "concept_proposal_id"
-  );
-
-  const results = await helper.compareArrayToAdd(
-    results_locations,
-    output_innovations,
-    "concept_proposal_id"
-  );
-
-  // console.log(results);
-
-  const groupCencept = helper.groupBy(results, "concept_proposal_id");
-
-  groupCencept.map((v) => {
-    if (v.data[0].knowledges.length >= 1 || v.data[0].innovations.length >= 1) {
-      const o = v.data.slice(1);
-      // console.log(o);
-      o.map((item) => {
-        item.knowledges = [];
-        item.innovations = [];
-      });
-    }
-  });
-
-  const prepareNodes = [];
-  groupCencept.map((listvalue, index) => {
-    listvalue.data.map((item) => prepareNodes.push(item));
-  });
-  console.log(prepareNodes);
-
-  const parentNodes = [];
-  prepareNodes.map((listvalue, index) =>
-    parentNodes.push({
-      id: index + 1,
-      type: "parent",
-      concept_proposal_id: listvalue.concept_proposal_id,
-      concept_proposal_name: listvalue.concept_proposal_name,
-      concept_proposal_name_th: listvalue.concept_proposal_name_th,
-      lat: listvalue.lat,
-      lon: listvalue.lon,
-      knowledges: listvalue.knowledges,
-      innovations: listvalue.innovations,
-      img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
-        listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
-      }`,
-    })
-  );
-
-  const childNodes = [];
-  parentNodes.map((listvalue) =>
-    listvalue.knowledges.map((item, index) =>
-      childNodes.push({
-        id: `${listvalue.id}.${index + 1}`,
-        concept_proposal_id: item.concept_proposal_id,
-        type: "child",
-        knowledge_name: item.knowledge_name,
-        knowledge_detail: item.knowledge_detail,
-        lat: listvalue.lat,
-        lon: listvalue.lon,
-        img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/knowledge-icon.png",
-      })
-    )
-  );
-
-  const childNodesInnovations = [];
-  parentNodes.map((listvalue) =>
-    listvalue.innovations.map((item, index) =>
-      childNodesInnovations.push({
-        id: `${listvalue.id}.${index + 1}00`,
-        type: "child",
-        concept_proposal_id: item.concept_proposal_id,
-        output_name: item.output_name,
-        output_detail: item.output_detail,
-        lat: listvalue.lat,
-        lon: listvalue.lon,
-        img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/Innovation-icon%20(2).png",
-      })
-    )
-  );
-
-  // console.log(parentNodes);
-
-  let linksknow = [];
-  let linkinno = [];
-  parentNodes.map((item) => {
-    item.knowledges.map((list, i) => {
-      item.innovations.map((listinno, j) => {
-        linksknow.push({
-          from: `${item.id}.${i + 1}`,
-          to: `${item.id}.${j + 1}00`,
+      item.innovations.map((listinno, i) => {
+        item.innovations.map((list, j) => {
+          linkinno.push({
+            from: `${item.id}.${i + 1}00`,
+            to: `${item.id}.${j + 1}00`,
+          });
         });
       });
     });
+    console.log(linksknow);
 
-    item.innovations.map((listinno, i) => {
-      item.innovations.map((list, j) => {
-        linkinno.push({
-          from: `${item.id}.${i + 1}00`,
-          to: `${item.id}.${j + 1}00`,
-        });
+    const groupNodes = helper.groupBy(parentNodes, "concept_proposal_id");
+    console.log("sss", groupNodes);
+
+    let linkNode = [];
+    const l = groupNodes.map((item) => {
+      const linknode = item.data.map((link) => {
+        return { from: link.id, to: link.id + 1 };
       });
+
+      linknode.pop();
+
+      // console.log("sssa", linknode[0]);
+      if (linknode[0]) {
+        let lastone = {
+          from: linknode[0].from,
+          to: linknode[linknode.length - 1].to,
+        };
+        linknode.push(lastone);
+      }
+
+      return { links: linknode };
     });
-  });
-  console.log(linksknow);
 
-  const groupNodes = helper.groupBy(parentNodes, "concept_proposal_id");
-  console.log("sss", groupNodes);
-
-  let linkNode = [];
-  const l = groupNodes.map((item) => {
-    const linknode = item.data.map((link) => {
-      return { from: link.id, to: link.id + 1 };
+    l.map((item) => {
+      // item.links.pop();
+      item.links.map((list) => linkNode.push(list));
     });
 
-    linknode.pop();
+    console.log(linkNode);
 
-    // console.log("sssa", linknode[0]);
-    if (linknode[0]) {
-      let lastone = {
-        from: linknode[0].from,
-        to: linknode[linknode.length - 1].to,
+    helper.applyArray(parentNodes, childNodes);
+    helper.applyArray(parentNodes, childNodesInnovations);
+
+    const links = childNodes.map((listvalue) => {
+      return {
+        from: listvalue.id | 0,
+        to: listvalue.id,
       };
-      linknode.push(lastone);
-    }
+    });
 
-    return { links: linknode };
-  });
+    helper.applyArray(links, linksknow);
+    helper.applyArray(links, linkNode);
+    helper.applyArray(links, linkinno);
 
-  l.map((item) => {
-    // item.links.pop();
-    item.links.map((list) => linkNode.push(list));
-  });
-
-  console.log(linkNode);
-
-  helper.applyArray(parentNodes, childNodes);
-  helper.applyArray(parentNodes, childNodesInnovations);
-
-  const links = childNodes.map((listvalue) => {
     return {
-      from: listvalue.id | 0,
-      to: listvalue.id,
+      nodes: parentNodes,
+      links: links,
     };
-  });
+  }
 
-  helper.applyArray(links, linksknow);
-  helper.applyArray(links, linkNode);
-  helper.applyArray(links, linkinno);
+  async function getKnowledge() {
+    const rows = await db.query(
+      `SELECT progress_report_knowledge_group.knowledge_group_id, progress_report_knowledge_group.knowledge_group_category FROM progress_report_knowledge_group`
+    );
+    const data = helper.emptyOrRows(rows);
+    return data;
+  }
 
-  return {
-    nodes: parentNodes,
-    links: links,
-  };
-}
-
-async function getKnowledge() {
-  const rows = await db.query(
-    `SELECT progress_report_knowledge_group.knowledge_group_id, progress_report_knowledge_group.knowledge_group_category FROM progress_report_knowledge_group`
-  );
-  const data = helper.emptyOrRows(rows);
-  return data;
-}
-
-async function getNewKnowledge() {
-  const rows = await db.query(
-    `SELECT pr.concept_proposal_id,
+  async function getNewKnowledge() {
+    const rows = await db.query(
+      `SELECT pr.concept_proposal_id,
             pr.project_id,
             prok.outcome_knowledge_name, 
             prok.outcome_knowledge_detail,
@@ -1340,168 +1401,210 @@ async function getNewKnowledge() {
     INNER JOIN progress_report AS pr 
       ON pr.progress_report_id = pro.progress_report_id
     `
-  );
-  const data = helper.emptyOrRows(rows);
-  console.log(data);
-  let concept_proposal_id = [];
-  let project_id = [];
-  data.map((listvalue) => {
-    concept_proposal_id.push(listvalue.concept_proposal_id);
-    project_id.push(listvalue.project_id);
-  });
-  let cciq = [...new Set(concept_proposal_id)];
-  let pjid = [...new Set(project_id)];
+    );
+    const data = helper.emptyOrRows(rows);
+    // console.log(data);
+    let concept_proposal_id = [];
+    let project_id = [];
+    data.map((listvalue) => {
+      concept_proposal_id.push(listvalue.concept_proposal_id);
+      project_id.push(listvalue.project_id);
+    });
+    let cciq = [...new Set(concept_proposal_id)];
+    let pjid = [...new Set(project_id)];
 
-  console.log(pjid.filter((x) => x !== null));
+    console.log(pjid.filter((x) => x !== null));
 
-  let concept_proposal_locations = [];
-  for (let i = 0; i < cciq.length; i++) {
-    const locations = await db.query(
-      `SELECT * FROM concept_proposal
+    let concept_proposal_locations = [];
+    for (let i = 0; i < cciq.length; i++) {
+      const locations = await db.query(
+        `SELECT * FROM concept_proposal
               INNER JOIN concept_proposal_locations ON concept_proposal.concept_proposal_id = concept_proposal_locations.concept_proposal_id
           WHERE concept_proposal.concept_proposal_id = ${cciq[i]}
       `
+      );
+      const data = helper.emptyOrRows(locations);
+      data.map((listvalue) =>
+        concept_proposal_locations.push({
+          concept_proposal_id: listvalue.concept_proposal_id,
+          concept_proposal_name: listvalue.concept_proposal_name,
+          concept_proposal_name_th: listvalue.concept_proposal_name_th,
+          project_type: listvalue.project_type_id,
+          lat: listvalue.concept_proposal_latitude,
+          lon: listvalue.concept_proposal_longitude,
+        })
+      );
+    }
+
+    // console.log(concept_proposal_locations);
+
+    // start here 
+    const newlocation = helper.groupBy(
+      concept_proposal_locations,
+      "concept_proposal_id"
     );
-    const data = helper.emptyOrRows(locations);
-    data.map((listvalue) =>
-      concept_proposal_locations.push({
+    const conceptlocation = newlocation.map((val) => val.data[0]);
+    const conceptid = conceptlocation.map((val) => val.concept_proposal_id);
+
+    const co_locations = [];
+    for (let i = 0; i < conceptid.length; i++) {
+      const co_concept = await db.query(`
+      SELECT 
+        cp.project_type_id,
+        cp.concept_proposal_name_th,
+        ccf.concept_proposal_id, 
+        cr.co_researcher_name_th, 
+        cr.co_researcher_latitude, 
+        cr.co_researcher_longitude, 
+        cr.co_researcher_image
+      FROM co_concept_fk ccf 
+        INNER JOIN co_researcher cr 
+      ON cr.co_researcher_id = ccf.co_researcher_id
+        INNER JOIN concept_proposal cp
+      ON cp.concept_proposal_id = ccf.concept_proposal_id
+        WHERE ccf.concept_proposal_id = ${conceptid[i]}`);
+
+      co_concept.map((val) =>
+        co_locations.push({
+          concept_proposal_id: val.concept_proposal_id,
+          concept_proposal_name: val.co_researcher_name_th,
+          concept_proposal_name_th: val.concept_proposal_name_th,
+          lat: val.co_researcher_latitude,
+          lon: val.co_researcher_longitude,
+          project_type: val.project_type_id,
+        })
+      );
+    }
+
+    conceptlocation.map((val) => co_locations.push(val));
+    console.log(co_locations);
+
+    // end here
+
+    const results = co_locations.map((item) => {
+      const arrayResult = data.filter(
+        (itemInArray) =>
+          itemInArray.concept_proposal_id === item.concept_proposal_id
+      );
+      return { ...item, new_knowledges: arrayResult };
+    });
+
+    const groupCencept = helper.groupBy(results, "concept_proposal_id");
+    groupCencept.map((v) => {
+      if (v.data[0].new_knowledges.length >= 1) {
+        const o = v.data.slice(1);
+        // console.log(o);
+        o.map((item) => {
+          item.new_knowledges = [];
+        });
+      }
+    });
+
+    // console.log("con", concept);
+
+    const prepareNodes = [];
+    groupCencept.map((listvalue, index) => {
+      listvalue.data.map((item) => prepareNodes.push(item));
+    });
+
+    const parentNodes = [];
+    prepareNodes.map((listvalue, index) => {
+      parentNodes.push({
+        id: index + 1,
+        type: "parent",
         concept_proposal_id: listvalue.concept_proposal_id,
         concept_proposal_name: listvalue.concept_proposal_name,
         concept_proposal_name_th: listvalue.concept_proposal_name_th,
-        project_type: listvalue.project_type_id,
-        lat: listvalue.concept_proposal_latitude,
-        lon: listvalue.concept_proposal_longitude,
-      })
-    );
-  }
 
-  const newproposal = helper.groupBy (concept_proposal_locations,"conconcept_proposal_id")
-  console.log(newproposal);
-
-  const results = concept_proposal_locations.map((item) => {
-    const arrayResult = data.filter(
-      (itemInArray) =>
-        itemInArray.concept_proposal_id === item.concept_proposal_id
-    );
-    return { ...item, new_knowledges: arrayResult };
-  });
-
-  const groupCencept = helper.groupBy(results, "concept_proposal_id");
-  groupCencept.map((v) => {
-    if (v.data[0].new_knowledges.length >= 1) {
-      const o = v.data.slice(1);
-      // console.log(o);
-      o.map((item) => {
-        item.new_knowledges = [];
-      });
-    }
-  });
-
-  // console.log("con", concept);
-
-  const prepareNodes = [];
-  groupCencept.map((listvalue, index) => {
-    listvalue.data.map((item) => prepareNodes.push(item));
-  });
-
-  const parentNodes = [];
-  prepareNodes.map((listvalue, index) =>
-    parentNodes.push({
-      id: index + 1,
-      type: "parent",
-      concept_proposal_id: listvalue.concept_proposal_id,
-      concept_proposal_name: listvalue.concept_proposal_name,
-      concept_proposal_name_th: listvalue.concept_proposal_name_th,
-
-      lat: listvalue.lat,
-      lon: listvalue.lon,
-      new_knowledges: listvalue.new_knowledges,
-      img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
-        listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
-      }`,
-    })
-  );
-
-  const childNodes = [];
-  parentNodes.map((listvalue) =>
-    listvalue.new_knowledges.map((item, index) =>
-      childNodes.push({
-        id: `${listvalue.id}.${index + 1}`,
-        type: "child",
-        concept_proposal_id: listvalue.concept_proposal_id,
-        outcome_knowledge_name: item.outcome_knowledge_name,
-        outcome_knowledge_detail: item.outcome_knowledge_detail,
-        concept_proposal_name_th: item.concept_proposal_name_th,
         lat: listvalue.lat,
         lon: listvalue.lon,
-        img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/New-knowledge-icon.png",
-      })
-    )
-  );
-
-  const groupNodes = helper.groupBy(parentNodes, "concept_proposal_id");
-  console.log("sss", groupNodes);
-
-  let linkNode = [];
-  const l = groupNodes.map((item) => {
-    const linknode = item.data.map((link) => {
-      return { from: link.id, to: link.id + 1 };
+        new_knowledges: listvalue.new_knowledges,
+        img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
+          }`,
+      });
     });
 
-    linknode.pop();
+    const childNodes = [];
+    parentNodes.map((listvalue) =>
+      listvalue.new_knowledges.map((item, index) =>
+        childNodes.push({
+          id: `${listvalue.id}.${index + 1}`,
+          type: "child",
+          concept_proposal_id: listvalue.concept_proposal_id,
+          outcome_knowledge_name: item.outcome_knowledge_name,
+          outcome_knowledge_detail: item.outcome_knowledge_detail,
+          concept_proposal_name_th: item.concept_proposal_name_th,
+          lat: listvalue.lat,
+          lon: listvalue.lon,
+          img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/New-knowledge-icon.png",
+        })
+      )
+    );
 
-    // console.log("sssa", linknode[0]);
-    if (linknode[0]) {
-      let lastone = {
-        from: linknode[0].from,
-        to: linknode[linknode.length - 1].to,
+    const groupNodes = helper.groupBy(parentNodes, "concept_proposal_id");
+    // console.log("sss", groupNodes);
+
+    let linkNode = [];
+    const l = groupNodes.map((item) => {
+      const linknode = item.data.map((link) => {
+        return { from: link.id, to: link.id + 1 };
+      });
+
+      linknode.pop();
+
+      // console.log("sssa", linknode[0]);
+      if (linknode[0]) {
+        let lastone = {
+          from: linknode[0].from,
+          to: linknode[linknode.length - 1].to,
+        };
+        linknode.push(lastone);
+      }
+
+      return { links: linknode };
+    });
+
+    l.map((item) => {
+      // item.links.pop();
+      item.links.map((list) => linkNode.push(list));
+    });
+
+    // console.log(linkNode);
+
+    // linkfrom.pop();
+    // linkto.shift();
+
+    // let linksNodes = linkfrom.map((item, i) =>
+    //   Object.assign({}, item, linkto[i])
+    // );
+
+    // console.log(linkfrom);
+
+    helper.applyArray(parentNodes, childNodes);
+
+    const links = childNodes.map((listvalue) => {
+      return {
+        from: listvalue.id | 0,
+        to: listvalue.id,
       };
-      linknode.push(lastone);
-    }
+    });
 
-    return { links: linknode };
-  });
+    helper.applyArray(links, linkNode);
 
-  l.map((item) => {
-    // item.links.pop();
-    item.links.map((list) => linkNode.push(list));
-  });
-
-  console.log(linkNode);
-
-  // linkfrom.pop();
-  // linkto.shift();
-
-  // let linksNodes = linkfrom.map((item, i) =>
-  //   Object.assign({}, item, linkto[i])
-  // );
-
-  // console.log(linkfrom);
-
-  helper.applyArray(parentNodes, childNodes);
-
-  const links = childNodes.map((listvalue) => {
     return {
-      from: listvalue.id | 0,
-      to: listvalue.id,
+      nodes: parentNodes,
+      links: links,
     };
-  });
 
-  helper.applyArray(links, linkNode);
+    // return parentNodes;
+  }
 
-  return {
-    nodes: parentNodes,
-    links: links,
+  module.exports = {
+    getNewKnowledge,
+    getKnowledge,
+    getKnowledgeByGrouup,
+    getOutput,
+    getImpact,
+    getGoal,
   };
-
-  // return parentNodes;
 }
-
-module.exports = {
-  getNewKnowledge,
-  getKnowledge,
-  getKnowledgeByGrouup,
-  getOutput,
-  getImpact,
-  getGoal,
-};
