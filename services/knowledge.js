@@ -2,11 +2,12 @@ const db = require("./db");
 const helper = require("../helper");
 
 async function getOutput(paramsQuery) {
+  console.log(paramsQuery);
   const rows = await db.query(
     `SELECT * FROM progress_report_output pro 
       INNER JOIN progress_report pr 
       ON pr.progress_report_id = pro.progress_report_id
-      WHERE pro.output_name = "${paramsQuery.groupName}"
+      WHERE pro.output_name = "${decodeURIComponent(paramsQuery.groupName)}"
     `
   );
   const data = helper.emptyOrRows(rows);
