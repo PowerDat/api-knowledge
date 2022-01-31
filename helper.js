@@ -33,7 +33,7 @@ async function compareArrayToAdd(firstArray, secondArray, typeName) {
     );
     return {
       ...item,
-      [secondArray[0].output_id
+      [secondArray[0].output_name
         ? "innovations"
         : secondArray[0].impacts
         ? "impacts"
@@ -47,7 +47,9 @@ async function compareArrayToAdd(firstArray, secondArray, typeName) {
         ? "curve"
         : secondArray[0].cluster_name
         ? "cluster"
-        : "knowledges"]: arrayResult,
+        : secondArray[0].knowledge_name
+        ? "knowledges"
+        : "null"]: arrayResult,
     };
   });
   return results;
