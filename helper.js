@@ -33,11 +33,7 @@ async function compareArrayToAdd(firstArray, secondArray, typeName) {
     );
     return {  
       ...item,
-<<<<<<< HEAD
-      [secondArray[0].output_name  
-=======
       [secondArray[0].output_name
->>>>>>> 0e7fd73511af2b45d9556d21c8d169cc4ebeaa54
         ? "innovations"
         : secondArray[0].impacts
         ? "impacts"
@@ -53,11 +49,7 @@ async function compareArrayToAdd(firstArray, secondArray, typeName) {
         ? "cluster"
         : secondArray[0].knowledge_name
         ? "knowledges"
-<<<<<<< HEAD
-        : ""]: arrayResult,
-=======
         : "null"]: arrayResult,
->>>>>>> 0e7fd73511af2b45d9556d21c8d169cc4ebeaa54
     };
   });
   return results;
