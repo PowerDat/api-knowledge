@@ -1316,15 +1316,20 @@ async function getKnowledgeByGrouup(paramsQuery) {
   }
 
   conceptlocation.map((val) => co_locations.push(val));
-  console.log(co_locations);
+  // console.log(co_locations);
 
   // console.log(concept_proposal_locations);
+
+  console.log(data);
 
   const results_locations = await helper.compareArrayToAdd(
     co_locations,
     data,
     "concept_proposal_id"
   );
+
+
+console.log(results_locations);
 
   const results = await helper.compareArrayToAdd(
     results_locations,
