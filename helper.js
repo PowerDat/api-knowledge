@@ -31,7 +31,7 @@ async function compareArrayToAdd(firstArray, secondArray, typeName) {
     const arrayResult = secondArray.filter(
       (itemInArray) => itemInArray[`${typeName}`] === item[`${typeName}`]
     );
-    return {
+    return {  
       ...item,
       [secondArray[0].output_name
         ? "innovations"
@@ -74,5 +74,5 @@ module.exports = {
   emptyOrRows,
   groupBy,
   applyArray,
-  generateRandomColor
+  generateRandomColor,
 };
