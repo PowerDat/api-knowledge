@@ -139,26 +139,26 @@ async function getPieChart() {
       label: "นวัตกรรม",
       groups: newInnovationsLabels,
     },
-    {
-      label: "ผลกระทบ",
-      groups: impactLabels,
-    },
-    {
-      label: "BCG",
-      groups: bcgLabels,
-    },
-    {
-      label: "SDGs",
-      groups: sdgsLabels,
-    },
-    {
-      label: "10s Curve",
-      groups: curveLabels,
-    },
-    {
-      label: "RMUTI Cluster",
-      groups: clusterLabels,
-    },
+    // {
+    //   label: "ผลกระทบ",
+    //   groups: impactLabels,
+    // },
+    // {
+    //   label: "BCG",
+    //   groups: bcgLabels,
+    // },
+    // {
+    //   label: "SDGs",
+    //   groups: sdgsLabels,
+    // },
+    // {
+    //   label: "10s Curve",
+    //   groups: curveLabels,
+    // },
+    // {
+    //   label: "RMUTI Cluster",
+    //   groups: clusterLabels,
+    // },
   ];
 }
 
