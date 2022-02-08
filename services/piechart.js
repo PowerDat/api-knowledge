@@ -25,7 +25,7 @@ async function getPieChart() {
   const newKnowledgeData = helper.emptyOrRows(newKnowledge);
   const newKnowledgeLabels = newKnowledgeData.map((item) => {
     return {
-      label: item.outcome_knowledge_detail,
+      label: item.outcome_knowledge_detail.replace(/<[^>]+>/g, ''),
       // groups: item.concept_proposal_name_th
     };
   });

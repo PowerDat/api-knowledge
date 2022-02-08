@@ -39,18 +39,21 @@ router.get("/get/innovations", async function (req, res, next) {
   }
 });
 
-router.get("/get/knowledge", async function (req, res, next) {
+
+
+router.get("/get/knowledgegroup", async function (req, res, next) {
   try {
-    res.json(await knowledge.getKnowledge());
+    res.json(await knowledge.getKnowledgeByGrouup(req.query));
   } catch (err) {
     console.error(`Error while getting  Knowledge `, err.message);
     next(err);
   }
 });
 
-router.get("/get/knowledgegroup", async function (req, res, next) {
+
+router.get("/getnewknowledgegroup", async function (req, res, next) {
   try {
-    res.json(await knowledge.getKnowledgeByGrouup(req.query));
+    res.json(await knowledge.getnewknowledgegroup(req.query));
   } catch (err) {
     console.error(`Error while getting  Knowledge `, err.message);
     next(err);
