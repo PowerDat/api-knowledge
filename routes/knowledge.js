@@ -51,7 +51,7 @@ router.get("/get/knowledgegroup", async function (req, res, next) {
 });
 
 
-router.get("/getnewknowledgegroup", async function (req, res, next) {
+router.get("/get/newknowledgegroup", async function (req, res, next) {
   try {
     res.json(await knowledge.getnewknowledgegroup(req.query));
   } catch (err) {
