@@ -1787,7 +1787,7 @@ async function getnewknowledgegroup(paramsQuery) {
     parentNodes.map((listvalue) =>
         listvalue.new_knowledges.map((item, index) =>
             childNodes.push({
-                id: `${listvalue.id}.${index + 1}nkn`,
+                id: `${listvalue.id}.${index + 1}`,
                 type: "child",
                 concept_proposal_id: listvalue.concept_proposal_id,
                 outcome_knowledge_name: item.outcome_knowledge_name,
@@ -1825,7 +1825,7 @@ async function getnewknowledgegroup(paramsQuery) {
         listvalue.new_knowledges.map((kn, id) => {
             listvalue.Innovation.map((inno, idx) => {
                 newknowledgelink.push({
-                    from: `${listvalue.id}.${id + 1}nkn`,
+                    from: `${listvalue.id}.${id + 1}`,
                     to: `${listvalue.id}.${idx + 1}in`
                 })
             })
@@ -1867,47 +1867,20 @@ async function getnewknowledgegroup(paramsQuery) {
     helper.applyArray(parentNodes, childNodes);
     helper.applyArray(parentNodes, childinnovationNodes);
 
+    const links = childNodes.map((listvalue) => {
+        return {
+            from: listvalue.id | 0,
+            to: listvalue.id,
+        };
+    });
+    
+    helper.applyArray(links,newknowledgelink);
+    helper.applyArray(links,linkNode);
+
     return {
         nodes: parentNodes,
         links: links,
     };
-
-
-   
-
-
-
-
-
-
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     return parentNodes
