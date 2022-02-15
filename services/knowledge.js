@@ -153,7 +153,7 @@ async function getOutput(paramsQuery) {
             lon: listvalue.lon,
             innovations: listvalue.innovations,
             knowledges: listvalue.knowledges,
-            img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
+            img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${listvalue.project_type == 1 ? "วิจัย.png" : "บริการ.png"
                 }`,
         })
     );
@@ -182,7 +182,7 @@ async function getOutput(paramsQuery) {
                 output_detail: item.output_detail,
                 lat: listvalue.lat,
                 lon: listvalue.lon,
-                img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/Innovation-icon%20(2).png",
+                img: "https://researcher.kims-rmuti.com/icon/innovation2.png",
             });
         });
         listvalue.knowledges.map((item, index) => {
@@ -194,7 +194,7 @@ async function getOutput(paramsQuery) {
                 knowledge_detail: item.knowledge_detail,
                 lat: listvalue.lat,
                 lon: listvalue.lon,
-                img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/knowledge-icon.png",
+                img: "https://researcher.kims-rmuti.com/icon/knowledge3(1).png",
             });
         });
     });
@@ -300,16 +300,16 @@ async function getGoal(paramsQuery) {
     data.map((listvalue) => {
         paramsQuery.goal_id == 1 ?
             listvalue.bcg_id ?
-                goals.push(listvalue) : [] :
+            goals.push(listvalue) : [] :
             paramsQuery.goal_id == 2 ?
-                listvalue.sdgs_id ?
-                    goals.push(listvalue) : [] :
-                paramsQuery.goal_id == 3 ?
-                    listvalue.curve_id ?
-                        goals.push(listvalue) : [] :
-                    paramsQuery.goal_id == 4 ?
-                        listvalue.cluster_id ?
-                            goals.push(listvalue) : [] : [];
+            listvalue.sdgs_id ?
+            goals.push(listvalue) : [] :
+            paramsQuery.goal_id == 3 ?
+            listvalue.curve_id ?
+            goals.push(listvalue) : [] :
+            paramsQuery.goal_id == 4 ?
+            listvalue.cluster_id ?
+            goals.push(listvalue) : [] : [];
     });
 
     function getUniqueListBy(arr, key) {
@@ -546,7 +546,7 @@ async function getGoal(paramsQuery) {
 
 
 
-    const goalPoint = async () => {
+    const goalPoint = async() => {
         if (paramsQuery.goal_id == 1) {
             return await helper.compareArrayToAdd(
                 co_locations,
@@ -646,17 +646,17 @@ async function getGoal(paramsQuery) {
             [paramsQuery.goal_id == 1 ?
                 "bcg" :
                 paramsQuery.goal_id == 2 ?
-                    "sdgs" :
-                    paramsQuery.goal_id == 3 ?
-                        "curve" :
-                        paramsQuery.goal_id == 4 ?
-                            "cluster" :
-                            ""
+                "sdgs" :
+                paramsQuery.goal_id == 3 ?
+                "curve" :
+                paramsQuery.goal_id == 4 ?
+                "cluster" :
+                ""
             ]: paramsQuery.goal_id == 1 ?
-                    listvalue.bcg : paramsQuery.goal_id == 2 ?
-                        listvalue.sdgs : paramsQuery.goal_id == 3 ?
-                            listvalue.curve : paramsQuery.goal_id == 4 ?
-                                listvalue.cluster : "",
+                listvalue.bcg : paramsQuery.goal_id == 2 ?
+                listvalue.sdgs : paramsQuery.goal_id == 3 ?
+                listvalue.curve : paramsQuery.goal_id == 4 ?
+                listvalue.cluster : "",
             img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
                 }`,
         })
@@ -722,17 +722,17 @@ async function getGoal(paramsQuery) {
                 [paramsQuery.goal_id == 1 ?
                     "bcg" :
                     paramsQuery.goal_id == 2 ?
-                        "sdgs" :
-                        paramsQuery.goal_id == 3 ?
-                            "curve" :
-                            paramsQuery.goal_id == 4 ?
-                                "cluster" :
-                                ""
+                    "sdgs" :
+                    paramsQuery.goal_id == 3 ?
+                    "curve" :
+                    paramsQuery.goal_id == 4 ?
+                    "cluster" :
+                    ""
                 ]: paramsQuery.goal_id == 1 ?
-                        item.bcg_name : paramsQuery.goal_id == 2 ?
-                            item.sdgs_name : paramsQuery.goal_id == 3 ?
-                                item.curve_name : paramsQuery.goal_id == 4 ?
-                                    item.cluster_name : "",
+                    item.bcg_name : paramsQuery.goal_id == 2 ?
+                    item.sdgs_name : paramsQuery.goal_id == 3 ?
+                    item.curve_name : paramsQuery.goal_id == 4 ?
+                    item.cluster_name : "",
                 lat: listvalue.lat,
                 lon: listvalue.lon,
                 img: `https://researcher.kims-rmuti.com/icon/${item.img}`,
@@ -844,14 +844,14 @@ async function getImpact(paramsQuery) {
         const data = helper.emptyOrRows(rows);
         data.map((item) => {
             locations.push({
-                concept_proposal_id: item.concept_proposal_id,
-                concept_proposal_name: item.concept_proposal_name,
-                concept_proposal_name_th: item.concept_proposal_name_th,
-                project_type: item.project_type_id,
-                lat: item.concept_proposal_latitude,
-                lon: item.concept_proposal_longitude,
-            })
-            // concepts.push({});
+                    concept_proposal_id: item.concept_proposal_id,
+                    concept_proposal_name: item.concept_proposal_name,
+                    concept_proposal_name_th: item.concept_proposal_name_th,
+                    project_type: item.project_type_id,
+                    lat: item.concept_proposal_latitude,
+                    lon: item.concept_proposal_longitude,
+                })
+                // concepts.push({});
         });
 
 
@@ -1365,7 +1365,7 @@ async function getNewKnowledge() {
         )
 
         Innovation.map((listvalue) => Innovationdata.push(listvalue))
-        // จบตรงนี้1 อาเรย์
+            // จบตรงนี้1 อาเรย์
     }
 
     console.log(Innovationdata);
@@ -1419,25 +1419,25 @@ async function getNewKnowledge() {
     const results = co_locations.map((item) => {
         const arrayResult = data.filter(
             (itemInArray) =>
-                itemInArray.concept_proposal_id === item.concept_proposal_id
+            itemInArray.concept_proposal_id === item.concept_proposal_id
         );
-        return { ...item, new_knowledges: arrayResult };
+        return {...item, new_knowledges: arrayResult };
     });
 
     const results_knowledges = results.map((item) => {
         const arrayResult = knowledgedata.filter(
             (itemInArray) =>
-                itemInArray.concept_proposal_id === item.concept_proposal_id
+            itemInArray.concept_proposal_id === item.concept_proposal_id
         );
-        return { ...item, knowledges: arrayResult };
+        return {...item, knowledges: arrayResult };
     });
 
     const results_innovation = results_knowledges.map((item) => {
         const arrayResult = Innovationdata.filter(
             (itemInArray) =>
-                itemInArray.concept_proposal_id === item.concept_proposal_id
+            itemInArray.concept_proposal_id === item.concept_proposal_id
         );
-        return { ...item, Innovation: arrayResult };
+        return {...item, Innovation: arrayResult };
     });
 
     console.log(results_knowledges);
@@ -1477,7 +1477,7 @@ async function getNewKnowledge() {
             new_knowledges: listvalue.new_knowledges,
             knowledges: listvalue.knowledges,
             Innovation: listvalue.Innovation,
-            img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
+            img: `https://researcher.kims-rmuti.com/icon/${listvalue.project_type == 1 ? "วิจัย.png" : "บริการ.png"
                 }`,
         });
     });
@@ -1494,7 +1494,7 @@ async function getNewKnowledge() {
                 concept_proposal_name_th: item.concept_proposal_name_th,
                 lat: listvalue.lat,
                 lon: listvalue.lon,
-                img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/New-knowledge-icon.png",
+                img: "https://researcher.kims-rmuti.com/icon/new%20knowledge3.png",
             })
         )
     );
@@ -1511,7 +1511,7 @@ async function getNewKnowledge() {
                 concept_proposal_name_th: item.concept_proposal_name_th,
                 lat: listvalue.lat,
                 lon: listvalue.lon,
-                img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/knowledge-icon.png",
+                img: "https://researcher.kims-rmuti.com/icon/knowledge3(1).png",
             })
         )
     );
@@ -1529,7 +1529,7 @@ async function getNewKnowledge() {
                 concept_proposal_name_th: item.concept_proposal_name_th,
                 lat: listvalue.lat,
                 lon: listvalue.lon,
-                img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/Innovation-icon%20(2).png",
+                img: "https://researcher.kims-rmuti.com/icon/innovation2.png",
             })
         )
     );
@@ -1731,27 +1731,27 @@ async function getnewknowledgegroup(paramsQuery) {
     const results = co_locations.map((item) => {
         const arrayResult = data.filter(
             (itemInArray) =>
-                itemInArray.concept_proposal_id === item.concept_proposal_id
+            itemInArray.concept_proposal_id === item.concept_proposal_id
         );
-        return { ...item, new_knowledges: arrayResult };
+        return {...item, new_knowledges: arrayResult };
     });
 
     const results_innovation = results.map((item) => {
         const arrayResult = output_innovations.filter(
             (itemInArray) =>
-                itemInArray.concept_proposal_id === item.concept_proposal_id
+            itemInArray.concept_proposal_id === item.concept_proposal_id
         );
-        return { ...item, Innovation: arrayResult };
+        return {...item, Innovation: arrayResult };
     });
 
 
     const groupCencept = helper.groupBy(results_innovation, "concept_proposal_id");
     groupCencept.map((v) => {
-        if ( v.data[0].new_knowledges.length >= 1 || v.data[0].Innovation.length >= 1) {
+        if (v.data[0].new_knowledges.length >= 1 || v.data[0].Innovation.length >= 1) {
             const o = v.data.slice(1);
             // console.log(o);
             o.map((item) => {
-        
+
                 item.new_knowledges = [];
                 item.Innovation = [];
 
@@ -1778,7 +1778,7 @@ async function getnewknowledgegroup(paramsQuery) {
             new_knowledges: listvalue.new_knowledges,
             knowledges: listvalue.knowledges,
             Innovation: listvalue.Innovation,
-            img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
+            img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${listvalue.project_type == 1 ? "วิจัย.png" : "บริการ.png"
                 }`,
         });
     });
@@ -1795,7 +1795,7 @@ async function getnewknowledgegroup(paramsQuery) {
                 concept_proposal_name_th: item.concept_proposal_name_th,
                 lat: listvalue.lat,
                 lon: listvalue.lon,
-                img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/New-knowledge-icon.png",
+                img: "https://researcher.kims-rmuti.com/icon/knowledge3(1).png",
             })
         )
     );
@@ -1812,14 +1812,14 @@ async function getnewknowledgegroup(paramsQuery) {
                 concept_proposal_name_th: item.concept_proposal_name_th,
                 lat: listvalue.lat,
                 lon: listvalue.lon,
-                img: "https://www.km-innovations.rmuti.ac.th/researcher/icon/Innovation-icon%20(2).png",
+                img: "https://researcher.kims-rmuti.com/icon/innovation2.png",
             })
         )
     );
 
 
     let newknowledgelink = [];
-    
+
 
     parentNodes.map((listvalue) => {
         listvalue.new_knowledges.map((kn, id) => {
@@ -1831,7 +1831,7 @@ async function getnewknowledgegroup(paramsQuery) {
             })
         })
 
-        
+
 
 
     })
@@ -1873,9 +1873,9 @@ async function getnewknowledgegroup(paramsQuery) {
             to: listvalue.id,
         };
     });
-    
-    helper.applyArray(links,newknowledgelink);
-    helper.applyArray(links,linkNode);
+
+    helper.applyArray(links, newknowledgelink);
+    helper.applyArray(links, linkNode);
 
     return {
         nodes: parentNodes,
