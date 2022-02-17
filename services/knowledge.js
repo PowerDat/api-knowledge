@@ -1,6 +1,7 @@
 const db = require("./db");
 const helper = require("../helper");
 
+// innovations
 async function getOutput(paramsQuery) {
   console.log(paramsQuery);
   const rows = await db.query(
@@ -292,7 +293,7 @@ async function getOutput(paramsQuery) {
     links: links,
   };
 }
-
+// เป้าหมายเพื่อการพัฒนา
 async function getGoal(paramsQuery) {
   const rows = await db.query(`SELECT * FROM bd_sum_goal`);
   const data = helper.emptyOrRows(rows);
@@ -1102,7 +1103,7 @@ async function getCampusGroup(paramsQuery) {
 
   return { nodes: parentNodes, links: links };
 }
-
+//องค์ความรู้เก่าดรอป
 async function getKnowledgeByGrouup(paramsQuery) {
   const rows = await db.query(
     `SELECT * FROM progress_report_knowledge AS PRK 
@@ -1365,6 +1366,7 @@ async function getKnowledgeByGrouup(paramsQuery) {
   };
 }
 
+// หน้าแรกของเว็บ life cycle
 async function getNewKnowledge() {
   const rows = await db.query(
     `SELECT pr.concept_proposal_id,
@@ -1379,44 +1381,50 @@ async function getNewKnowledge() {
     INNER JOIN progress_report AS pr 
       ON pr.progress_report_id = pro.progress_report_id
     `
-  );
-  const data = helper.emptyOrRows(rows);
-  // console.log(data);
-  let concept_proposal_id = [];
-  let project_id = [];
-  data.map((listvalue) => {
-    concept_proposal_id.push(listvalue.concept_proposal_id);
-    project_id.push(listvalue.project_id);
-  });
-  let cciq = [...new Set(concept_proposal_id)];
-  let pjid = [...new Set(project_id)];
+    );
+    const data = helper.emptyOrRows(rows);
+    // console.log(data);
+    let concept_proposal_id = [];
+    let project_id = [];
+    data.map((listvalue) => {
+        concept_proposal_id.push(listvalue.concept_proposal_id);
+        project_id.push(listvalue.project_id);
+    });
+    let cciq = [...new Set(concept_proposal_id)];
+    let pjid = [...new Set(project_id)];
 
-  console.log(pjid.filter((x) => x !== null));
-  // สร้างตัวเก็บอาเรย์
-  let concept_proposal_locations = [];
-  let knowledgedata = [];
-  let Innovationdata = [];
-  // จบการสร้างอาเรย์
-  for (let i = 0; i < cciq.length; i++) {
-    const locations = await db.query(
-      `SELECT * FROM concept_proposal
-              INNER JOIN concept_proposal_locations ON concept_proposal.concept_proposal_id = concept_proposal_locations.concept_proposal_id
-          WHERE concept_proposal.concept_proposal_id = ${cciq[i]}
+    console.log(pjid.filter((x) => x !== null));
+    // สร้างตัวเก็บอาเรย์
+    let concept_proposal_locations = [];
+    let knowledgedata = [];
+    let Innovationdata = [];
+    // จบการสร้างอาเรย์
+    for (let i = 0; i < cciq.length; i++) {
+        const locations = await db.query(
+            `SELECT * FROM concept_proposal
+            INNER JOIN co_concept_fk ON concept_proposal.concept_proposal_id = co_concept_fk.concept_proposal_id
+            INNER JOIN co_researcher ON co_researcher.co_researcher_id = co_concept_fk.co_researcher_id
+            WHERE concept_proposal.concept_proposal_id = ${cciq[i]} AND co_concept_fk.area_status = 1
+       
       `
-    );
-    const data = helper.emptyOrRows(locations);
-    data.map((listvalue) =>
-      concept_proposal_locations.push({
-        concept_proposal_id: listvalue.concept_proposal_id,
-        concept_proposal_name: listvalue.concept_proposal_name,
-        concept_proposal_name_th: listvalue.concept_proposal_name_th,
-        project_type: listvalue.project_type_id,
-        lat: listvalue.concept_proposal_latitude,
-        lon: listvalue.concept_proposal_longitude,
-      })
-    );
+        );
+        const data = helper.emptyOrRows(locations);
+        data.map((listvalue) =>
+            concept_proposal_locations.push({
+                concept_proposal_id: listvalue.concept_proposal_id,
+                concept_proposal_name: listvalue.co_researcher,
+                concept_proposal_name_th: listvalue.concept_proposal_name_th,
+                project_type: listvalue.project_type_id,
+                lat: listvalue.co_researcher_latitude,
+                lon: listvalue.co_researcher_longitude,
+            })
 
-    // เตรียมข้อมูลออกมาเพื่อทำโหนด
+
+        );
+
+        console.log(locations);
+
+        // เตรียมข้อมูลออกมาเพื่อทำโหนด
 
     const knowledge = await db.query(
       `SELECT progress_report.progress_report_id,progress_report.concept_proposal_id,progress_report_knowledge.knowledge_name,progress_report_knowledge.knowledge_detail
