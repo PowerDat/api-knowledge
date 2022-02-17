@@ -1,6 +1,7 @@
 const db = require("./db");
 const helper = require("../helper");
 
+// innovations
 async function getOutput(paramsQuery) {
     console.log(paramsQuery);
     const rows = await db.query(
@@ -291,7 +292,7 @@ async function getOutput(paramsQuery) {
         links: links,
     };
 }
-
+// เป้าหมายเพื่อการพัฒนา
 async function getGoal(paramsQuery) {
     const rows = await db.query(`SELECT * FROM bd_sum_goal`);
     const data = helper.emptyOrRows(rows);
@@ -795,7 +796,7 @@ async function getGoal(paramsQuery) {
         links: links,
     };
 }
-
+// ผลกระทบ
 async function getImpact(paramsQuery) {
     const rows = await db.query(`SELECT * FROM bd_sum_impact`);
     const data = helper.emptyOrRows(rows);
@@ -1025,7 +1026,7 @@ async function getImpact(paramsQuery) {
         links: links,
     };
 }
-
+//องค์ความรู้เก่าดรอป
 async function getKnowledgeByGrouup(paramsQuery) {
     const rows = await db.query(
         `SELECT * FROM progress_report_knowledge AS PRK 
@@ -1287,6 +1288,7 @@ async function getKnowledgeByGrouup(paramsQuery) {
     };
 }
 
+// หน้าแรกของเว็บ life cycle
 async function getNewKnowledge() {
     const rows = await db.query(
         `SELECT pr.concept_proposal_id,
@@ -1322,21 +1324,27 @@ async function getNewKnowledge() {
     for (let i = 0; i < cciq.length; i++) {
         const locations = await db.query(
             `SELECT * FROM concept_proposal
-              INNER JOIN concept_proposal_locations ON concept_proposal.concept_proposal_id = concept_proposal_locations.concept_proposal_id
-          WHERE concept_proposal.concept_proposal_id = ${cciq[i]}
+            INNER JOIN co_concept_fk ON concept_proposal.concept_proposal_id = co_concept_fk.concept_proposal_id
+            INNER JOIN co_researcher ON co_researcher.co_researcher_id = co_concept_fk.co_researcher_id
+            WHERE concept_proposal.concept_proposal_id = ${cciq[i]} AND co_concept_fk.area_status = 1
+       
       `
         );
         const data = helper.emptyOrRows(locations);
         data.map((listvalue) =>
             concept_proposal_locations.push({
                 concept_proposal_id: listvalue.concept_proposal_id,
-                concept_proposal_name: listvalue.concept_proposal_name,
+                concept_proposal_name: listvalue.co_researcher,
                 concept_proposal_name_th: listvalue.concept_proposal_name_th,
                 project_type: listvalue.project_type_id,
-                lat: listvalue.concept_proposal_latitude,
-                lon: listvalue.concept_proposal_longitude,
+                lat: listvalue.co_researcher_latitude,
+                lon: listvalue.co_researcher_longitude,
             })
+
+
         );
+
+        console.log(locations);
 
         // เตรียมข้อมูลออกมาเพื่อทำโหนด
 
@@ -1622,7 +1630,7 @@ async function getNewKnowledge() {
     // return parentNodes;
 }
 
-
+// องค์ความรู้ใหม่ดรอปดาว
 async function getnewknowledgegroup(paramsQuery) {
     const rows = await db.query(
         `
