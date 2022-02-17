@@ -60,4 +60,14 @@ router.get("/get/newknowledgegroup", async function (req, res, next) {
   }
 });
 
+
+router.get("/get/campusgroup", async function (req, res, next) {
+  try {
+    res.json(await knowledge.getCampusGroup(req.query));
+  } catch (err) {
+    console.error(`Error while getting  Knowledge `, err.message);
+    next(err);
+  }
+});
+
 module.exports = router;
