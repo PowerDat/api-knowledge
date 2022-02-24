@@ -4,6 +4,8 @@ const port = process.env.PORT || 3000;
 const cors = require("cors");
 const knowledge = require("./routes/knowledge.js");
 const piechart = require("./routes/piechart.js");
+const goal = require("./routes/goal.js");
+const impact = require("./routes/impact.js");
 
 app.use(cors());
 app.use(express.json());
@@ -19,7 +21,8 @@ app.get("/", (req, res) => {
 
 app.use("/api", knowledge);
 app.use("/api", piechart);
-
+app.use("/api", goal);
+app.use("/api", impact);
 app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;
     console.error(err.message, err.stack);
