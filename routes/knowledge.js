@@ -12,6 +12,7 @@ router.get("/get/newknowledge", async function(req, res, next) {
     }
 });
 
+
 router.get("/get/innovations", async function(req, res, next) {
     try {
         res.json(await knowledge.getOutput(req.query));
