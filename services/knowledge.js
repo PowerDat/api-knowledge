@@ -1266,6 +1266,7 @@ async function getCampusGroup(paramsQuery) {
       });
     });
   });
+  
 
   //   console.log(childNewknowledges);
 
