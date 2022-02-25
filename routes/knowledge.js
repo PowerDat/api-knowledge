@@ -12,23 +12,6 @@ router.get("/get/newknowledge", async function(req, res, next) {
     }
 });
 
-// router.get("/get/impact", async function(req, res, next) {
-//     try {
-//         res.json(await knowledge.getImpact(req.query));
-//     } catch (err) {
-//         console.error(`Error while getting new Knowledge `, err.message);
-//         next(err);
-//     }
-// });
-
-// router.get("/get/goal", async function(req, res, next) {
-//     try {
-//         res.json(await knowledge.getGoal(req.query));
-//     } catch (err) {
-//         console.error(`Error while getting new Knowledge `, err.message);
-//         next(err);
-//     }
-// });
 
 router.get("/get/innovations", async function(req, res, next) {
     try {

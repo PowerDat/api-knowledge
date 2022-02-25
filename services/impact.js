@@ -136,8 +136,8 @@ async function getImpact(paramsQuery) {
             // knowledges: listvalue.knowledges,
             // innovations: listvalue.innovations,
             impacts: listvalue.impacts,
-            img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
-        listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
+            img: `https://researcher.kims-rmuti.com/icon/${
+        listvalue.project_type == 1 ? "งานวิจัย.png" : "บริการ.png"
       }`,
         })
     );
