@@ -467,7 +467,7 @@ async function getCampusGroup(paramsQuery) {
     parentNodes.map((listvalue, i) =>
         listvalue.knowledges.map((item, index) =>
             childNodeKnowledges.push({
-                id: `${i=1}.${index + 1}kn`,
+                id: `${i.listvalue}.${index + 1}kn`,
                 type: "child",
                 concept_proposal_id: listvalue.concept_proposal_id,
                 knowledge_name: item.knowledge_name,
