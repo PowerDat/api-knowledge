@@ -6,7 +6,27 @@ router.get("/get/impact", async function(req, res, next) {
     try {
         res.json(await impact.getImpact(req.query));
     } catch (err) {
-        console.error(`Error while getting new Knowledge `, err.message);
+        console.error(`Error while getting new Impact `, err.message);
+        next(err);
+    }
+});
+
+
+router.get("/get/CampusGroupimpact", async function(req, res, next) {
+    try {
+        res.json(await impact.getCampusGroupimpact(req.query));
+    } catch (err) {
+        console.error(`Error while getting new Impact `, err.message);
+        next(err);
+    }
+});
+
+
+router.get("/get/indeximpact", async function(req, res, next) {
+    try {
+        res.json(await impact.getindeximpact(req.query));
+    } catch (err) {
+        console.error(`Error while getting new Impact `, err.message);
         next(err);
     }
 });

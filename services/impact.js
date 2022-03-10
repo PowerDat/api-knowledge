@@ -43,7 +43,7 @@ async function getImpact(paramsQuery) {
     ...new Map(impact_id.map((v) => [v.concept_proposal_id, v])).values(),
   ];
 
-//   console.log(final_impact);
+  console.log(final_impact);
 
   let priq = [...new Set(progress_report_id)];
   let cciq = [...new Set(concept_proposal_id)];
