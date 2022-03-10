@@ -17,7 +17,7 @@ async function getImpact(paramsQuery) {
     });
   }
 
-  console.log(impacts);
+  //   console.log(impacts);
 
   const impact_arr = await db.query(`SELECT * FROM bd_outcome_impact`);
   const impact_data = helper.emptyOrRows(impact_arr);
@@ -30,18 +30,41 @@ async function getImpact(paramsQuery) {
 
   const progress_report_id = impacts.map((list) => list.progress_report_id);
   const concept_proposal_id = impacts.map((list) => list.concept_proposal_id);
-  const impact_id = impacts.map((list) => {
-    return {
-      concept_proposal_id: Number(list.concept_proposal_id),
-      impacts:
-        paramsQuery.impact_id == 0
-          ? JSON.parse(list.impact_id).map((item) => obj[item])
-          : obj[paramsQuery.impact_id],
-    };
+  const impact_id = [];
+
+  impacts.map((list) => {
+    if (paramsQuery.impact_id == 0) {
+      const impacts_all = JSON.parse(list.impact_id).map((item) => {
+        return {
+          concept_proposal_id: Number(list.concept_proposal_id),
+          impacts: obj[item],
+        };
+      });
+      impacts_all.map((v) => impact_id.push(v));
+    } else {
+      impact_id.push({
+        concept_proposal_id: Number(list.concept_proposal_id),
+        impacts: obj[paramsQuery.impact_id],
+      });
+    }
   });
-  let final_impact = [
-    ...new Map(impact_id.map((v) => [v.concept_proposal_id, v])).values(),
-  ];
+  console.log(impact_id);
+
+  //   let final_impact = [
+  //     ...new Map(
+  //       impact_id.map((v) => [v.concept_proposal_id && v.impacts, v])
+  //     ).values(),
+  //   ];
+
+  let final_impact = impact_id.filter(
+    (value, index, self) =>
+      index ===
+      self.findIndex(
+        (t) =>
+          t.concept_proposal_id === value.concept_proposal_id &&
+          t.impacts === value.impacts
+      )
+  );
 
   console.log(final_impact);
 
@@ -115,7 +138,7 @@ async function getImpact(paramsQuery) {
     "concept_proposal_id"
   );
 
-  //   console.log(results);
+  //   console.log(results.map((v) => v.impacts));
 
   const groupCencept = helper.groupBy(results, "concept_proposal_id");
 
