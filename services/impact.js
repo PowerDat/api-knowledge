@@ -136,9 +136,7 @@ async function getImpact(paramsQuery) {
             // knowledges: listvalue.knowledges,
             // innovations: listvalue.innovations,
             impacts: listvalue.impacts,
-            img: `https://researcher.kims-rmuti.com/icon/${
-        listvalue.project_type == 1 ? "งานวิจัย.png" : "บริการ.png"
-      }`,
+            img: `https://researcher.kims-rmuti.com/icon/${listvalue.project_type == 1 ? "วิจัย.png" : "บริการ.png"}`,
         })
     );
 
@@ -155,7 +153,7 @@ async function getImpact(paramsQuery) {
                 impact_name: item.impacts,
                 lat: listvalue.lat,
                 lon: listvalue.lon,
-                img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
+                img: `https://researcher.kims-rmuti.com/icon/${
           paramsQuery.impact_id == 1
             ? "Economy-impact.png"
             : paramsQuery.impact_id == 2
@@ -225,8 +223,122 @@ async function getImpact(paramsQuery) {
 }
 
 
+//วิทยาเขตของหน้าผลกระทบส่วนดรอปดาว
+async function getCampusGroupimpact(paramsQuery) {
+
+    const rows = await db.query(
+        `SELECT  cp.concept_proposal_id, 
+                  cp.concept_proposal_name_th, 
+                  cp.concept_proposal_name_en,
+                  cp.project_type_id,
+                  un.name
+          FROM bb_user bu 
+              INNER JOIN university_name un on bu.user_section = un.unid 
+              INNER JOIN concept_proposal cp on cp.user_idcard = bu.user_idcard
+          WHERE un.unid = "${paramsQuery.groupId}"
+      `
+    );
+
+    const data = helper.emptyOrRows(rows);
+
+    const concept_proposal_id = data.map(
+        (listvalue) => listvalue.concept_proposal_id
+    );
+
+    let cciq = [...new Set(concept_proposal_id)];
+    console.log(cciq);
+
+    const university = await db.query(
+        `SELECT un.unid,
+                un.name,
+                un.lat,
+                un.lot
+        FROM university_name un WHERE un.unid = "${paramsQuery.groupId}"`
+    );
+
+    // console.log(data);
+
+    const results_university = university.map((item) => {
+        const arrayResult = data.filter(
+            (itemInArray) => itemInArray.name === item.name
+        );
+        return {...item, projects: arrayResult };
+    });
+
+    // console.log(results_university);
+    //   console.log(results_university[0].projects)
+
+    const parentNodes = [];
+
+    results_university.map((listvalue, index) =>
+        parentNodes.push({
+            id: index + 1,
+            type: "parent",
+            university_name: listvalue.name,
+            lat: listvalue.lat,
+            lon: listvalue.lot,
+            projects: listvalue.projects,
+            img: "https://researcher.kims-rmuti.com/file-upload/researcher-upload/123.jpg",
+        })
+    );
+
+    const childNodes = [];
+    // const linksNodes = [];
+    parentNodes.map((listvalue) => {
+        listvalue.projects.map((item, index) => {
+            childNodes.push({
+                id: `${listvalue.id}.${index + 1}`,
+                concept_proposal_id: item.concept_proposal_id,
+                concept_proposal_name_th: item.concept_proposal_name_th,
+                type: "child",
+                lat: listvalue.lat,
+                lon: listvalue.lon,
+                img: `https://researcher.kims-rmuti.com/icon/${
+          item.project_type_id == 1
+            ? "วิจัย.png"
+            : item.project_type_id == 2
+            ? "บริการ.png"
+            : "u2t.jpg"
+        }`,
+            });
+
+        });
+    });
+
+    // console.log(linksNodes);
+
+
+    helper.applyArray(parentNodes, childNodes);
+
+    parentNodes.map((v) => delete v.projects);
+
+    const links = childNodes.map((listvalue) => {
+        return {
+            from: listvalue.id | 0,
+            to: listvalue.id,
+        };
+    });
+
+    // helper.applyArray(links, linksNodes);
+
+
+    return {
+        nodes: parentNodes,
+        links: links,
+    };
+
+}
+
+
+//หน้าของผลกระทบ
+async function getindeximpact(paramsQuery) {
+
+}
+
 module.exports = {
 
     getImpact,
+    getCampusGroupimpact,
+    getindeximpact,
 
 };
