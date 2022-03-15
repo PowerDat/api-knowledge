@@ -459,7 +459,7 @@ async function getCampusGroupimpact(paramsQuery) {
 
   return {
     nodes: parentNodes,
-    links: links,
+    links: links, 
   };
 }
 
