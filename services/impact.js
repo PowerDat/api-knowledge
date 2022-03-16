@@ -370,8 +370,7 @@ async function getCampusGroupimpact(paramsQuery) {
         })
     );
 
-
-
+    const childNodes = [];
     parentNodes.map((listvalue) => {
         listvalue.projects.map((item, index) => {
             childNodes.push({
@@ -382,7 +381,7 @@ async function getCampusGroupimpact(paramsQuery) {
                 lat: listvalue.lat,
                 lon: listvalue.lon,
                 img: `https://researcher.kims-rmuti.com/icon/${
-          item.project_type_id == 1
+          item.project_type_id == 1 
             ? "วิจัย.png"
             : item.project_type_id == 2
             ? "บริการ.png"
@@ -392,12 +391,32 @@ async function getCampusGroupimpact(paramsQuery) {
         });
     });
 
-    console.log(linksNodes);
+    // console.log(linksNodes);
 
+    const childNodeImpacts = [];
+    parentNodes.map((listvalue, i) => {
+        listvalue.impacts.map((item, index) => {
+            childNodeImpacts.push({
+                id: `${listvalue.id}.${index + 1}`,
+                type: "child",
+                concept_proposal_id: listvalue.concept_proposal_id,
+                impact_name: item.impacts,
+                lat: listvalue.lat,
+                lon: listvalue.lon,
+                img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
+          item.impacts == "เศรษฐกิจ"
+            ? "Economy-impact.png"
+            : item.impacts == "สังคม"
+            ? "New-Social-impact.png"
+            : item.impacts == "วัฒนธรรม"
+            ? "Cultural-impact.png"
+            : "Environmental-impact.png"
+        }`,
+            });
+        });
+    });
 
-
-
-
+    // console.log(childNodesConcepts);
 
 
 
@@ -415,6 +434,8 @@ async function getCampusGroupimpact(paramsQuery) {
 
 
     helper.applyArray(parentNodes, childNodes);
+    helper.applyArray(parentNodes, childNodeImpacts);
+
 
     parentNodes.map((v) => delete v.projects);
 
@@ -426,6 +447,7 @@ async function getCampusGroupimpact(paramsQuery) {
     });
 
     // helper.applyArray(links, linksNodes);
+
 
     return {
         nodes: parentNodes,

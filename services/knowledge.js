@@ -1158,26 +1158,30 @@ async function getCampusGroup(paramsQuery) {
     const childNodes = [];
     const linksNodes = [];
     parentNodes.map((listvalue) => {
-        listvalue.projects.map((item, index) => {
-            childNodes.push({
-                id: `${listvalue.id}.${index + 1}`,
-                concept_proposal_id: item.concept_proposal_id,
-                concept_proposal_name_th: item.concept_proposal_name_th,
-                type: "child",
-                lat: listvalue.lat,
-                lon: listvalue.lon,
-                img: `https://researcher.kims-rmuti.com/icon/${
+                listvalue.projects.map((item, index) => {
+                            childNodes.push({
+                                id: `${listvalue.id}.${index + 1}`,
+                                concept_proposal_id: item.concept_proposal_id,
+                                concept_proposal_name_th: item.concept_proposal_name_th,
+                                type: "child",
+                                lat: listvalue.lat,
+                                lon: listvalue.lon,
+                                img: `https://researcher.kims-rmuti.com/icon/${
           item.project_type_id == 1
             ? "วิจัย.png"
             : item.project_type_id == 2
             ? "บริการ.png"
             : "u2t.jpg"
         }`,
-            });
-            item.knowledges.map((d, i) => {
-                linksNodes.push({
-                    from: `${listvalue.id}.${index + 1}`,
-                    to: `${index + 1}.${i + 1}kn`
+                            });
+                            item.knowledges.map((d, i) => {
+                                    lin `ksNodes.push({
+                    from: `
+                                    $ { listvalue.id }.$ { index + 1 }
+                                    `,
+                    to: `
+                                    $ { index + 1 }.$ { i + 1 }
+                                    kn `
                 });
             });
         });
@@ -1191,7 +1195,9 @@ async function getCampusGroup(paramsQuery) {
     parentNodes[0].projects.map((listvalue, i) => {
         listvalue.knowledges.map((item, index) => {
             childNodeKnowledges.push({
-                id: `${i + 1}.${index + 1}kn`,
+                id: `
+                                    $ { i + 1 }.$ { index + 1 }
+                                    kn `,
                 type: "child",
                 concept_proposal_id: listvalue.concept_proposal_id,
                 knowledge_name: item.knowledge_name,
@@ -1202,8 +1208,11 @@ async function getCampusGroup(paramsQuery) {
             });
             listvalue.innovations.map((inno, idx) => {
                 knowledgeslink.push({
-                    from: `${i + 1}.${index + 1}kn`,
-                    to: `${i + 1}.${idx + 1}in`,
+                    from: `
+                                    $ { i + 1 }.$ { index + 1 }
+                                    kn `,
+                    to: `
+                                    $ { i + 1 }.$ { idx + 1 } in `,
                 });
             });
         });
@@ -1217,7 +1226,8 @@ async function getCampusGroup(paramsQuery) {
     parentNodes[0].projects.map((listvalue, i) => {
         listvalue.innovations.map((item, index) => {
             childinnovationNodes.push({
-                id: `${i + 1}.${index + 1}in`,
+                id: `
+                                    $ { i + 1 }.$ { index + 1 } in `,
                 type: "child",
                 concept_proposal_id: listvalue.concept_proposal_id,
                 output_name: item.output_name,
@@ -1229,8 +1239,11 @@ async function getCampusGroup(paramsQuery) {
             });
             listvalue.newknowledges.map((nkn, idx) => {
                 innovationslink.push({
-                    from: `${i + 1}.${index + 1}in`,
-                    to: `${i + 1}.${idx + 1}nkn`,
+                    from: `
+                                    $ { i + 1 }.$ { index + 1 } in `,
+                    to: `
+                                    $ { i + 1 }.$ { idx + 1 }
+                                    nkn `,
                 });
             });
         });
@@ -1241,7 +1254,9 @@ async function getCampusGroup(paramsQuery) {
     parentNodes[0].projects.map((listvalue, i) => {
         listvalue.newknowledges.map((item, index) => {
             childNewknowledges.push({
-                id: `${i + 1}.${index + 1}nkn`,
+                id: `
+                                    $ { i + 1 }.$ { index + 1 }
+                                    nkn `,
                 type: "child",
                 concept_proposal_id: listvalue.concept_proposal_id,
                 outcome_knowledge_name: item.outcome_knowledge_name,
@@ -1264,8 +1279,11 @@ async function getCampusGroup(paramsQuery) {
     //     listvalue.knowledges.map((kn, id) => {
     //         listvalue.innovation.map((inno, idx) => {
     //             knowledgeslink.push({
-    //                 from: `${listvalue.id}.${id + 1}`,
-    //                 to: `${listvalue.id}.${idx + 1}in`,
+    //                 from: `
+                                    $ { listvalue.id }.$ { id + 1 }
+                                    `,
+    //                 to: `
+                                    $ { listvalue.id }.$ { idx + 1 } in `,
     //             });
     //         });
     //     });
@@ -1273,8 +1291,11 @@ async function getCampusGroup(paramsQuery) {
     //     listvalue.innovations.map((kn, idn) => {
     //         listvalue.newknowledges.map((nkn, idnk) => {
     //             innovationslink.push({
-    //                 from: `${listvalue.id}.${id + 1}in`,
-    //                 to: `${listvalue.id}.${idx + 1}nkn`,
+    //                 from: `
+                                    $ { listvalue.id }.$ { id + 1 } in `,
+    //                 to: `
+                                    $ { listvalue.id }.$ { idx + 1 }
+                                    nkn `,
     //             });
     //         });
 
@@ -1283,8 +1304,12 @@ async function getCampusGroup(paramsQuery) {
     //     listvalue.newknowledges.map((nkn, idn) => {
     //         listvalue.projects.map((inno, idnk) => {
     //             newknowledgeslink.push({
-    //                 from: `${listvalue.id}.${id + 1}nkn`,
-    //                 to: `${listvalue.id}.${idx + 1}pj`,
+    //                 from: `
+                                    $ { listvalue.id }.$ { id + 1 }
+                                    nkn `,
+    //                 to: `
+                                    $ { listvalue.id }.$ { idx + 1 }
+                                    pj `,
     //             });
     //         });
 
@@ -1349,13 +1374,14 @@ async function getCampusGroup(paramsQuery) {
 //องค์ความรู้เก่าดรอป
 async function getKnowledgeByGrouup(paramsQuery) {
     const rows = await db.query(
-        `SELECT * FROM progress_report_knowledge AS PRK 
-            INNER JOIN progress_report AS PR 
-                ON PR.progress_report_id = PRK.progress_report_id
-            INNER JOIN progress_report_knowledge_group AS PRKG
-                ON PRKG.knowledge_group_id = PRK.knowledge_group_id
-            WHERE PRKG.knowledge_group_category = "${paramsQuery.groupName}"
-    `
+        `
+                                    SELECT * FROM progress_report_knowledge AS PRK
+                                    INNER JOIN progress_report AS PR
+                                    ON PR.progress_report_id = PRK.progress_report_id
+                                    INNER JOIN progress_report_knowledge_group AS PRKG
+                                    ON PRKG.knowledge_group_id = PRK.knowledge_group_id
+                                    WHERE PRKG.knowledge_group_category = "${paramsQuery.groupName}"
+                                    `
     );
     const data = helper.emptyOrRows(rows);
     let concept_proposal_id = [];
@@ -1372,10 +1398,11 @@ async function getKnowledgeByGrouup(paramsQuery) {
     let concept_proposal_locations = [];
     for (let i = 0; i < cciq.length; i++) {
         const locations = await db.query(
-            `SELECT * FROM concept_proposal
-              INNER JOIN concept_proposal_locations ON concept_proposal.concept_proposal_id = concept_proposal_locations.concept_proposal_id
-          WHERE concept_proposal.concept_proposal_id = ${cciq[i]}
-        `
+            `
+                                    SELECT * FROM concept_proposal
+                                    INNER JOIN concept_proposal_locations ON concept_proposal.concept_proposal_id = concept_proposal_locations.concept_proposal_id
+                                    WHERE concept_proposal.concept_proposal_id = $ { cciq[i] }
+                                    `
         );
 
         const data1 = helper.emptyOrRows(locations);
@@ -1391,9 +1418,11 @@ async function getKnowledgeByGrouup(paramsQuery) {
         );
 
         const innovations = await db.query(
-            `SELECT * FROM progress_report_output INNER JOIN progress_report 
-          ON progress_report.progress_report_id = progress_report_output.progress_report_id 
-        WHERE progress_report.concept_proposal_id = ${cciq[i]}`
+            `
+                                    SELECT * FROM progress_report_output INNER JOIN progress_report
+                                    ON progress_report.progress_report_id = progress_report_output.progress_report_id
+                                    WHERE progress_report.concept_proposal_id = $ { cciq[i] }
+                                    `
         );
 
         const data = helper.emptyOrRows(innovations);
@@ -1419,20 +1448,21 @@ async function getKnowledgeByGrouup(paramsQuery) {
     const co_locations = [];
     for (let i = 0; i < conceptid.length; i++) {
         const co_concept = await db.query(`
-      SELECT 
-        cp.project_type_id,
-        cp.concept_proposal_name_th,
-        ccf.concept_proposal_id, 
-        cr.co_researcher_name_th, 
-        cr.co_researcher_latitude, 
-        cr.co_researcher_longitude, 
-        cr.co_researcher_image
-      FROM co_concept_fk ccf 
-        INNER JOIN co_researcher cr 
-      ON cr.co_researcher_id = ccf.co_researcher_id
-        INNER JOIN concept_proposal cp
-      ON cp.concept_proposal_id = ccf.concept_proposal_id
-        WHERE ccf.concept_proposal_id = ${conceptid[i]}`);
+                                    SELECT
+                                    cp.project_type_id,
+                                        cp.concept_proposal_name_th,
+                                        ccf.concept_proposal_id,
+                                        cr.co_researcher_name_th,
+                                        cr.co_researcher_latitude,
+                                        cr.co_researcher_longitude,
+                                        cr.co_researcher_image
+                                    FROM co_concept_fk ccf
+                                    INNER JOIN co_researcher cr
+                                    ON cr.co_researcher_id = ccf.co_researcher_id
+                                    INNER JOIN concept_proposal cp
+                                    ON cp.concept_proposal_id = ccf.concept_proposal_id
+                                    WHERE ccf.concept_proposal_id = $ { conceptid[i] }
+                                    `);
 
         co_concept.map((val) =>
             co_locations.push({
@@ -1496,9 +1526,11 @@ async function getKnowledgeByGrouup(paramsQuery) {
             lon: listvalue.lon,
             knowledges: listvalue.knowledges,
             innovations: listvalue.innovations,
-            img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
-        listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
-      }`,
+            img: `
+                                    https: //www.km-innovations.rmuti.ac.th/researcher/icon/${
+                                        listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
+                                }
+                                `,
         })
     );
 
@@ -1506,7 +1538,9 @@ async function getKnowledgeByGrouup(paramsQuery) {
     parentNodes.map((listvalue) =>
         listvalue.knowledges.map((item, index) =>
             childNodes.push({
-                id: `${listvalue.id}.${index + 1}`,
+                id: `
+                                $ { listvalue.id }.$ { index + 1 }
+                                `,
                 concept_proposal_id: item.concept_proposal_id,
                 type: "child",
                 knowledge_name: item.knowledge_name,
@@ -1522,7 +1556,9 @@ async function getKnowledgeByGrouup(paramsQuery) {
     parentNodes.map((listvalue) =>
         listvalue.innovations.map((item, index) =>
             childNodesInnovations.push({
-                id: `${listvalue.id}.${index + 1}00`,
+                id: `
+                                $ { listvalue.id }.$ { index + 1 }
+                                00 `,
                 type: "child",
                 concept_proposal_id: item.concept_proposal_id,
                 output_name: item.output_name,
@@ -1542,8 +1578,12 @@ async function getKnowledgeByGrouup(paramsQuery) {
         item.knowledges.map((list, i) => {
             item.innovations.map((listinno, j) => {
                 linksknow.push({
-                    from: `${item.id}.${i + 1}`,
-                    to: `${item.id}.${j + 1}00`,
+                    from: `
+                                $ { item.id }.$ { i + 1 }
+                                `,
+                    to: `
+                                $ { item.id }.$ { j + 1 }
+                                00 `,
                 });
             });
         });
@@ -1551,8 +1591,12 @@ async function getKnowledgeByGrouup(paramsQuery) {
         item.innovations.map((listinno, i) => {
             item.innovations.map((list, j) => {
                 linkinno.push({
-                    from: `${item.id}.${i + 1}00`,
-                    to: `${item.id}.${j + 1}00`,
+                    from: `
+                                $ { item.id }.$ { i + 1 }
+                                00 `,
+                    to: `
+                                $ { item.id }.$ { j + 1 }
+                                00 `,
                 });
             });
         });
@@ -1612,15 +1656,9 @@ async function getKnowledgeByGrouup(paramsQuery) {
 //องค์ความรู้ใหม่
 async function getnewknowledgegroup(paramsQuery) {
     const rows = await db.query(
-        `SELECT progress_report.concept_proposal_id,progress_report.progress_report_id
-        ,progress_report_knowledge_group.knowledge_group_category,progress_report_outcome_knowledge.outcome_knowledge_name
-        ,progress_report_outcome_knowledge.outcome_knowledge_detail
-        FROM progress_report_outcome_knowledge
-        JOIN progress_report_knowledge_group ON progress_report_knowledge_group.knowledge_group_id = progress_report_outcome_knowledge.knowledge_group_id
-        JOIN progress_report_knowledge ON progress_report_knowledge.knowledge_group_id = progress_report_knowledge_group.knowledge_group_id
-        JOIN progress_report ON progress_report.progress_report_id = progress_report_knowledge.progress_report_id
-        WHERE progress_report_knowledge_group.knowledge_group_category = "${paramsQuery.groupName}"
-    `
+        `
+                                SELECT progress_report.concept_proposal_id, progress_report.progress_report_id, progress_report_knowledge_group.knowledge_group_category, progress_report_outcome_knowledge.outcome_knowledge_name, progress_report_outcome_knowledge.outcome_knowledge_detail FROM progress_report_outcome_knowledge JOIN progress_report_knowledge_group ON progress_report_knowledge_group.knowledge_group_id = progress_report_outcome_knowledge.knowledge_group_id JOIN progress_report_knowledge ON progress_report_knowledge.knowledge_group_id = progress_report_knowledge_group.knowledge_group_id JOIN progress_report ON progress_report.progress_report_id = progress_report_knowledge.progress_report_id WHERE progress_report_knowledge_group.knowledge_group_category = "${paramsQuery.groupName}"
+                                `
     );
 
     const data = helper.emptyOrRows(rows);
@@ -1638,10 +1676,9 @@ async function getnewknowledgegroup(paramsQuery) {
     let concept_proposal_locations = [];
     for (let i = 0; i < cciq.length; i++) {
         const locations = await db.query(
-            `SELECT * FROM concept_proposal
-              INNER JOIN concept_proposal_locations ON concept_proposal.concept_proposal_id = concept_proposal_locations.concept_proposal_id
-          WHERE concept_proposal.concept_proposal_id = ${cciq[i]}
-        `
+            `
+                                SELECT * FROM concept_proposal INNER JOIN concept_proposal_locations ON concept_proposal.concept_proposal_id = concept_proposal_locations.concept_proposal_id WHERE concept_proposal.concept_proposal_id = $ { cciq[i] }
+                                `
         );
 
         const data1 = helper.emptyOrRows(locations);
@@ -1657,9 +1694,9 @@ async function getnewknowledgegroup(paramsQuery) {
         );
 
         const innovations = await db.query(
-            `SELECT * FROM progress_report_output INNER JOIN progress_report 
-          ON progress_report.progress_report_id = progress_report_output.progress_report_id 
-        WHERE progress_report.concept_proposal_id = ${cciq[i]}`
+            `
+                                SELECT * FROM progress_report_output INNER JOIN progress_report ON progress_report.progress_report_id = progress_report_output.progress_report_id WHERE progress_report.concept_proposal_id = $ { cciq[i] }
+                                `
         );
 
         const data = helper.emptyOrRows(innovations);
@@ -1684,20 +1721,14 @@ async function getnewknowledgegroup(paramsQuery) {
     const co_locations = [];
     for (let i = 0; i < conceptid.length; i++) {
         const co_concept = await db.query(`
-      SELECT 
-        cp.project_type_id,
-        cp.concept_proposal_name_th,
-        ccf.concept_proposal_id, 
-        cr.co_researcher_name_th, 
-        cr.co_researcher_latitude, 
-        cr.co_researcher_longitude, 
-        cr.co_researcher_image
-      FROM co_concept_fk ccf 
-        INNER JOIN co_researcher cr 
-      ON cr.co_researcher_id = ccf.co_researcher_id
-        INNER JOIN concept_proposal cp
-      ON cp.concept_proposal_id = ccf.concept_proposal_id
-        WHERE ccf.concept_proposal_id = ${conceptid[i]}`);
+                                SELECT cp.project_type_id,
+                                cp.concept_proposal_name_th,
+                                ccf.concept_proposal_id,
+                                cr.co_researcher_name_th,
+                                cr.co_researcher_latitude,
+                                cr.co_researcher_longitude,
+                                cr.co_researcher_image FROM co_concept_fk ccf INNER JOIN co_researcher cr ON cr.co_researcher_id = ccf.co_researcher_id INNER JOIN concept_proposal cp ON cp.concept_proposal_id = ccf.concept_proposal_id WHERE ccf.concept_proposal_id = $ { conceptid[i] }
+                                `);
 
         co_concept.map((val) =>
             co_locations.push({
@@ -1767,9 +1798,11 @@ async function getnewknowledgegroup(paramsQuery) {
             new_knowledges: listvalue.new_knowledges,
             knowledges: listvalue.knowledges,
             Innovation: listvalue.Innovation,
-            img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
-        listvalue.project_type == 1 ? "วิจัย.png" : "บริการ.png"
-      }`,
+            img: `
+                                https: //www.km-innovations.rmuti.ac.th/researcher/icon/${
+                                listvalue.project_type == 1 ? "วิจัย.png" : "บริการ.png"
+                            }
+                            `,
         });
     });
 
@@ -1777,7 +1810,9 @@ async function getnewknowledgegroup(paramsQuery) {
     parentNodes.map((listvalue) =>
         listvalue.new_knowledges.map((item, index) =>
             childNodes.push({
-                id: `${listvalue.id}.${index + 1}`,
+                id: `
+                            $ { listvalue.id }.$ { index + 1 }
+                            `,
                 type: "child",
                 concept_proposal_id: listvalue.concept_proposal_id,
                 outcome_knowledge_name: item.outcome_knowledge_name,
@@ -1794,7 +1829,8 @@ async function getnewknowledgegroup(paramsQuery) {
     parentNodes.map((listvalue) =>
         listvalue.Innovation.map((item, index) =>
             childinnovationNodes.push({
-                id: `${listvalue.id}.${index + 1}in`,
+                id: `
+                            $ { listvalue.id }.$ { index + 1 } in `,
                 type: "child",
                 concept_proposal_id: listvalue.concept_proposal_id,
                 output_name: item.output_detail,
@@ -1813,8 +1849,11 @@ async function getnewknowledgegroup(paramsQuery) {
         listvalue.new_knowledges.map((kn, id) => {
             listvalue.Innovation.map((inno, idx) => {
                 newknowledgelink.push({
-                    from: `${listvalue.id}.${id + 1}`,
-                    to: `${listvalue.id}.${idx + 1}in`,
+                    from: `
+                            $ { listvalue.id }.$ { id + 1 }
+                            `,
+                    to: `
+                            $ { listvalue.id }.$ { idx + 1 } in `,
                 });
             });
         });
@@ -1872,18 +1911,18 @@ async function getnewknowledgegroup(paramsQuery) {
 // หน้าแรกของเว็บ life cycle
 async function getNewKnowledge() {
     const rows = await db.query(
-        `SELECT pr.concept_proposal_id,
-            pr.project_id,
-            prok.outcome_knowledge_name, 
-            prok.outcome_knowledge_detail,
-            prok.outcome_knowledge_image,
-            prok.outcome_knowledge_video
-    FROM progress_report_outcome AS pro 
-    INNER JOIN progress_report_outcome_knowledge AS prok
-      ON pro.outcome_id = prok.outcome_id
-    INNER JOIN progress_report AS pr 
-      ON pr.progress_report_id = pro.progress_report_id
-    `
+        `
+                            SELECT pr.concept_proposal_id,
+                                pr.project_id,
+                                prok.outcome_knowledge_name,
+                                prok.outcome_knowledge_detail,
+                                prok.outcome_knowledge_image,
+                                prok.outcome_knowledge_video
+                            FROM progress_report_outcome AS pro
+                            INNER JOIN progress_report_outcome_knowledge AS prok
+                            ON pro.outcome_id = prok.outcome_id
+                            INNER JOIN progress_report AS pr
+                            ON pr.progress_report_id = pro.progress_report_id `
     );
     const data = helper.emptyOrRows(rows);
     // console.log(data);
@@ -1909,12 +1948,14 @@ async function getNewKnowledge() {
     // จบการสร้างอาเรย์
     for (let i = 0; i < cciq.length; i++) {
         const locations = await db.query(
-            `SELECT * FROM concept_proposal
-            INNER JOIN co_concept_fk ON concept_proposal.concept_proposal_id = co_concept_fk.concept_proposal_id
-            INNER JOIN co_researcher ON co_researcher.co_researcher_id = co_concept_fk.co_researcher_id
-            WHERE concept_proposal.concept_proposal_id = ${cciq[i]} AND co_concept_fk.area_status = 1
-       
-      `
+            `
+                            SELECT * FROM concept_proposal
+                            INNER JOIN co_concept_fk ON concept_proposal.concept_proposal_id = co_concept_fk.concept_proposal_id
+                            INNER JOIN co_researcher ON co_researcher.co_researcher_id = co_concept_fk.co_researcher_id
+                            WHERE concept_proposal.concept_proposal_id = $ { cciq[i] }
+                            AND co_concept_fk.area_status = 1
+
+                                `
         );
         const data = helper.emptyOrRows(locations);
         data.map((listvalue) =>
@@ -1933,13 +1974,13 @@ async function getNewKnowledge() {
         // เตรียมข้อมูลออกมาเพื่อทำโหนด
 
         const knowledge = await db.query(
-            `SELECT progress_report.progress_report_id,progress_report.concept_proposal_id,progress_report_knowledge.knowledge_name,progress_report_knowledge.knowledge_detail
-      ,progress_report_knowledge_group.knowledge_group_category
-      FROM progress_report_knowledge
-      JOIN progress_report_knowledge_group ON progress_report_knowledge_group.knowledge_group_id = progress_report_knowledge.knowledge_group_id
-      JOIN progress_report ON progress_report.progress_report_id = progress_report_knowledge.progress_report_id
-      WHERE progress_report.concept_proposal_id = ${cciq[i]}
-      `
+            `
+                            SELECT progress_report.progress_report_id, progress_report.concept_proposal_id, progress_report_knowledge.knowledge_name, progress_report_knowledge.knowledge_detail, progress_report_knowledge_group.knowledge_group_category
+                            FROM progress_report_knowledge
+                            JOIN progress_report_knowledge_group ON progress_report_knowledge_group.knowledge_group_id = progress_report_knowledge.knowledge_group_id
+                            JOIN progress_report ON progress_report.progress_report_id = progress_report_knowledge.progress_report_id
+                            WHERE progress_report.concept_proposal_id = $ { cciq[i] }
+                            `
         );
 
         knowledge.map((listvalue) => knowledgedata.push(listvalue));
@@ -1947,13 +1988,13 @@ async function getNewKnowledge() {
         // จบตรงนี้1 อาเรย์
         // เตรียมข้อมูลออกมาเพื่อทำโหนด
         const Innovation = await db.query(
-            `SELECT progress_report.concept_proposal_id,progress_report.progress_report_id,progress_report_output.output_name
-      ,progress_report_output.output_detail
-      FROM progress_report_output
-      JOIN progress_report ON progress_report.progress_report_id = progress_report_output.progress_report_id
-      
-        WHERE progress_report.concept_proposal_id = ${cciq[i]}
-        `
+            `
+                            SELECT progress_report.concept_proposal_id, progress_report.progress_report_id, progress_report_output.output_name, progress_report_output.output_detail
+                            FROM progress_report_output
+                            JOIN progress_report ON progress_report.progress_report_id = progress_report_output.progress_report_id
+
+                            WHERE progress_report.concept_proposal_id = $ { cciq[i] }
+                            `
         );
 
         Innovation.map((listvalue) => Innovationdata.push(listvalue));
@@ -1975,20 +2016,21 @@ async function getNewKnowledge() {
     const co_locations = [];
     for (let i = 0; i < conceptid.length; i++) {
         const co_concept = await db.query(`
-      SELECT 
-        cp.project_type_id,
-        cp.concept_proposal_name_th,
-        ccf.concept_proposal_id, 
-        cr.co_researcher_name_th, 
-        cr.co_researcher_latitude, 
-        cr.co_researcher_longitude, 
-        cr.co_researcher_image
-      FROM co_concept_fk ccf 
-        INNER JOIN co_researcher cr 
-      ON cr.co_researcher_id = ccf.co_researcher_id
-        INNER JOIN concept_proposal cp
-      ON cp.concept_proposal_id = ccf.concept_proposal_id
-        WHERE ccf.concept_proposal_id = ${conceptid[i]}`);
+                            SELECT
+                            cp.project_type_id,
+                                cp.concept_proposal_name_th,
+                                ccf.concept_proposal_id,
+                                cr.co_researcher_name_th,
+                                cr.co_researcher_latitude,
+                                cr.co_researcher_longitude,
+                                cr.co_researcher_image
+                            FROM co_concept_fk ccf
+                            INNER JOIN co_researcher cr
+                            ON cr.co_researcher_id = ccf.co_researcher_id
+                            INNER JOIN concept_proposal cp
+                            ON cp.concept_proposal_id = ccf.concept_proposal_id
+                            WHERE ccf.concept_proposal_id = $ { conceptid[i] }
+                            `);
 
         co_concept.map((val) =>
             co_locations.push({
@@ -2074,9 +2116,11 @@ async function getNewKnowledge() {
             new_knowledges: listvalue.new_knowledges,
             knowledges: listvalue.knowledges,
             Innovation: listvalue.Innovation,
-            img: `https://researcher.kims-rmuti.com/icon/${
-        listvalue.project_type == 1 ? "วิจัย.png" : "บริการ.png"
-      }`,
+            img: `
+                            https: //researcher.kims-rmuti.com/icon/${
+                                listvalue.project_type == 1 ? "วิจัย.png" : "บริการ.png"
+                        }
+                        `,
         });
     });
 
@@ -2084,7 +2128,9 @@ async function getNewKnowledge() {
     parentNodes.map((listvalue) =>
         listvalue.new_knowledges.map((item, index) =>
             childNodes.push({
-                id: `${listvalue.id}.${index + 1}nkn`,
+                id: `
+                        $ { listvalue.id }.$ { index + 1 }
+                        nkn `,
                 type: "child",
                 concept_proposal_id: listvalue.concept_proposal_id,
                 outcome_knowledge_name: item.outcome_knowledge_name,
@@ -2101,7 +2147,9 @@ async function getNewKnowledge() {
     parentNodes.map((listvalue) =>
         listvalue.knowledges.map((item, index) =>
             childknowledgeNodes.push({
-                id: `${listvalue.id}.${index + 1}`,
+                id: `
+                        $ { listvalue.id }.$ { index + 1 }
+                        `,
                 type: "child",
                 concept_proposal_id: listvalue.concept_proposal_id,
                 knowledge_name: item.knowledge_name,
@@ -2118,7 +2166,8 @@ async function getNewKnowledge() {
     parentNodes.map((listvalue) =>
         listvalue.Innovation.map((item, index) =>
             childinnovationNodes.push({
-                id: `${listvalue.id}.${index + 1}in`,
+                id: `
+                        $ { listvalue.id }.$ { index + 1 } in `,
                 type: "child",
                 concept_proposal_id: listvalue.concept_proposal_id,
                 output_name: item.output_detail,
@@ -2137,8 +2186,11 @@ async function getNewKnowledge() {
         listvalue.knowledges.map((kn, id) => {
             listvalue.Innovation.map((inno, idx) => {
                 knowledgelink.push({
-                    from: `${listvalue.id}.${id + 1}`,
-                    to: `${listvalue.id}.${idx + 1}in`,
+                    from: `
+                        $ { listvalue.id }.$ { id + 1 }
+                        `,
+                    to: `
+                        $ { listvalue.id }.$ { idx + 1 } in `,
                 });
             });
         });
@@ -2146,8 +2198,11 @@ async function getNewKnowledge() {
         listvalue.Innovation.map((inno, idx) => {
             listvalue.new_knowledges.map((nkn, idy) => {
                 Innovationlink.push({
-                    from: `${listvalue.id}.${idx + 1}in`,
-                    to: `${listvalue.id}.${idy + 1}nkn`,
+                    from: `
+                        $ { listvalue.id }.$ { idx + 1 } in `,
+                    to: `
+                        $ { listvalue.id }.$ { idy + 1 }
+                        nkn `,
                 });
             });
         });
