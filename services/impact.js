@@ -175,9 +175,8 @@ async function getImpact(paramsQuery) {
             // knowledges: listvalue.knowledges,
             // innovations: listvalue.innovations,
             impacts: listvalue.impacts,
-            img: `https://researcher.kims-rmuti.com/icon/${
-        listvalue.project_type == 1 ? "วิจัย.png" : "บริการ.png"
-      }`,
+            img: `https://researcher.kims-rmuti.com/icon/${listvalue.project_type == 1 ? "วิจัย.png" : "บริการ.png"
+                }`,
         })
     );
 
@@ -193,15 +192,14 @@ async function getImpact(paramsQuery) {
                 impact_name: item.impacts,
                 lat: listvalue.lat,
                 lon: listvalue.lon,
-                img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
-          item.impacts == "เศรษฐกิจ"
-            ? "Economy-impact.png"
-            : item.impacts == "สังคม"
-            ? "New-Social-impact.png"
-            : item.impacts == "วัฒนธรรม"
-            ? "Cultural-impact.png"
-            : "Environmental-impact.png"
-        }`,
+                img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${item.impacts == "เศรษฐกิจ"
+                    ? "Economy-impact.png"
+                    : item.impacts == "สังคม"
+                        ? "New-Social-impact.png"
+                        : item.impacts == "วัฒนธรรม"
+                            ? "Cultural-impact.png"
+                            : "Environmental-impact.png"
+                    }`,
             });
         });
     });
@@ -261,7 +259,6 @@ async function getImpact(paramsQuery) {
 }
 //วิทยาเขตของหน้าผลกระทบส่วนดรอปดาว
 async function getCampusGroupimpact(paramsQuery) {
-
     const rows = await db.query(
         `SELECT  cp.concept_proposal_id, 
                   cp.concept_proposal_name_th, 
@@ -291,84 +288,78 @@ async function getCampusGroupimpact(paramsQuery) {
                 un.lot
         FROM university_name un WHERE un.unid = "${paramsQuery.groupId}"`
     );
-    const impactrow = await db.query(` SELECT * FROM bd_sum_impact`)
-    const data1 = helper.emptyOrRows(impactrow);
-    const impacts = [];
-    if (paramsQuery.impact_id == 0) {
+
+    const real_impacts = [];
+
+    for (let i = 0; i < cciq.length; i++) {
+        const concept_id = cciq[i];
+
+        const impactrow = await db.query(
+            `SELECT * FROM bd_sum_impact where concept_proposal_id = ${concept_id}`
+        );
+        const data1 = helper.emptyOrRows(impactrow);
+        const impacts = [];
+        // if (paramsQuery.impact_id == 0) {
         data1.map((listvalue) => impacts.push(listvalue));
-    } else {
-        data1.map((listvalue) => {
-            JSON.parse(listvalue.impact_id).map((item) =>
-                item == paramsQuery.impact_id ? impacts.push(listvalue) : []
-            );
+        // } else {
+        // data1.map((listvalue) => {
+        //   JSON.parse(listvalue.impact_id).map((item) =>
+        //     item == paramsQuery.impact_id ? impacts.push(listvalue) : []
+        //   );
+        // });
+        // }
+        const impact_arr = await db.query(`SELECT * FROM bd_outcome_impact`);
+        const impact_data = helper.emptyOrRows(impact_arr);
+        const impact_obj = impact_data.map((list, index) => {
+            return {
+                [index + 1]: list.impact_name,
+            };
         });
-    }
+        const obj = Object.assign({}, ...impact_obj);
 
-    const impact_arr = await db.query(`SELECT * FROM bd_outcome_impact`);
-    const impact_data = helper.emptyOrRows(impact_arr);
-    const impact_obj = impact_data.map((list, index) => {
-        return {
-            [index + 1]: list.impact_name,
-        };
-    });
-    const obj = Object.assign({}, ...impact_obj);
-
-    const progress_report_id = impacts.map((list) => list.progress_report_id);
-    const concept_proposal_id1 = impacts.map((list) => list.concept_proposal_id1);
-    const impact_id = [];
-
-    impacts.map((list) => {
-        if (paramsQuery.impact_id == 0) {
+        // const progress_report_id = impacts.map((list) => list.progress_report_id);
+        // const concept_proposal_id1 = impacts.map(
+        //   (list) => list.concept_proposal_id
+        // );
+        const impact_id = [];
+        impacts.map((list) => {
+            //   if (paramsQuery.impact_id == 0) {
             const impacts_all = JSON.parse(list.impact_id).map((item) => {
                 return {
-                    concept_proposal_id: Number(list.concept_proposal_id1),
+                    concept_proposal_id: Number(list.concept_proposal_id),
                     impacts: obj[item],
                 };
             });
             impacts_all.map((v) => impact_id.push(v));
-        } else {
-            impact_id.push({
-                concept_proposal_id: Number(list.concept_proposal_id1),
-                impacts: obj[paramsQuery.impact_id],
-            });
-        }
+            //   } else {
+            //     impact_id.push({
+            //       concept_proposal_id: Number(list.concept_proposal_id1),
+            //       impacts: obj[paramsQuery.impact_id],
+            //     });
+            //   }
+        });
+        // console.log(impact_id);
 
-    });
-    console.log(impact_id)
-
-    let final_impact = impact_id.filter(
-        (value, index, self) =>
-        index ===
-        self.findIndex(
-            (t) =>
-            t.concept_proposal_id === value.concept_proposal_id &&
-            t.impacts === value.impacts
-        )
-    );
-
-    const results_university = university.map((item) => {
-        const arrayResult = data.filter(
-            (itemInArray) => itemInArray.name === item.name
+        let final_impact = impact_id.filter(
+            (value, index, self) =>
+            index ===
+            self.findIndex(
+                (t) =>
+                t.concept_proposal_id === value.concept_proposal_id &&
+                t.impacts === value.impacts
+            )
         );
-        return {...item, projects: arrayResult };
+        // console.log(final_impact);
+        final_impact.map((value) => real_impacts.push(value));
+    }
+
+    const result_impacts = data.map((item) => {
+        const arrayResult = real_impacts.filter(
+            (itemInArray) =>
+            itemInArray.concept_proposal_id === item.concept_proposal_id
+        );
+        return {...item, impacts: arrayResult };
     });
-
-    // console.log(results_university);
-    //   console.log(results_university[0].projects)
-
-    const parentNodes = [];
-
-    results_university.map((listvalue, index) =>
-        parentNodes.push({
-            id: index + 1,
-            type: "parent",
-            university_name: listvalue.name,
-            lat: listvalue.lat,
-            lon: listvalue.lot,
-            projects: listvalue.projects,
-            img: "https://researcher.kims-rmuti.com/file-upload/researcher-upload/123.jpg",
-        })
-    );
 
     const childNodes = [];
     parentNodes.map((listvalue) => {
@@ -380,13 +371,18 @@ async function getCampusGroupimpact(paramsQuery) {
                 type: "child",
                 lat: listvalue.lat,
                 lon: listvalue.lon,
-                img: `https://researcher.kims-rmuti.com/icon/${
-          item.project_type_id == 1 
-            ? "วิจัย.png"
-            : item.project_type_id == 2
-            ? "บริการ.png"
-            : "u2t.jpg"
-        }`,
+                img: `https://researcher.kims-rmuti.com/icon/${item.project_type_id == 1
+                    ? "วิจัย.png"
+                    : item.project_type_id == 2
+                        ? "บริการ.png"
+                        : "u2t.jpg"
+                    }`,
+            });
+            item.impacts.map((d, i) => {
+                linksNodes.push({
+                    from: `${listvalue.id}.${index + 1}`,
+                    to: `${index + 1}.${i + 1}im`,
+                });
             });
         });
     });
@@ -403,34 +399,19 @@ async function getCampusGroupimpact(paramsQuery) {
                 impact_name: item.impacts,
                 lat: listvalue.lat,
                 lon: listvalue.lon,
-                img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
-          item.impacts == "เศรษฐกิจ"
-            ? "Economy-impact.png"
-            : item.impacts == "สังคม"
-            ? "New-Social-impact.png"
-            : item.impacts == "วัฒนธรรม"
-            ? "Cultural-impact.png"
-            : "Environmental-impact.png"
-        }`,
+                img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${item.impacts == "เศรษฐกิจ"
+                    ? "Economy-impact.png"
+                    : item.impacts == "สังคม"
+                        ? "New-Social-impact.png"
+                        : item.impacts == "วัฒนธรรม"
+                            ? "Cultural-impact.png"
+                            : "Environmental-impact.png"
+                    }`,
             });
         });
     });
 
     // console.log(childNodesConcepts);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     helper.applyArray(parentNodes, childNodes);
@@ -446,8 +427,15 @@ async function getCampusGroupimpact(paramsQuery) {
         };
     });
 
-    // helper.applyArray(links, linksNodes);
+    // console.log(linksNodes);
 
+    return {
+        from: listvalue.id | 0,
+        to: listvalue.id,
+    };
+
+
+    helper.applyArray(links, linksNodes);
 
     return {
         nodes: parentNodes,
@@ -455,9 +443,7 @@ async function getCampusGroupimpact(paramsQuery) {
     };
 }
 
-
 module.exports = {
     getImpact,
     getCampusGroupimpact,
-
 };
