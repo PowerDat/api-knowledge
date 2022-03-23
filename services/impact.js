@@ -484,20 +484,6 @@ async function getResearch(paramsQuery) {
   let cciq = [...new Set(concept_proposal_id)];
   // console.log(cciq);
 
-  const university = await db.query(
-    `SELECT cp.concept_proposal_id
-                    ,cp.concept_proposal_name_th
-                    ,cp.concept_proposal_type
-                    ,cpl.concept_proposal_locations_id
-                    ,cpl.concept_proposal_name
-                    ,cpl.concept_proposal_latitude
-                    ,cpl.concept_proposal_longitude
-            FROM concept_proposal AS cp
-            INNER JOIN concept_proposal_locations AS cpl ON cp.concept_proposal_id = cpl.concept_proposal_id
-                    WHERE cp.concept_proposal_id=${paramsQuery.groupId}
-        `
-  );
-
   const real_impacts = [];
   const concept_proposal_locations = [];
 
@@ -530,15 +516,8 @@ async function getResearch(paramsQuery) {
     );
     const data1 = helper.emptyOrRows(impactrow);
     const impacts = [];
-    // if (paramsQuery.impact_id == 0) {
     data1.map((listvalue) => impacts.push(listvalue));
-    // } else {
-    // data1.map((listvalue) => {
-    //   JSON.parse(listvalue.impact_id).map((item) =>
-    //     item == paramsQuery.impact_id ? impacts.push(listvalue) : []
-    //   );
-    // });
-    // }
+
     const impact_arr = await db.query(`SELECT * FROM bd_outcome_impact`);
     const impact_data = helper.emptyOrRows(impact_arr);
     const impact_obj = impact_data.map((list, index) => {
@@ -548,13 +527,8 @@ async function getResearch(paramsQuery) {
     });
     const obj = Object.assign({}, ...impact_obj);
 
-    // const progress_report_id = impacts.map((list) => list.progress_report_id);
-    // const concept_proposal_id1 = impacts.map(
-    //   (list) => list.concept_proposal_id
-    // );
     const impact_id = [];
     impacts.map((list) => {
-      //   if (paramsQuery.impact_id == 0) {
       const impacts_all = JSON.parse(list.impact_id).map((item) => {
         return {
           concept_proposal_id: Number(list.concept_proposal_id),
@@ -562,12 +536,6 @@ async function getResearch(paramsQuery) {
         };
       });
       impacts_all.map((v) => impact_id.push(v));
-      //   } else {
-      //     impact_id.push({
-      //       concept_proposal_id: Number(list.concept_proposal_id1),
-      //       impacts: obj[paramsQuery.impact_id],
-      //     });
-      //   }
     });
     // console.log(impact_id);
 
@@ -635,13 +603,6 @@ async function getResearch(paramsQuery) {
   });
 
   console.log(result_impacts);
-
-  const results_university = university.map((item) => {
-    // const arrayResult = data.filter(
-    //   (itemInArray) => itemInArray.name === item.name
-    // );
-    return { ...item, projects: result_impacts };
-  });
 
   const groupCencept = helper.groupBy(result_impacts, "concept_proposal_id");
   groupCencept.map((v) => {
