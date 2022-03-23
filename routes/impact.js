@@ -21,6 +21,16 @@ router.get("/get/CampusGroupimpact", async function(req, res, next) {
     }
 });
 
+router.get("/get/Research", async function(req, res, next) {
+    try {
+        res.json(await impact.getResearch(req.query));
+    } catch (err) {
+        console.error(`Error while getting new Impact `, err.message);
+        next(err);
+    }
+});
+
+
 
 
 
