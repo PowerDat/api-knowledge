@@ -480,7 +480,7 @@ async function getResearch(paramsQuery) {
     let cciq = [...new Set(concept_proposal_id)];
     console.log(cciq);
 
-    const university = await db.query(
+    const locations = await db.query(
                     `SELECT cp.concept_proposal_id
                     ,cp.concept_proposal_name_th
                     ,cp.concept_proposal_type
@@ -506,13 +506,7 @@ async function getResearch(paramsQuery) {
         const impacts = [];
         // if (paramsQuery.impact_id == 0) {
         data1.map((listvalue) => impacts.push(listvalue));
-        // } else {
-        // data1.map((listvalue) => {
-        //   JSON.parse(listvalue.impact_id).map((item) =>
-        //     item == paramsQuery.impact_id ? impacts.push(listvalue) : []
-        //   );
-        // });
-        // }
+        
         const impact_arr = await db.query(`SELECT * FROM bd_outcome_impact`);
         const impact_data = helper.emptyOrRows(impact_arr);
         const impact_obj = impact_data.map((list, index) => {
@@ -522,10 +516,6 @@ async function getResearch(paramsQuery) {
         });
         const obj = Object.assign({}, ...impact_obj);
 
-        // const progress_report_id = impacts.map((list) => list.progress_report_id);
-        // const concept_proposal_id1 = impacts.map(
-        //   (list) => list.concept_proposal_id
-        // );
         const impact_id = [];
         impacts.map((list) => {
             //   if (paramsQuery.impact_id == 0) {
@@ -536,12 +526,7 @@ async function getResearch(paramsQuery) {
                 };
             });
             impacts_all.map((v) => impact_id.push(v));
-            //   } else {
-            //     impact_id.push({
-            //       concept_proposal_id: Number(list.concept_proposal_id1),
-            //       impacts: obj[paramsQuery.impact_id],
-            //     });
-            //   }
+           
         });
         // console.log(impact_id);
 
@@ -568,15 +553,12 @@ async function getResearch(paramsQuery) {
 
     console.log(result_impacts);
 
-    const results_university = university.map((item) => {
-        // const arrayResult = data.filter(
-        //   (itemInArray) => itemInArray.name === item.name
-        // );
+    const results_university = locations.map((item) => {
+        
         return { ...item, projects: result_impacts };
     });
 
-    // console.log(results_university);
-    //   console.log(results_university[0].projects)
+    
 
     const parentNodes = [];
 
@@ -584,7 +566,7 @@ async function getResearch(paramsQuery) {
         parentNodes.push({
             id: index + 1,
             type: "parent",
-            university_name: listvalue.name,
+            concept_proposal_id: listvalue.concept_proposal_id,
             lat: listvalue.lat,
             lon: listvalue.lot,
             projects: listvalue.projects,
@@ -663,24 +645,6 @@ async function getResearch(paramsQuery) {
         links: links,
     };
 }
-
-  
-   
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 module.exports = {
