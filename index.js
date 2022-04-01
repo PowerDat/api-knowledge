@@ -12,6 +12,7 @@ const knowledge = require("./routes/knowledge.js");
 const piechart = require("./routes/piechart.js");
 const goal = require("./routes/goal.js");
 const impact = require("./routes/impact.js");
+const newgoals = require("./routes/newgoals.js");
 
 // app.use(authMiddleware);
 
@@ -31,6 +32,7 @@ app.use("/api", knowledge);
 app.use("/api", piechart);
 app.use("/api", goal);
 app.use("/api", impact);
+app.use("/api", newgoals);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
