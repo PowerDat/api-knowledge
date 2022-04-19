@@ -1104,6 +1104,7 @@ async function getCampusGroup(paramsQuery) {
             ON pr.progress_report_id = pro.progress_report_id
             
             WHERE pr.concept_proposal_id = ${cciq[i]}
+            and prok.outcome_knowledge_name is not null
         `);
     newKnowledge.map((listvalue) => newKnowledgeData.push(listvalue));
   }
@@ -1879,7 +1880,7 @@ async function getnewknowledgegroup(paramsQuery) {
     links: links,
   };
 
-  return parentNodes;
+  //   return parentNodes;s
 }
 
 // หน้าแรกของเว็บ life cycle
@@ -1901,6 +1902,7 @@ async function getNewKnowledge(paramsQuery) {
         ? paramsQuery.concept_proposal_id
         : "pr.concept_proposal_id"
     }
+    and outcome_knowledge_name is not null
     `
   );
   const data = helper.emptyOrRows(rows);
@@ -2230,7 +2232,351 @@ async function getNewKnowledge(paramsQuery) {
   // return parentNodes;
 }
 
+async function getKnowledge() {
+  const rows = await db.query(
+    `SELECT pr.concept_proposal_id,
+              pr.project_id,
+              prok.outcome_knowledge_name, 
+              prok.outcome_knowledge_detail,
+              prok.outcome_knowledge_image,
+              prok.outcome_knowledge_video
+      FROM progress_report_outcome AS pro 
+      INNER JOIN progress_report_outcome_knowledge AS prok
+        ON pro.outcome_id = prok.outcome_id
+      INNER JOIN progress_report AS pr 
+        ON pr.progress_report_id = pro.progress_report_id
+        where outcome_knowledge_name is not null
+      `
+  );
+  const data = helper.emptyOrRows(rows);
+  // console.log(data);
+
+  let concept_proposal_id = [];
+  let project_id = [];
+  data.map((listvalue) => {
+    concept_proposal_id.push(listvalue.concept_proposal_id);
+    project_id.push(listvalue.project_id);
+  });
+  let cciq = [...new Set(concept_proposal_id)];
+  let pjid = [...new Set(project_id)];
+
+  console.log(pjid.filter((x) => x !== null));
+
+  // สร้างตัวเก็บอาเรย์
+  let concept_proposal_locations = [];
+  let knowledgedata = [];
+  let Innovationdata = [];
+  // จบการสร้างอาเรย์
+  for (let i = 0; i < cciq.length; i++) {
+    const locations = await db.query(
+      `SELECT * FROM concept_proposal
+              INNER JOIN co_concept_fk ON concept_proposal.concept_proposal_id = co_concept_fk.concept_proposal_id
+              INNER JOIN co_researcher ON co_researcher.co_researcher_id = co_concept_fk.co_researcher_id
+              WHERE concept_proposal.concept_proposal_id = ${cciq[i]} AND co_concept_fk.area_status = 1
+         
+        `
+    );
+    const data = helper.emptyOrRows(locations);
+    data.map((listvalue) =>
+      concept_proposal_locations.push({
+        concept_proposal_id: listvalue.concept_proposal_id,
+        concept_proposal_name: listvalue.co_researcher,
+        concept_proposal_name_th: listvalue.concept_proposal_name_th,
+        project_type: listvalue.project_type_id,
+        lat: listvalue.co_researcher_latitude,
+        lon: listvalue.co_researcher_longitude,
+      })
+    );
+
+    console.log(locations);
+
+    // เตรียมข้อมูลออกมาเพื่อทำโหนด
+
+    const knowledge = await db.query(
+      `SELECT progress_report.progress_report_id,progress_report.concept_proposal_id,progress_report_knowledge.knowledge_name,progress_report_knowledge.knowledge_detail
+        ,progress_report_knowledge_group.knowledge_group_category
+        FROM progress_report_knowledge
+        JOIN progress_report_knowledge_group ON progress_report_knowledge_group.knowledge_group_id = progress_report_knowledge.knowledge_group_id
+        JOIN progress_report ON progress_report.progress_report_id = progress_report_knowledge.progress_report_id
+        WHERE progress_report.concept_proposal_id = ${cciq[i]}
+        `
+    );
+
+    knowledge.map((listvalue) => knowledgedata.push(listvalue));
+
+    // จบตรงนี้1 อาเรย์
+    // เตรียมข้อมูลออกมาเพื่อทำโหนด
+    const Innovation = await db.query(
+      `SELECT progress_report.concept_proposal_id,progress_report.progress_report_id,progress_report_output.output_name
+        ,progress_report_output.output_detail
+        FROM progress_report_output
+        JOIN progress_report ON progress_report.progress_report_id = progress_report_output.progress_report_id
+        
+          WHERE progress_report.concept_proposal_id = ${cciq[i]}
+          `
+    );
+
+    Innovation.map((listvalue) => Innovationdata.push(listvalue));
+    // จบตรงนี้1 อาเรย์
+  }
+
+  console.log(Innovationdata);
+
+  // console.log(concept_proposal_locations);
+
+  // start here
+  const newlocation = helper.groupBy(
+    concept_proposal_locations,
+    "concept_proposal_id"
+  );
+  const conceptlocation = newlocation.map((val) => val.data[0]);
+  const conceptid = conceptlocation.map((val) => val.concept_proposal_id);
+
+  const co_locations = [];
+  for (let i = 0; i < conceptid.length; i++) {
+    const co_concept = await db.query(`
+        SELECT 
+          cp.project_type_id,
+          cp.concept_proposal_name_th,
+          ccf.concept_proposal_id, 
+          cr.co_researcher_name_th, 
+          cr.co_researcher_latitude, 
+          cr.co_researcher_longitude, 
+          cr.co_researcher_image
+        FROM co_concept_fk ccf 
+          INNER JOIN co_researcher cr 
+        ON cr.co_researcher_id = ccf.co_researcher_id
+          INNER JOIN concept_proposal cp
+        ON cp.concept_proposal_id = ccf.concept_proposal_id
+          WHERE ccf.concept_proposal_id = ${conceptid[i]}`);
+
+    co_concept.map((val) =>
+      co_locations.push({
+        concept_proposal_id: val.concept_proposal_id,
+        concept_proposal_name: val.co_researcher_name_th,
+        concept_proposal_name_th: val.concept_proposal_name_th,
+        lat: val.co_researcher_latitude,
+        lon: val.co_researcher_longitude,
+        project_type: val.project_type_id,
+      })
+    );
+  }
+
+  conceptlocation.map((val) => co_locations.push(val));
+  // console.log(co_locations);
+
+  // end here
+
+  const results = co_locations.map((item) => {
+    const arrayResult = data.filter(
+      (itemInArray) =>
+        itemInArray.concept_proposal_id === item.concept_proposal_id
+    );
+    return { ...item, new_knowledges: arrayResult };
+  });
+
+  const results_knowledges = results.map((item) => {
+    const arrayResult = knowledgedata.filter(
+      (itemInArray) =>
+        itemInArray.concept_proposal_id === item.concept_proposal_id
+    );
+    return { ...item, knowledges: arrayResult };
+  });
+
+  const results_innovation = results_knowledges.map((item) => {
+    const arrayResult = Innovationdata.filter(
+      (itemInArray) =>
+        itemInArray.concept_proposal_id === item.concept_proposal_id
+    );
+    return { ...item, Innovation: arrayResult };
+  });
+
+  // console.log(results_knowledges);
+
+  const groupCencept = helper.groupBy(
+    results_innovation,
+    "concept_proposal_id"
+  );
+  groupCencept.map((v) => {
+    if (
+      v.data[0].knowledges.length >= 1 ||
+      v.data[0].new_knowledges.length >= 1 ||
+      v.data[0].Innovation.length >= 1
+    ) {
+      const o = v.data.slice(1);
+      // console.log(o);
+      o.map((item) => {
+        item.knowledges = [];
+        item.new_knowledges = [];
+        item.Innovation = [];
+      });
+    }
+  });
+
+  // console.log("con", concept);
+
+  const prepareNodes = [];
+  groupCencept.map((listvalue, index) => {
+    listvalue.data.map((item) => prepareNodes.push(item));
+  });
+
+  const parentNodes = [];
+  prepareNodes.map((listvalue, index) => {
+    parentNodes.push({
+      id: index + 1,
+      type: "parent",
+      concept_proposal_id: listvalue.concept_proposal_id,
+      concept_proposal_name: listvalue.concept_proposal_name,
+      concept_proposal_name_th: listvalue.concept_proposal_name_th,
+
+      lat: listvalue.lat,
+      lon: listvalue.lon,
+      new_knowledges: listvalue.new_knowledges,
+      knowledges: listvalue.knowledges,
+      Innovation: listvalue.Innovation,
+      img: `https://researcher.kims-rmuti.com/icon/${
+        listvalue.project_type == 1 ? "วิจัย.png" : "บริการ.png"
+      }`,
+    });
+  });
+
+  const childNodes = [];
+  parentNodes.map((listvalue) =>
+    listvalue.new_knowledges.map((item, index) =>
+      childNodes.push({
+        id: `${listvalue.id}.${index + 1}nkn`,
+        type: "child",
+        concept_proposal_id: listvalue.concept_proposal_id,
+        outcome_knowledge_name: item.outcome_knowledge_name,
+        outcome_knowledge_detail: item.outcome_knowledge_detail,
+        concept_proposal_name_th: item.concept_proposal_name_th,
+        lat: listvalue.lat,
+        lon: listvalue.lon,
+        img: "https://researcher.kims-rmuti.com/icon/new%20knowledge3.png",
+      })
+    )
+  );
+
+  const childknowledgeNodes = [];
+  parentNodes.map((listvalue) =>
+    listvalue.knowledges.map((item, index) =>
+      childknowledgeNodes.push({
+        id: `${listvalue.id}.${index + 1}`,
+        type: "child",
+        concept_proposal_id: listvalue.concept_proposal_id,
+        knowledge_name: item.knowledge_name,
+        knowledge_detail: item.knowledge_detail,
+        concept_proposal_name_th: item.concept_proposal_name_th,
+        lat: listvalue.lat,
+        lon: listvalue.lon,
+        img: "https://researcher.kims-rmuti.com/icon/knowledge3(1).png",
+      })
+    )
+  );
+
+  const childinnovationNodes = [];
+  parentNodes.map((listvalue) =>
+    listvalue.Innovation.map((item, index) =>
+      childinnovationNodes.push({
+        id: `${listvalue.id}.${index + 1}in`,
+        type: "child",
+        concept_proposal_id: listvalue.concept_proposal_id,
+        output_name: item.output_detail,
+        output_detail: item.output_detail,
+        concept_proposal_name_th: item.concept_proposal_name_th,
+        lat: listvalue.lat,
+        lon: listvalue.lon,
+        img: "https://researcher.kims-rmuti.com/icon/innovation2.png",
+      })
+    )
+  );
+  let knowledgelink = [];
+  let Innovationlink = [];
+
+  parentNodes.map((listvalue) => {
+    listvalue.knowledges.map((kn, id) => {
+      listvalue.Innovation.map((inno, idx) => {
+        knowledgelink.push({
+          from: `${listvalue.id}.${id + 1}`,
+          to: `${listvalue.id}.${idx + 1}in`,
+        });
+      });
+    });
+
+    listvalue.Innovation.map((inno, idx) => {
+      listvalue.new_knowledges.map((nkn, idy) => {
+        Innovationlink.push({
+          from: `${listvalue.id}.${idx + 1}in`,
+          to: `${listvalue.id}.${idy + 1}nkn`,
+        });
+      });
+    });
+  });
+
+  const groupNodes = helper.groupBy(parentNodes, "concept_proposal_id");
+  console.log("sss", groupNodes);
+
+  let linkNode = [];
+  const l = groupNodes.map((item) => {
+    const linknode = item.data.map((link) => {
+      return { from: link.id, to: link.id + 1 };
+    });
+
+    linknode.pop();
+
+    // console.log("sssa", linknode[0]);
+    if (linknode[0]) {
+      let lastone = {
+        from: linknode[0].from,
+        to: linknode[linknode.length - 1].to,
+      };
+      linknode.push(lastone);
+    }
+
+    return { links: linknode };
+  });
+
+  l.map((item) => {
+    // item.links.pop();
+    item.links.map((list) => linkNode.push(list));
+  });
+
+  // console.log(linkNode);
+
+  // linkfrom.pop();
+  // linkto.shift();
+
+  // let linksNodes = linkfrom.map((item, i) =>
+  //   Object.assign({}, item, linkto[i])
+  // );
+
+  // console.log(linkfrom);
+
+  helper.applyArray(parentNodes, childNodes);
+  helper.applyArray(parentNodes, childknowledgeNodes);
+  helper.applyArray(parentNodes, childinnovationNodes);
+
+  const links = childknowledgeNodes.map((listvalue) => {
+    return {
+      from: listvalue.id | 0,
+      to: listvalue.id,
+    };
+  });
+
+  helper.applyArray(links, linkNode);
+  helper.applyArray(links, knowledgelink);
+  helper.applyArray(links, Innovationlink);
+
+  return {
+    nodes: parentNodes,
+    links: links,
+  };
+
+  // return parentNodes;
+}
+
 module.exports = {
+  getKnowledge,
   getNewKnowledge,
   getKnowledgeByGrouup,
   getOutput,
