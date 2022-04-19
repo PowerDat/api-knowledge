@@ -5,7 +5,7 @@ const knowledge = require("../services/knowledge.js");
 /* GET knowledge. */
 router.get("/get/newknowledge", async function(req, res, next) {
     try {
-        res.json(await knowledge.getNewKnowledge());
+        res.json(await knowledge.getNewKnowledge(req.query));
     } catch (err) {
         console.error(`Error while getting new Knowledge `, err.message);
         next(err);
