@@ -15,6 +15,8 @@ const impact = require("./routes/impact.js");
 const newgoals = require("./routes/newgoals.js");
 const piechartgoal = require("./routes/piechartgoal.js");
 const piechartimpact = require("./routes/piechartimpact.js");
+const newknowledge = require("./routes/newknowledge.js");
+const piechartnewknowledge = require("./routes/piechartnewknowledge.js");
 
 // app.use(authMiddleware);
 
@@ -37,6 +39,8 @@ app.use("/api", impact);
 app.use("/api", newgoals);
 app.use("/api", piechartgoal);
 app.use("/api", piechartimpact);
+app.use("/api", newknowledge);
+app.use("/api", piechartnewknowledge);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
