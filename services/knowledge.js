@@ -154,8 +154,8 @@ async function getOutput(paramsQuery) {
       lon: listvalue.lon,
       innovations: listvalue.innovations,
       knowledges: listvalue.knowledges,
-      img: `https://researcher.kims-rmuti.com/icon/${
-        listvalue.project_type == 1 ? "วิจัย.png" : "บริการ.png"
+      img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
+        listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
       }`,
     })
   );
@@ -1782,7 +1782,7 @@ async function getnewknowledgegroup(paramsQuery) {
       knowledges: listvalue.knowledges,
       Innovation: listvalue.Innovation,
       img: `https://www.km-innovations.rmuti.ac.th/researcher/icon/${
-        listvalue.project_type == 1 ? "วิจัย.png" : "บริการ.png"
+        listvalue.project_type == 1 ? "research.png" : "บริการวิชาการ.png"
       }`,
     });
   });
