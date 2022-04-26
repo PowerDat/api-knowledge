@@ -341,20 +341,20 @@ async function getCampusGroup(paramsQuery) {
                 INNER JOIN progress_report AS pr 
             ON pr.progress_report_id = pro.progress_report_id
             
-            WHERE pr.concept_proposal_id = ${cciq[i]}
+            WHERE pr.concept_proposal_id = ${cciq[i]} and outcome_knowledge_name is not null
         `);
     newKnowledge.map((listvalue) => newKnowledgeData.push(listvalue));
   }
 
   console.log(newKnowledgeData);
 
-  // const results_knowledges = data.map((item) => {
-  //   const arrayResult = knowledgedata.filter(
-  //     (itemInArray) =>
-  //       itemInArray.concept_proposal_id === item.concept_proposal_id
-  //   );
-  //   return { ...item, knowledges: arrayResult };
-  // });
+  const results_knowledges = data.map((item) => {
+    const arrayResult = knowledgedata.filter(
+      (itemInArray) =>
+        itemInArray.concept_proposal_id === item.concept_proposal_id
+    );
+    return { ...item, knowledges: arrayResult };
+  });
 
   // console.log(resultsknowledge);
 
@@ -425,10 +425,10 @@ async function getCampusGroup(paramsQuery) {
             : "u2t.jpg"
         }`,
       });
-      item.innovations.map((d, i) => {
+      item.innovations.map((d, idx) => {
         linksNodes.push({
           from: `${listvalue.id}.${index + 1}`,
-          to: `${i + 1}.${idx + 1}in`,
+          to: `${index + 1}.${idx + 1}in`,
         });
       });
     });
@@ -463,7 +463,7 @@ async function getCampusGroup(paramsQuery) {
   //   console.log(knowledgeslink);
 
   const childinnovationNodes = [];
-  let innovationslink = [];
+    let innovationslink = [];
 
   parentNodes[0].projects.map((listvalue, i) => {
     listvalue.innovations.map((item, index) => {
@@ -478,17 +478,18 @@ async function getCampusGroup(paramsQuery) {
         lon: parentNodes[0].lon,
         img: "https://researcher.kims-rmuti.com/icon/innovation2.png",
       });
-      listvalue.newknowledges.map((nkn, idx) => {
-        innovationslink.push({
-          from: `${i + 1}.${index + 1}in`,
-          to: `${i + 1}.${idx + 1}nkn`,
+        listvalue.newknowledges.map((nkn, idx) => {
+          innovationslink.push({
+            from: `${i + 1}.${index + 1}in`,
+            to: `${i + 1}.${idx + 1}nkn`,
+          });
         });
-      });
     });
   });
   //   console.log(innovationslink);
 
   const childNewknowledges = [];
+  const newknowledgeslink = [];
   parentNodes[0].projects.map((listvalue, i) => {
     listvalue.newknowledges.map((item, index) => {
       childNewknowledges.push({
@@ -502,6 +503,12 @@ async function getCampusGroup(paramsQuery) {
         lon: parentNodes[0].lon,
         img: "https://researcher.kims-rmuti.com/icon/new%20knowledge3.png",
       });
+      // listvalue.innovations.map((nkn, idx) => {
+      //   newknowledgeslink.push({
+      //     from: `${i + 1}.${index + 1}nkn`,
+      //     to: `${i + 1}.${idx + 1}in`,
+      //   });
+      // });
     });
   });
 
@@ -573,7 +580,7 @@ async function getCampusGroup(paramsQuery) {
   // });
 
   helper.applyArray(parentNodes, childNodes);
-  helper.applyArray(parentNodes, childNodeKnowledges);
+  //   helper.applyArray(parentNodes, childNodeKnowledges);
   helper.applyArray(parentNodes, childinnovationNodes);
   helper.applyArray(parentNodes, childNewknowledges);
 
@@ -589,8 +596,8 @@ async function getCampusGroup(paramsQuery) {
   });
 
   helper.applyArray(links, linksNodes);
-  helper.applyArray(links, knowledgeslink);
-  helper.applyArray(links, innovationslink);
+  helper.applyArray(links, newknowledgeslink);
+    helper.applyArray(links, innovationslink);
 
   return {
     nodes: parentNodes,
