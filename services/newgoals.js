@@ -88,6 +88,8 @@ async function getNewGoals(paramQuery) {
           : listvalue.type == "cluster"
           ? cluster_obj_img[listvalue.item_id]
           : listvalue.item_id,
+      goal_id: listvalue.bd_sum_goal_id,
+      goal_type: listvalue.type
     });
 
     concept_proposal_id.push(listvalue.concept_proposal_id);
@@ -208,7 +210,9 @@ async function getNewGoals(paramQuery) {
       childNodes.push({
         id: `${listvalue.id}.${index + 1}`,
         type: "child",
+        goal_type: item.goal_type,
         concept_proposal_id: listvalue.concept_proposal_id,
+        goal_id: item.goal_id,
         goal_name: item.goal_name,
         lat: listvalue.lat,
         lon: listvalue.lon,
@@ -233,7 +237,7 @@ async function getNewGoals(paramQuery) {
       let lastone = {
         from: linknode[0].from,
         to: linknode[linknode.length - 1].to,
-      };
+      }; 
       linknode.push(lastone);
     }
 
