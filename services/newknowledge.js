@@ -305,8 +305,12 @@ async function getCampusGroup(paramsQuery) {
 
   for (let i = 0; i < cciq.length; i++) {
     const knowledges = await db.query(
-      `SELECT progress_report.progress_report_id,progress_report.concept_proposal_id,progress_report_knowledge.knowledge_name,progress_report_knowledge.knowledge_detail
-      ,progress_report_knowledge_group.knowledge_group_category
+      `SELECT progress_report.progress_report_id,
+              progress_report.concept_proposal_id,
+              progress_report_knowledge.knowledge_id,
+              progress_report_knowledge.knowledge_name,
+              progress_report_knowledge.knowledge_detail,
+              progress_report_knowledge_group.knowledge_group_category
       FROM progress_report_knowledge
       JOIN progress_report_knowledge_group ON progress_report_knowledge_group.knowledge_group_id = progress_report_knowledge.knowledge_group_id
       JOIN progress_report ON progress_report.progress_report_id = progress_report_knowledge.progress_report_id
@@ -318,8 +322,11 @@ async function getCampusGroup(paramsQuery) {
     // จบตรงนี้1 อาเรย์
     // เตรียมข้อมูลออกมาเพื่อทำโหนด
     const Innovation = await db.query(
-      `SELECT progress_report.concept_proposal_id,progress_report.progress_report_id,progress_report_output.output_name
-      ,progress_report_output.output_detail
+      `SELECT progress_report.concept_proposal_id,
+              progress_report.progress_report_id,
+              progress_report_output.output_id,
+              progress_report_output.output_name,
+              progress_report_output.output_detail
       FROM progress_report_output
       JOIN progress_report ON progress_report.progress_report_id = progress_report_output.progress_report_id
       
@@ -331,6 +338,7 @@ async function getCampusGroup(paramsQuery) {
     const newKnowledge = await db.query(`
                 SELECT pr.concept_proposal_id,
                     pr.project_id,
+                    prok.outcome_knowledge_id, 
                     prok.outcome_knowledge_name, 
                     prok.outcome_knowledge_detail,
                     prok.outcome_knowledge_image,
@@ -471,6 +479,7 @@ async function getCampusGroup(paramsQuery) {
         id: `${i + 1}.${index + 1}in`,
         type: "child",
         concept_proposal_id: listvalue.concept_proposal_id,
+        output_id: item.output_id,
         output_name: item.output_name,
         output_detail: item.output_detail,
         // concept_proposal_name_th: item.concept_proposal_name_th,
@@ -496,6 +505,7 @@ async function getCampusGroup(paramsQuery) {
         id: `${i + 1}.${index + 1}nkn`,
         type: "child",
         concept_proposal_id: listvalue.concept_proposal_id,
+        outcome_knowledge_id: item.outcome_knowledge_id,
         outcome_knowledge_name: item.outcome_knowledge_name,
         outcome_knowledge_detail: item.outcome_knowledge_detail,
         //   concept_proposal_name_th: item.concept_proposal_name_th,

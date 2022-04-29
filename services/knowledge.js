@@ -50,6 +50,7 @@ async function getOutput(paramsQuery) {
     data1.map((listvalue) =>
       knowledges.push({
         concept_proposal_id: listvalue.concept_proposal_id,
+        knowledge_id: listvalue.knowledge_id,
         knowledge_name: listvalue.knowledge_name,
         knowledge_detail: listvalue.knowledge_detail,
       })
@@ -180,6 +181,7 @@ async function getOutput(paramsQuery) {
         id: `${listvalue.id}.${index + 1}`,
         type: "child",
         concept_proposal_id: item.concept_proposal_id,
+        output_id: item.output_id,
         output_name: item.output_name,
         output_detail: item.output_detail,
         lat: listvalue.lat,
@@ -192,6 +194,7 @@ async function getOutput(paramsQuery) {
         id: `${listvalue.id}.${index + 1}xn`,
         type: "child",
         concept_proposal_id: item.concept_proposal_id,
+        knowledge_id: item.knowledge_id,
         knowledge_name: item.knowledge_name,
         knowledge_detail: item.knowledge_detail,
         lat: listvalue.lat,
@@ -1067,11 +1070,15 @@ async function getCampusGroup(paramsQuery) {
 
   for (let i = 0; i < cciq.length; i++) {
     const knowledges = await db.query(
-      `SELECT progress_report.progress_report_id,progress_report.concept_proposal_id,progress_report_knowledge.knowledge_name,progress_report_knowledge.knowledge_detail
-      ,progress_report_knowledge_group.knowledge_group_category
+      `SELECT progress_report.progress_report_id,
+              progress_report.concept_proposal_id,
+              progress_report_knowledge.knowledge_id,
+              progress_report_knowledge.knowledge_name,
+              progress_report_knowledge.knowledge_detail,
+              progress_report_knowledge_group.knowledge_group_category
       FROM progress_report_knowledge
-      JOIN progress_report_knowledge_group ON progress_report_knowledge_group.knowledge_group_id = progress_report_knowledge.knowledge_group_id
-      JOIN progress_report ON progress_report.progress_report_id = progress_report_knowledge.progress_report_id
+        JOIN progress_report_knowledge_group ON progress_report_knowledge_group.knowledge_group_id = progress_report_knowledge.knowledge_group_id
+        JOIN progress_report ON progress_report.progress_report_id = progress_report_knowledge.progress_report_id
       WHERE progress_report.concept_proposal_id = ${cciq[i]}
       `
     );
@@ -1080,8 +1087,11 @@ async function getCampusGroup(paramsQuery) {
     // จบตรงนี้1 อาเรย์
     // เตรียมข้อมูลออกมาเพื่อทำโหนด
     const Innovation = await db.query(
-      `SELECT progress_report.concept_proposal_id,progress_report.progress_report_id,progress_report_output.output_name
-      ,progress_report_output.output_detail
+      `SELECT progress_report.concept_proposal_id,
+              progress_report.progress_report_id,
+              progress_report_output.output_id,
+              progress_report_output.output_name,
+              progress_report_output.output_detail
       FROM progress_report_output
       JOIN progress_report ON progress_report.progress_report_id = progress_report_output.progress_report_id
       
@@ -1094,6 +1104,7 @@ async function getCampusGroup(paramsQuery) {
                 SELECT pr.concept_proposal_id,
                     pr.project_id,
                     prok.outcome_knowledge_name, 
+                    prok.outcome_knowledge_id,
                     prok.outcome_knowledge_detail,
                     prok.outcome_knowledge_image,
                     prok.outcome_knowledge_video
@@ -1208,6 +1219,7 @@ async function getCampusGroup(paramsQuery) {
         id: `${i + 1}.${index + 1}kn`,
         type: "child",
         concept_proposal_id: listvalue.concept_proposal_id,
+        knowledge_id: item.knowledge_id,
         knowledge_name: item.knowledge_name,
         knowledge_detail: item.knowledge_detail,
         lat: parentNodes[0].lat,
@@ -1234,6 +1246,7 @@ async function getCampusGroup(paramsQuery) {
         id: `${i + 1}.${index + 1}in`,
         type: "child",
         concept_proposal_id: listvalue.concept_proposal_id,
+        output_id: item.output_id,
         output_name: item.output_name,
         output_detail: item.output_detail,
         // concept_proposal_name_th: item.concept_proposal_name_th,
@@ -1258,6 +1271,7 @@ async function getCampusGroup(paramsQuery) {
         id: `${i + 1}.${index + 1}nkn`,
         type: "child",
         concept_proposal_id: listvalue.concept_proposal_id,
+        outcome_knowledge_id: item.outcome_knowledge_id,
         outcome_knowledge_name: item.outcome_knowledge_name,
         outcome_knowledge_detail: item.outcome_knowledge_detail,
         //   concept_proposal_name_th: item.concept_proposal_name_th,
@@ -1523,6 +1537,7 @@ async function getKnowledgeByGrouup(paramsQuery) {
         id: `${listvalue.id}.${index + 1}`,
         concept_proposal_id: item.concept_proposal_id,
         type: "child",
+        knowledge_id: item.knowledge_id,
         knowledge_name: item.knowledge_name,
         knowledge_detail: item.knowledge_detail,
         lat: listvalue.lat,
@@ -1539,6 +1554,7 @@ async function getKnowledgeByGrouup(paramsQuery) {
         id: `${listvalue.id}.${index + 1}00`,
         type: "child",
         concept_proposal_id: item.concept_proposal_id,
+        output_id: item.output_id,
         output_name: item.output_name,
         output_detail: item.output_detail,
         lat: listvalue.lat,
@@ -1626,13 +1642,16 @@ async function getKnowledgeByGrouup(paramsQuery) {
 //องค์ความรู้ใหม่
 async function getnewknowledgegroup(paramsQuery) {
   const rows = await db.query(
-    `SELECT progress_report.concept_proposal_id,progress_report.progress_report_id
-        ,progress_report_knowledge_group.knowledge_group_category,progress_report_outcome_knowledge.outcome_knowledge_name
-        ,progress_report_outcome_knowledge.outcome_knowledge_detail
+    `SELECT progress_report.concept_proposal_id,
+            progress_report.progress_report_id,
+            progress_report_knowledge_group.knowledge_group_category,
+            progress_report_outcome_knowledge.outcome_knowledge_id,
+            progress_report_outcome_knowledge.outcome_knowledge_name,
+            progress_report_outcome_knowledge.outcome_knowledge_detail
         FROM progress_report_outcome_knowledge
-        JOIN progress_report_knowledge_group ON progress_report_knowledge_group.knowledge_group_id = progress_report_outcome_knowledge.knowledge_group_id
-        JOIN progress_report_knowledge ON progress_report_knowledge.knowledge_group_id = progress_report_knowledge_group.knowledge_group_id
-        JOIN progress_report ON progress_report.progress_report_id = progress_report_knowledge.progress_report_id
+          JOIN progress_report_knowledge_group ON progress_report_knowledge_group.knowledge_group_id = progress_report_outcome_knowledge.knowledge_group_id
+          JOIN progress_report_knowledge ON progress_report_knowledge.knowledge_group_id = progress_report_knowledge_group.knowledge_group_id
+          JOIN progress_report ON progress_report.progress_report_id = progress_report_knowledge.progress_report_id
         WHERE progress_report_knowledge_group.knowledge_group_category = "${paramsQuery.groupName}"
     `
   );
@@ -1794,6 +1813,7 @@ async function getnewknowledgegroup(paramsQuery) {
         id: `${listvalue.id}.${index + 1}`,
         type: "child",
         concept_proposal_id: listvalue.concept_proposal_id,
+        outcome_knowledge_id: item.outcome_knowledge_id,
         outcome_knowledge_name: item.outcome_knowledge_name,
         outcome_knowledge_detail: item.outcome_knowledge_detail,
         concept_proposal_name_th: item.concept_proposal_name_th,
@@ -1812,6 +1832,7 @@ async function getnewknowledgegroup(paramsQuery) {
         type: "child",
         concept_proposal_id: listvalue.concept_proposal_id,
         output_name: item.output_detail,
+        output_id: item.output_id,
         output_detail: item.output_detail,
         concept_proposal_name_th: item.concept_proposal_name_th,
         lat: listvalue.lat,
@@ -1888,6 +1909,7 @@ async function getNewKnowledge(paramsQuery) {
   const rows = await db.query(
     `SELECT pr.concept_proposal_id,
             pr.project_id,
+            prok.outcome_knowledge_id, 
             prok.outcome_knowledge_name, 
             prok.outcome_knowledge_detail,
             prok.outcome_knowledge_image,
@@ -1950,11 +1972,15 @@ async function getNewKnowledge(paramsQuery) {
     // เตรียมข้อมูลออกมาเพื่อทำโหนด
 
     const knowledge = await db.query(
-      `SELECT progress_report.progress_report_id,progress_report.concept_proposal_id,progress_report_knowledge.knowledge_name,progress_report_knowledge.knowledge_detail
-      ,progress_report_knowledge_group.knowledge_group_category
+      `SELECT progress_report.progress_report_id,
+              progress_report.concept_proposal_id,
+              progress_report_knowledge.knowledge_id,
+              progress_report_knowledge.knowledge_name,
+              progress_report_knowledge.knowledge_detail,
+              progress_report_knowledge_group.knowledge_group_category
       FROM progress_report_knowledge
-      JOIN progress_report_knowledge_group ON progress_report_knowledge_group.knowledge_group_id = progress_report_knowledge.knowledge_group_id
-      JOIN progress_report ON progress_report.progress_report_id = progress_report_knowledge.progress_report_id
+        JOIN progress_report_knowledge_group ON progress_report_knowledge_group.knowledge_group_id = progress_report_knowledge.knowledge_group_id
+        JOIN progress_report ON progress_report.progress_report_id = progress_report_knowledge.progress_report_id
       WHERE progress_report.concept_proposal_id = ${cciq[i]}
       `
     );
@@ -1964,8 +1990,11 @@ async function getNewKnowledge(paramsQuery) {
     // จบตรงนี้1 อาเรย์
     // เตรียมข้อมูลออกมาเพื่อทำโหนด
     const Innovation = await db.query(
-      `SELECT progress_report.concept_proposal_id,progress_report.progress_report_id,progress_report_output.output_name
-      ,progress_report_output.output_detail
+      `SELECT progress_report.concept_proposal_id,
+              progress_report.progress_report_id,
+              progress_report_output.output_id,
+              progress_report_output.output_name,
+              progress_report_output.output_detail
       FROM progress_report_output
       JOIN progress_report ON progress_report.progress_report_id = progress_report_output.progress_report_id
       
@@ -2104,6 +2133,7 @@ async function getNewKnowledge(paramsQuery) {
         id: `${listvalue.id}.${index + 1}`,
         type: "child",
         concept_proposal_id: listvalue.concept_proposal_id,
+        outcome_knowledge_id: item.outcome_knowledge_id,
         outcome_knowledge_name: item.outcome_knowledge_name,
         outcome_knowledge_detail: item.outcome_knowledge_detail,
         concept_proposal_name_th: item.concept_proposal_name_th,
@@ -2138,7 +2168,8 @@ async function getNewKnowledge(paramsQuery) {
         id: `${listvalue.id}.${index + 1}in`,
         type: "child",
         concept_proposal_id: listvalue.concept_proposal_id,
-        output_name: item.output_detail,
+        output_id: item.output_id,
+        output_name: item.output_name,
         output_detail: item.output_detail,
         concept_proposal_name_th: item.concept_proposal_name_th,
         lat: listvalue.lat,
@@ -2237,6 +2268,7 @@ async function getKnowledge() {
     `SELECT pr.concept_proposal_id,
               pr.project_id,
               prok.outcome_knowledge_name, 
+              prok.outcome_knowledge_id,
               prok.outcome_knowledge_detail,
               prok.outcome_knowledge_image,
               prok.outcome_knowledge_video
@@ -2293,11 +2325,16 @@ async function getKnowledge() {
     // เตรียมข้อมูลออกมาเพื่อทำโหนด
 
     const knowledge = await db.query(
-      `SELECT progress_report.progress_report_id,progress_report.concept_proposal_id,progress_report_knowledge.knowledge_name,progress_report_knowledge.knowledge_detail
-        ,progress_report_knowledge_group.knowledge_group_category
+      `SELECT progress_report.progress_report_id,
+              progress_report.concept_proposal_id,
+              progress_report_knowledge.knowledge_id,
+              progress_report_knowledge.knowledge_name,
+              progress_report_knowledge.knowledge_image,
+              progress_report_knowledge.knowledge_detail,
+              progress_report_knowledge_group.knowledge_group_category
         FROM progress_report_knowledge
-        JOIN progress_report_knowledge_group ON progress_report_knowledge_group.knowledge_group_id = progress_report_knowledge.knowledge_group_id
-        JOIN progress_report ON progress_report.progress_report_id = progress_report_knowledge.progress_report_id
+          JOIN progress_report_knowledge_group ON progress_report_knowledge_group.knowledge_group_id = progress_report_knowledge.knowledge_group_id
+          JOIN progress_report ON progress_report.progress_report_id = progress_report_knowledge.progress_report_id
         WHERE progress_report.concept_proposal_id = ${cciq[i]}
         `
     );
@@ -2307,7 +2344,11 @@ async function getKnowledge() {
     // จบตรงนี้1 อาเรย์
     // เตรียมข้อมูลออกมาเพื่อทำโหนด
     const Innovation = await db.query(
-      `SELECT progress_report.concept_proposal_id,progress_report.progress_report_id,progress_report_output.output_name
+      `SELECT  progress_report.concept_proposal_id,
+               progress_report.progress_report_id,
+               progress_report_output.output_name,
+               progress_report_output.output_id,
+               progress_report_output.output_image
         ,progress_report_output.output_detail
         FROM progress_report_output
         JOIN progress_report ON progress_report.progress_report_id = progress_report_output.progress_report_id
@@ -2447,6 +2488,8 @@ async function getKnowledge() {
         id: `${listvalue.id}.${index + 1}nkn`,
         type: "child",
         concept_proposal_id: listvalue.concept_proposal_id,
+        outcome_knowledge_id: item.outcome_knowledge_id,
+        outcome_knowledge_image: item.outcome_knowledge_image,
         outcome_knowledge_name: item.outcome_knowledge_name,
         outcome_knowledge_detail: item.outcome_knowledge_detail,
         concept_proposal_name_th: item.concept_proposal_name_th,
@@ -2464,8 +2507,10 @@ async function getKnowledge() {
         id: `${listvalue.id}.${index + 1}`,
         type: "child",
         concept_proposal_id: listvalue.concept_proposal_id,
+        knowledge_id: item.knowledge_id,
         knowledge_name: item.knowledge_name,
         knowledge_detail: item.knowledge_detail,
+        knowledge_image: item.knowledge_image,
         concept_proposal_name_th: item.concept_proposal_name_th,
         lat: listvalue.lat,
         lon: listvalue.lon,
@@ -2481,6 +2526,8 @@ async function getKnowledge() {
         id: `${listvalue.id}.${index + 1}in`,
         type: "child",
         concept_proposal_id: listvalue.concept_proposal_id,
+        output_id: item.output_id,
+        output_image: item.output_image,
         output_name: item.output_detail,
         output_detail: item.output_detail,
         concept_proposal_name_th: item.concept_proposal_name_th,
