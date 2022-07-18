@@ -8,8 +8,9 @@ async function getOrganizationGroup() {
     FROM us_organization WHERE organization_parent_id = 0000`
   );
   const data = helper.emptyOrRows(rows);
-
-  data.map((item) => Number(item.value));
+  data.map((item) => {
+    item.value = Number(item.value);
+  });
   return data;
 }
 
