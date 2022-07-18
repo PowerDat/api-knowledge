@@ -3,7 +3,7 @@ const helper = require("../helper");
 
 async function getGoalGroup() {
   const rows = await db.query(
-    `SELECT developmen_goal_id, developmen_goal_name FROM bd_development_goal`
+    `SELECT developmen_goal_id AS value, developmen_goal_name AS label FROM bd_development_goal`
   );
   return rows;
 }

@@ -11,7 +11,7 @@ router.get("/get/impact", async function(req, res, next) {
     }
 });
 
-router.get("/get/impact/group", async function(req, res, next) {
+router.get("/get/impact/groups", async function(req, res, next) {
     try {
         res.json(await impact.getImpactGroup());
     } catch (err) {

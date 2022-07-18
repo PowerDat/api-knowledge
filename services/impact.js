@@ -2,7 +2,7 @@ const db = require("./db");
 const helper = require("../helper");
 
 async function getImpactGroup(){
-  const rows = await db.query(`SELECT impact_id, impact_name FROM bd_outcome_impact`);
+  const rows = await db.query(`SELECT impact_id AS value, impact_name AS label FROM bd_outcome_impact`);
   const data = helper.emptyOrRows(rows);
   return data
 }

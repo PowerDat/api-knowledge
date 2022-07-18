@@ -1905,7 +1905,7 @@ async function getnewknowledgegroup(paramsQuery) {
 }
 
 async function getKnowledgeGroup() {
-  const rows = await db.query(`SELECT knowledge_group_id, knowledge_group_category FROM progress_report_knowledge_group`);
+  const rows = await db.query(`SELECT knowledge_group_id AS value, knowledge_group_category AS label FROM progress_report_knowledge_group`);
   const data = helper.emptyOrRows(rows);
   if (data.length) {
     return data;
