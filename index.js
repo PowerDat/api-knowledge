@@ -3,7 +3,7 @@ dotenv.config();
 
 const express = require("express");
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 const cors = require("cors");
 
 // const authMiddleware = require("./middlewares/auth.js");
@@ -17,6 +17,7 @@ const piechartgoal = require("./routes/piechartgoal.js");
 const piechartimpact = require("./routes/piechartimpact.js");
 const newknowledge = require("./routes/newknowledge.js");
 const piechartnewknowledge = require("./routes/piechartnewknowledge.js");
+const organization = require("./routes/organization.js");
 
 // app.use(authMiddleware);
 
@@ -41,6 +42,7 @@ app.use("/api", piechartgoal);
 app.use("/api", piechartimpact);
 app.use("/api", newknowledge);
 app.use("/api", piechartnewknowledge);
+app.use("/api", organization);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;

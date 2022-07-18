@@ -1,7 +1,11 @@
 const db = require("./db");
 const helper = require("../helper");
-const { json } = require("express/lib/response");
 
+async function getImpactGroup(){
+  const rows = await db.query(`SELECT impact_id, impact_name FROM bd_outcome_impact`);
+  const data = helper.emptyOrRows(rows);
+  return data
+}
 //ผลกระทบหน้าแรกและ
 async function getImpact(paramsQuery) {
   const rows = await db.query(`SELECT * FROM bd_sum_impact`);
@@ -713,5 +717,6 @@ module.exports = {
   getImpact,
   getCampusGroupimpact,
   getResearch,
+  getImpactGroup
 };
 

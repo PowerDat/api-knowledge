@@ -11,6 +11,14 @@ router.get("/get/impact", async function(req, res, next) {
     }
 });
 
+router.get("/get/impact/group", async function(req, res, next) {
+    try {
+        res.json(await impact.getImpactGroup());
+    } catch (err) {
+        console.error(`Error while getting new Impact `, err.message);
+        next(err);
+    }
+});
 
 router.get("/get/CampusGroupimpact", async function(req, res, next) {
     try {

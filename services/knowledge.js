@@ -1904,6 +1904,15 @@ async function getnewknowledgegroup(paramsQuery) {
   //   return parentNodes;s
 }
 
+async function getKnowledgeGroup() {
+  const rows = await db.query(`SELECT knowledge_group_id, knowledge_group_category FROM progress_report_knowledge_group`);
+  const data = helper.emptyOrRows(rows);
+  if (data.length) {
+    return data;
+  }
+  return { messages: "not found." };
+}
+
 // หน้าแรกของเว็บ life cycle
 async function getNewKnowledge(paramsQuery) {
   const rows = await db.query(
@@ -2292,7 +2301,9 @@ async function getKnowledge() {
   let cciq = [...new Set(concept_proposal_id)];
   let pjid = [...new Set(project_id)];
 
-  console.log(pjid.filter((x) => x !== null));
+  console.log(cciq);
+
+  // console.log(pjid.filter((x) => x !== null));
 
   // สร้างตัวเก็บอาเรย์
   let concept_proposal_locations = [];
@@ -2320,7 +2331,7 @@ async function getKnowledge() {
       })
     );
 
-    console.log(locations);
+    console.log(data);
 
     // เตรียมข้อมูลออกมาเพื่อทำโหนด
 
@@ -2361,7 +2372,7 @@ async function getKnowledge() {
     // จบตรงนี้1 อาเรย์
   }
 
-  console.log(Innovationdata);
+  // console.log(Innovationdata);
 
   // console.log(concept_proposal_locations);
 
@@ -2370,6 +2381,8 @@ async function getKnowledge() {
     concept_proposal_locations,
     "concept_proposal_id"
   );
+
+  // console.log(newlocation);
   const conceptlocation = newlocation.map((val) => val.data[0]);
   const conceptid = conceptlocation.map((val) => val.concept_proposal_id);
 
@@ -2561,7 +2574,7 @@ async function getKnowledge() {
   });
 
   const groupNodes = helper.groupBy(parentNodes, "concept_proposal_id");
-  console.log("sss", groupNodes);
+  // console.log("sss", groupNodes);
 
   let linkNode = [];
   const l = groupNodes.map((item) => {
@@ -2631,4 +2644,5 @@ module.exports = {
   getGoal,
   getnewknowledgegroup,
   getCampusGroup,
+  getKnowledgeGroup,
 };
