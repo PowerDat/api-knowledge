@@ -26,12 +26,56 @@ function groupBy(arrayData, property) {
   return groups;
 }
 
+function groupLink(arrayData) {
+  const link = arrayData.map((link) => {
+    let fromlink = [],
+      tolink = [];
+
+    link.data.map((val) => {
+      fromlink.push({
+        from: val.id,
+      });
+      tolink.push({
+        to: val.id,
+      });
+    });
+
+    const first = fromlink.pop();
+    const last = tolink.shift();
+
+    // console.log(first);
+    // console.log(last);
+
+    let obj = fromlink.map((item, i) => Object.assign({}, item, tolink[i]));
+
+    let objlast = [first].map((item, i) => Object.assign({}, item, [last][i]));
+    console.log(obj);
+    console.log(objlast);
+
+    // applyArray(obj, objlast);
+
+    return {
+      links: obj,
+    };
+  });
+
+  // console.log(re_link);
+  let links = [];
+  link.map((val) => {
+    val.links.map((item) => {
+      links.push(item);
+    });
+  });
+
+  return links;
+}
+
 async function compareArrayToAdd(firstArray, secondArray, typeName) {
   const results = firstArray.map((item) => {
     const arrayResult = secondArray.filter(
       (itemInArray) => itemInArray[`${typeName}`] === item[`${typeName}`]
     );
-    return {  
+    return {
       ...item,
       [secondArray[0].output_name
         ? "innovations"
@@ -68,6 +112,57 @@ function generateRandomColor() {
   return color;
 }
 
+const uniqArrMultipleField = (arrayData, firstField, secondField) => {
+  const Uniq = arrayData.filter(
+    (tag, index, array) =>
+      array.findIndex(
+        (t) =>
+          t[`${firstField}`] == tag[`${firstField}`] &&
+          t[`${secondField}`] == tag[`${secondField}`]
+      ) == index
+  );
+  return Uniq;
+};
+
+const mergeArrWithSameKey = (firstArr, secondArr, field, fieldName) => {
+  const results = firstArr.map((item) => {
+    const arrayResult = secondArr.filter(
+      (list) => Number(list[`${field}`]) === Number(item[`${field}`])
+    );
+    return { ...item, [fieldName]: arrayResult };
+  });
+  return results;
+};
+
+const handleNameAndImage = (projectype, type) => {
+  if (projectype === 1) {
+    if (type === "label") {
+      return "งานวิจัย";
+    }
+    if (type === "image") {
+      return "https://researcher.kims-rmuti.com/icon/R.jpg";
+    }
+  }
+
+  if (projectype === 2) {
+    if (type === "label") {
+      return "งานบริการวิชาการ";
+    }
+    if (type === "image") {
+      return "https://researcher.kims-rmuti.com/icon/AS.jpg";
+    }
+  }
+
+  if (projectype === 5) {
+    if (type === "label") {
+      return "งานบริการวิชาการ (U2T)";
+    }
+    if (type === "image") {
+      return "https://researcher.kims-rmuti.com/icon/U2T.jpg";
+    }
+  }
+};
+
 module.exports = {
   compareArrayToAdd,
   getOffset,
@@ -75,4 +170,8 @@ module.exports = {
   groupBy,
   applyArray,
   generateRandomColor,
+  mergeArrWithSameKey,
+  uniqArrMultipleField,
+  handleNameAndImage,
+  groupLink
 };

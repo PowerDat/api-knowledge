@@ -1905,10 +1905,260 @@ async function getnewknowledgegroup(paramsQuery) {
 }
 
 async function getKnowledgeGroup() {
-  const rows = await db.query(`SELECT knowledge_group_id AS value, knowledge_group_category AS label FROM progress_report_knowledge_group`);
+  const rows = await db.query(
+    `SELECT knowledge_group_id AS value, knowledge_group_category AS label FROM progress_report_knowledge_group`
+  );
   const data = helper.emptyOrRows(rows);
   if (data.length) {
     return data;
+  }
+  return { messages: "not found." };
+}
+
+async function getKnowledgeMap(group) {
+  console.log(group);
+  const projects = await db.query(`
+      SELECT 
+            cp.concept_proposal_id,
+            cp.concept_proposal_name_th,
+            cp.concept_proposal_name_en,
+            cp.project_type_id,
+            co.co_researcher_id,
+            co.co_researcher_name_th,
+            co.co_researcher_name_en,
+            co.co_researcher_latitude,
+            co.co_researcher_longitude,
+            co.co_researcher_image, 
+            u.user_section
+      FROM concept_proposal AS cp 
+        LEFT JOIN co_concept_fk AS cfk ON cp.concept_proposal_id = cfk.concept_proposal_id
+        LEFT JOIN co_researcher AS co ON co.co_researcher_id = cfk.co_researcher_id
+        LEFT JOIN bb_user AS u ON u.user_idcard = cp.user_idcard
+        LEFT JOIN (
+              SELECT 
+                  distinct bd_sum_goals.type,
+                  bd_sum_goals.concept_proposal_id
+              FROM bd_sum_goals 
+              ) AS goal ON goal.concept_proposal_id = cp.concept_proposal_id
+        LEFT JOIN (
+              select 
+                  distinct bd_outcome_issues.impact_id,  
+                  bd_sum_impact.concept_proposal_id
+              from bd_sum_impact 
+              left join bd_outcome_issues on bd_sum_impact.issues_id = bd_outcome_issues.issues_id
+              ) AS impact ON impact.concept_proposal_id = cp.concept_proposal_id
+      WHERE cfk.area_status = 1 AND u.user_section = ${
+        group.university ? group.university : "u.user_section"
+      } 
+      AND ( goal.type = ${
+        group.impact ? group.impact : "goal.type OR goal.type IS NULL"
+      }) 
+      AND ( impact.impact_id = ${
+        group.goal ? group.goal : "impact.impact_id OR impact.impact_id IS NULL"
+      })  
+      GROUP BY cp.concept_proposal_id, co.co_researcher_id, u.user_section`);
+  const projectsData = helper.emptyOrRows(projects);
+  const arrUniq = [
+    ...new Map(
+      projectsData
+        .slice()
+        .reverse()
+        .map((v) => [v.concept_proposal_id, v])
+    ).values(),
+  ].reverse();
+
+  if (arrUniq.length) {
+    const conceptid = arrUniq.map((item) => item.concept_proposal_id);
+    let knowledgeData = [],
+      innovationData = [],
+      outcomeKnowledgeData = [];
+    for (let i = 0; i < conceptid.length; i++) {
+      const ID = conceptid[i];
+      const knowledges = await db.query(`
+      SELECT 
+          prk.knowledge_id,
+          prkg.knowledge_group_id,
+          prkg.knowledge_group_category,
+          prk.knowledge_name,
+          prk.knowledge_image,
+          prk.output_id,
+          pr.concept_proposal_id
+      FROM progress_report_knowledge AS prk 
+      LEFT JOIN progress_report AS pr ON pr.progress_report_id = prk.progress_report_id
+      LEFT JOIN progress_report_knowledge_group AS prkg ON prkg.knowledge_group_id = prk.knowledge_group_id 
+      WHERE concept_proposal_id = ${ID} AND output_id IS NOT NULL AND prkg.knowledge_group_id = ${
+        group.knowledgegroup ? group.knowledgegroup : "prkg.knowledge_group_id"
+      }`);
+      knowledges.map((item) => knowledgeData.push(item));
+    }
+
+    const outputId = knowledgeData.map((item) => item.output_id);
+    for (let i = 0; i < outputId.length; i++) {
+      const ID = outputId[i];
+      const innovations = await db.query(
+        `SELECT output_id, output_name, output_image FROM progress_report_output WHERE output_id = ${ID}`
+      );
+      innovations.map((item) => innovationData.push(item));
+    }
+    console.log(innovationData);
+
+    const outputID = innovationData.map((item) => item.output_id);
+    for (let i = 0; i < outputID.length; i++) {
+      const ID = outputID[i];
+      const newknowledge = await db.query(`
+      SELECT 
+        outcome.output_id,
+        newknowledge.outcome_knowledge_name,
+        newknowledge.outcome_knowledge_image
+      FROM progress_report_outcome outcome 
+      LEFT JOIN progress_report_outcome_knowledge newknowledge ON outcome.outcome_id = newknowledge.outcome_id
+      WHERE outcome.outcome_knowledge_group_id NOT IN (24) AND outcome.output_id = '${ID}'`);
+      newknowledge.map((item) => outcomeKnowledgeData.push(item));
+    }
+    console.log(outcomeKnowledgeData);
+
+    const innovation = helper.mergeArrWithSameKey(
+      innovationData,
+      outcomeKnowledgeData,
+      "output_id",
+      "newknowledge"
+    );
+
+    const knowledge = helper.mergeArrWithSameKey(
+      knowledgeData,
+      innovation,
+      "output_id",
+      "innovation"
+    );
+
+    const projectConcept = helper.mergeArrWithSameKey(
+      arrUniq,
+      knowledge,
+      "concept_proposal_id",
+      "knowledge"
+    );
+
+    const filterKnowledge = projectConcept.filter(
+      (item) => item.knowledge.length > 0
+    );
+
+    let parentNodes = [],
+      childNodesKnowledge = [],
+      childNodesInnovation = [],
+      childNodesNewKnowledge = [],
+      parentToknowledgeLink = [],
+      knowledgeToInnovationLink = [],
+      innovationToNewKnowledgeLink = [];
+
+    filterKnowledge.map((item, index) => {
+      const ID = index + 1;
+      const projecttype = Number(item.project_type_id);
+      parentNodes.push({
+        id: ID,
+        type: "parent",
+        label: helper.handleNameAndImage(projecttype, "label"),
+        title: item.concept_proposal_name_th,
+        lat: item.co_researcher_latitude,
+        lon: item.co_researcher_longitude,
+        img: helper.handleNameAndImage(projecttype, "image"),
+      });
+
+      item.knowledge.map((kitem, kindex) => {
+        const KID = kindex + 1;
+        childNodesKnowledge.push({
+          id: ID + "." + KID,
+          type: "child",
+          label: "องค์ความรู้เดิม",
+          title: kitem.knowledge_name,
+          group: kitem.knowledge_group_id,
+          lat: item.co_researcher_latitude,
+          lon: item.co_researcher_longitude,
+          img: "https://researcher.kims-rmuti.com/icon/knowledge3(1).png",
+        });
+
+        parentToknowledgeLink.push({
+          from: ID,
+          to: ID + "." + KID,
+        });
+
+        kitem.innovation.map((iitem, iindex) => {
+          const IID = iindex + 1;
+          childNodesInnovation.push({
+            id: ID + "." + KID + "." + IID,
+            type: "child",
+            label: "นวัตกรรม",
+            title: iitem.output_name,
+            lat: item.co_researcher_latitude,
+            lon: item.co_researcher_longitude,
+            img: "https://researcher.kims-rmuti.com/icon/innovation2.png",
+          });
+
+          knowledgeToInnovationLink.push({
+            from: ID + "." + KID,
+            to: ID + "." + KID + "." + IID,
+          });
+
+          iitem.newknowledge.map((nitem, nindex) => {
+            const NID = nindex + 1;
+            childNodesNewKnowledge.push({
+              id: ID + "." + KID + "." + IID + "." + NID,
+              type: "child",
+              label: "องค์ความรู้ใหม่",
+              title: nitem.outcome_knowledge_name,
+              lat: item.co_researcher_latitude,
+              lon: item.co_researcher_longitude,
+              img: "https://researcher.kims-rmuti.com/icon/new%20knowledge3.png",
+            });
+
+            innovationToNewKnowledgeLink.push({
+              from: ID + "." + KID + "." + IID,
+              to: ID + "." + KID + "." + IID + "." + NID,
+            });
+          });
+        });
+      });
+    });
+
+    // console.log(parentNodes);
+    // console.log(childNodesKnowledge);
+    // console.log(childNodesInnovation);
+    // console.log(childNodesNewKnowledge);
+
+    // console.log(parentToknowledgeLink);
+    // console.log(knowledgeToInnovationLink);
+    // console.log(innovationToNewKnowledgeLink);
+
+    const nodes = [
+      ...parentNodes,
+      ...childNodesKnowledge,
+      ...childNodesInnovation,
+      ...childNodesNewKnowledge,
+    ];
+
+    const knowledgeGroup = helper.groupBy(childNodesKnowledge, "group");
+    const knowledgeGroupsResults = knowledgeGroup.filter(
+      (v) => v.data.length >= 2
+    );
+    const knowledgeGroupLinks = helper.groupLink(knowledgeGroupsResults);
+
+    const links = [
+      ...parentToknowledgeLink,
+      ...knowledgeToInnovationLink,
+      ...innovationToNewKnowledgeLink,
+      // ...knowledgeGroupLinks,
+    ];
+
+    console.log(knowledgeGroupLinks);
+
+    return {
+      nodes: nodes,
+      links: links,
+      data: {
+        countknowledge: childNodesKnowledge.length,
+        countinnovation: childNodesInnovation.length,
+        countnewknowledge: childNodesNewKnowledge.length,
+      },
+    };
   }
   return { messages: "not found." };
 }
@@ -2645,4 +2895,5 @@ module.exports = {
   getnewknowledgegroup,
   getCampusGroup,
   getKnowledgeGroup,
+  getKnowledgeMap,
 };
