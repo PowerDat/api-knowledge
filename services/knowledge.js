@@ -2008,10 +2008,13 @@ async function getKnowledgeMap(group) {
       const newknowledge = await db.query(`
       SELECT 
         outcome.output_id,
+        prkg.knowledge_group_category,
+        prkg.knowledge_group_id,
         newknowledge.outcome_knowledge_name,
         newknowledge.outcome_knowledge_image
       FROM progress_report_outcome outcome 
       LEFT JOIN progress_report_outcome_knowledge newknowledge ON outcome.outcome_id = newknowledge.outcome_id
+      LEFT JOIN progress_report_knowledge_group prkg ON newknowledge.knowledge_group_id = prkg.knowledge_group_id
       WHERE outcome.outcome_knowledge_group_id NOT IN (24) AND outcome.output_id = '${ID}'`);
       newknowledge.map((item) => outcomeKnowledgeData.push(item));
     }
@@ -2070,7 +2073,8 @@ async function getKnowledgeMap(group) {
           type: "child",
           label: "องค์ความรู้เดิม",
           title: kitem.knowledge_name,
-          group: kitem.knowledge_group_id,
+          knowledgeGroupId: kitem.knowledge_group_id,
+          knowledgeGroupName: kitem.knowledge_group_category,
           lat: item.co_researcher_latitude,
           lon: item.co_researcher_longitude,
           img: "https://researcher.kims-rmuti.com/icon/knowledge3(1).png",
@@ -2088,6 +2092,7 @@ async function getKnowledgeMap(group) {
             type: "child",
             label: "นวัตกรรม",
             title: iitem.output_name,
+            outputId: iitem.output_id,
             lat: item.co_researcher_latitude,
             lon: item.co_researcher_longitude,
             img: "https://researcher.kims-rmuti.com/icon/innovation2.png",
@@ -2105,6 +2110,8 @@ async function getKnowledgeMap(group) {
               type: "child",
               label: "องค์ความรู้ใหม่",
               title: nitem.outcome_knowledge_name,
+              newknowledgeGroupId: nitem.knowledge_group_id,
+              newknowledgeGroupName: nitem.knowledge_group_category,
               lat: item.co_researcher_latitude,
               lon: item.co_researcher_longitude,
               img: "https://researcher.kims-rmuti.com/icon/new%20knowledge3.png",
