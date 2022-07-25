@@ -2075,6 +2075,7 @@ async function getKnowledgeMap(group) {
           type: "child",
           label: "องค์ความรู้เดิม",
           title: kitem.knowledge_name,
+          detail: kitem.knowledge_detail,
           knowledgeGroupId: kitem.knowledge_group_id,
           knowledgeGroupName: kitem.knowledge_group_category,
           lat: item.co_researcher_latitude,
@@ -2094,6 +2095,7 @@ async function getKnowledgeMap(group) {
             type: "child",
             label: "นวัตกรรม",
             title: iitem.output_name,
+            detail: iitem.output_detail,
             outputId: iitem.output_id,
             lat: item.co_researcher_latitude,
             lon: item.co_researcher_longitude,
@@ -2112,6 +2114,7 @@ async function getKnowledgeMap(group) {
               type: "child",
               label: "องค์ความรู้ใหม่",
               title: nitem.outcome_knowledge_name,
+              detail: nitem.outcome_knowledge_detail,
               newknowledgeGroupId: nitem.knowledge_group_id,
               newknowledgeGroupName: nitem.knowledge_group_category,
               lat: item.co_researcher_latitude,
@@ -2159,6 +2162,8 @@ async function getKnowledgeMap(group) {
 
     console.log(knowledgeGroupLinks);
 
+ 
+
     return {
       nodes: nodes,
       links: links,
@@ -2168,9 +2173,9 @@ async function getKnowledgeMap(group) {
         countnewknowledge: childNodesNewKnowledge.length,
       },
       details: {
-        knowledges: knowledgeData,
-        innovations: innovationData,
-        newknowledges: outcomeKnowledgeData,
+        knowledges: childNodesKnowledge,
+        innovations: childNodesInnovation,
+        newknowledges: childNodesNewKnowledge,
       },
     };
   }
