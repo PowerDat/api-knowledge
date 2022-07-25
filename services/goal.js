@@ -3,8 +3,7 @@ const helper = require("../helper");
 
 async function getGoalMap(paramsQuery) {
   const { university, impact, goal } = paramsQuery;
-  console.log(paramsQuery);
-  const rows = await db.query(`
+  const projects = await db.query(`
       SELECT 
             cp.concept_proposal_id,
             cp.concept_proposal_name_th,
@@ -42,7 +41,55 @@ async function getGoalMap(paramsQuery) {
         goal ? goal : "impact.impact_id OR impact.impact_id IS NULL"
       })  
       GROUP BY cp.concept_proposal_id, co.co_researcher_id, u.user_section`);
-  return rows;
+
+  const projectsData = helper.emptyOrRows(projects);
+  const arrUniq = [
+    ...new Map(
+      projectsData
+        .slice()
+        .reverse()
+        .map((v) => [v.concept_proposal_id, v])
+    ).values(),
+  ].reverse();
+
+  if (arrUniq.length) {
+    const conceptid = arrUniq.map((item) => item.concept_proposal_id);
+    const conceptcount = conceptid.length;
+    let bcgData = [],
+      sdgsData = [],
+      clusterData = [],
+      curveData = [];
+
+    for (let i = 0; i < conceptcount; i++) {
+      const CONID = conceptid[i];
+      const bcg = await db.query(`
+          SELECT 
+              bcg.bcg_name, 
+              bcg.bcg_image, 
+              concat('[', group_concat(JSON_OBJECT('detail', details.detail) separator ','), ']') as bcg_detail  
+          FROM 
+          ( SELECT 
+                sumgoal.detail,
+                sumgoal.item_id,
+                sumgoal.type
+            FROM bd_sum_goals sumgoal 
+              WHERE sumgoal.type = 1
+              AND sumgoal.concept_proposal_id = ${CONID} 
+            GROUP BY sumgoal.bd_sum_goal_id  ) as details
+          LEFT JOIN bd_bcg bcg on bcg.bcg_id = details.item_id
+          GROUP BY bcg.bcg_id`);
+      bcg.map((item) => {
+        item.bcg_detail = JSON.parse(item.bcg_detail);
+        bcgData.push(item);
+      });
+    }
+
+    console.log(bcgData);
+
+    return arrUniq;
+  }
+
+  return { messages: "not found" };
 }
 
 async function getGoalGroup() {

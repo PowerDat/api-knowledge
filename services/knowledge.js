@@ -1981,6 +1981,7 @@ async function getKnowledgeMap(group) {
           prkg.knowledge_group_category,
           prk.knowledge_name,
           prk.knowledge_image,
+          prk.knowledge_detail,
           prk.output_id,
           pr.concept_proposal_id
       FROM progress_report_knowledge AS prk 
@@ -1996,7 +1997,7 @@ async function getKnowledgeMap(group) {
     for (let i = 0; i < outputId.length; i++) {
       const ID = outputId[i];
       const innovations = await db.query(
-        `SELECT output_id, output_name, output_image FROM progress_report_output WHERE output_id = ${ID}`
+        `SELECT output_id, output_name, output_detail, output_image FROM progress_report_output WHERE output_id = ${ID}`
       );
       innovations.map((item) => innovationData.push(item));
     }
@@ -2011,6 +2012,7 @@ async function getKnowledgeMap(group) {
         prkg.knowledge_group_category,
         prkg.knowledge_group_id,
         newknowledge.outcome_knowledge_name,
+        newknowledge.outcome_knowledge_detail,
         newknowledge.outcome_knowledge_image
       FROM progress_report_outcome outcome 
       LEFT JOIN progress_report_outcome_knowledge newknowledge ON outcome.outcome_id = newknowledge.outcome_id
@@ -2165,7 +2167,11 @@ async function getKnowledgeMap(group) {
         countinnovation: childNodesInnovation.length,
         countnewknowledge: childNodesNewKnowledge.length,
       },
-      knowledge : filterKnowledge
+      details: {
+        knowledges: knowledgeData,
+        innovations: innovationData,
+        newknowledges: outcomeKnowledgeData,
+      },
     };
   }
   return { messages: "not found." };
