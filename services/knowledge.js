@@ -1914,6 +1914,12 @@ async function getKnowledgeGroup() {
   }
   return { messages: "not found." };
 }
+async function getnewKnowledgeMap(group){
+
+
+
+}
+
 
 async function getKnowledgeMap(group) {
   console.log(group);
@@ -2903,4 +2909,5 @@ module.exports = {
   getCampusGroup,
   getKnowledgeGroup,
   getKnowledgeMap,
+  getnewKnowledgeMap,
 };
