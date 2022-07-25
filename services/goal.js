@@ -1,6 +1,50 @@
 const db = require("./db");
 const helper = require("../helper");
 
+async function getGoalMap(paramsQuery) {
+  const { university, impact, goal } = paramsQuery;
+  console.log(paramsQuery);
+  const rows = await db.query(`
+      SELECT 
+            cp.concept_proposal_id,
+            cp.concept_proposal_name_th,
+            cp.concept_proposal_name_en,
+            cp.project_type_id,
+            co.co_researcher_id,
+            co.co_researcher_name_th,
+            co.co_researcher_name_en,
+            co.co_researcher_latitude,
+            co.co_researcher_longitude,
+            co.co_researcher_image, 
+            u.user_section
+      FROM concept_proposal AS cp 
+      LEFT JOIN co_concept_fk AS cfk ON cp.concept_proposal_id = cfk.concept_proposal_id
+      LEFT JOIN co_researcher AS co ON co.co_researcher_id = cfk.co_researcher_id
+      LEFT JOIN bb_user AS u ON u.user_idcard = cp.user_idcard
+      LEFT JOIN (
+          SELECT 
+              distinct bd_sum_goals.type,
+              bd_sum_goals.concept_proposal_id
+          FROM bd_sum_goals 
+          ) AS goal ON goal.concept_proposal_id = cp.concept_proposal_id
+      LEFT JOIN (
+          select 
+              distinct bd_outcome_issues.impact_id,  
+              bd_sum_impact.concept_proposal_id
+          from bd_sum_impact 
+          left join bd_outcome_issues on bd_sum_impact.issues_id = bd_outcome_issues.issues_id
+          ) AS impact ON impact.concept_proposal_id = cp.concept_proposal_id
+      WHERE cfk.area_status = 1 AND u.user_section = ${
+        university ? university : "u.user_section"
+      } 
+      AND ( goal.type = ${impact ? impact : "goal.type OR goal.type IS NULL"}) 
+      AND ( impact.impact_id = ${
+        goal ? goal : "impact.impact_id OR impact.impact_id IS NULL"
+      })  
+      GROUP BY cp.concept_proposal_id, co.co_researcher_id, u.user_section`);
+  return rows;
+}
+
 async function getGoalGroup() {
   const rows = await db.query(
     `SELECT developmen_goal_id AS value, developmen_goal_name AS label FROM bd_development_goal`
@@ -127,4 +171,5 @@ module.exports = {
   getindexgoal,
   getCampusGroupgoal,
   getGoalGroup,
+  getGoalMap,
 };

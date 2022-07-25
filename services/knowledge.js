@@ -2165,6 +2165,7 @@ async function getKnowledgeMap(group) {
         countinnovation: childNodesInnovation.length,
         countnewknowledge: childNodesNewKnowledge.length,
       },
+      knowledge : filterKnowledge
     };
   }
   return { messages: "not found." };
