@@ -186,7 +186,7 @@ async function getDetail(group) {
   );
   const knowledgeData = helper.emptyOrRows(knowledge);
 
-  const impact = await db.query(
+  const impact = await db.query(  
     `SELECT * FROM bd_sum_impact bsi inner join concept_proposal cp on bsi.concept_proposal_id = cp.concept_proposal_id`
   );
   const impactData = helper.emptyOrRows(impact);
@@ -460,7 +460,45 @@ async function getDetail(group) {
   }
 }
 
+async function getKnowledge (data){
+
+  const knowledge = await db.query(
+    `SELECT prop.output_name 
+    FROM  progress_report_output AS prop
+    INNER JOIN progress_report pr ON pr.progress_report_id = prop.progress_report_id
+    INNER JOIN progress_report_outcome pro ON pro.output_id = prop.output_id
+    INNER JOIN progress_report_knowledge prk ON prk.output_id = prop.output_id
+    LEFT JOIN  bd_sum_goals AS goal ON goal.progress_report_id = prop.progress_report_id
+    INNER JOIN bb_user bb ON bb.user_idcard = pr.user_idcard
+    
+    LEFT JOIN (
+                  SELECT 
+                      DISTINCT bd_outcome_issues.impact_id,  
+                      bd_sum_impact.progress_report_id
+                  FROM bd_sum_impact 
+                  LEFT JOIN bd_outcome_issues ON bd_sum_impact.issues_id = bd_outcome_issues.issues_id
+                  ) AS impact ON impact.progress_report_id = prop.progress_report_id
+    
+    WHERE bb.user_section  = bb.user_section
+    AND (goal.type = goal.type OR goal.type IS NULL)
+    AND (impact.impact_id = impact.impact_id OR impact.impact_id IS NULL  )
+    GROUP BY prop.output_name`
+  )
+const know = []
+
+knowledge.map(item => {
+  know.push({
+    
+  })
+})
+
+return  knowledge
+
+
+}
+
 module.exports = {
   getPieChart,
   getDetail,
+  getKnowledge
 };

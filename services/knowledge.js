@@ -1914,6 +1914,122 @@ async function getKnowledgeGroup() {
   }
   return { messages: "not found." };
 }
+async function getnewKnowledgeMap(group) {
+  console.log(group);
+  const projects = await db.query(`
+      SELECT 
+            cp.concept_proposal_id,
+            cp.concept_proposal_name_th,
+            cp.concept_proposal_name_en,
+            cp.project_type_id,
+            co.co_researcher_id,
+            co.co_researcher_name_th,
+            co.co_researcher_name_en,
+            co.co_researcher_latitude,
+            co.co_researcher_longitude,
+            co.co_researcher_image, 
+            u.user_section
+      FROM concept_proposal AS cp 
+        LEFT JOIN co_concept_fk AS cfk ON cp.concept_proposal_id = cfk.concept_proposal_id
+        LEFT JOIN co_researcher AS co ON co.co_researcher_id = cfk.co_researcher_id
+        LEFT JOIN bb_user AS u ON u.user_idcard = cp.user_idcard
+        LEFT JOIN (
+              SELECT 
+                  distinct bd_sum_goals.type,
+                  bd_sum_goals.concept_proposal_id
+              FROM bd_sum_goals 
+              ) AS goal ON goal.concept_proposal_id = cp.concept_proposal_id
+        LEFT JOIN (
+              select 
+                  distinct bd_outcome_issues.impact_id,  
+                  bd_sum_impact.concept_proposal_id
+              from bd_sum_impact 
+              left join bd_outcome_issues on bd_sum_impact.issues_id = bd_outcome_issues.issues_id
+              ) AS impact ON impact.concept_proposal_id = cp.concept_proposal_id
+      WHERE cfk.area_status = 1 AND u.user_section = ${
+        group.university ? group.university : "u.user_section"
+      } 
+      AND ( goal.type = ${
+        group.impact ? group.impact : "goal.type OR goal.type IS NULL"
+      }) 
+      AND ( impact.impact_id = ${
+        group.goal ? group.goal : "impact.impact_id OR impact.impact_id IS NULL"
+      })  
+      GROUP BY cp.concept_proposal_id, co.co_researcher_id, u.user_section`);
+      const projectsData = helper.emptyOrRows(projects);
+      const arrUniq = [
+        ...new Map(
+          projectsData
+            .slice()
+            .reverse()
+            .map((v) => [v.concept_proposal_id, v])
+        ).values(),
+      ].reverse();
+    
+      if (arrUniq.length) {
+        const conceptid = arrUniq.map((item) => item.concept_proposal_id);
+      let   
+       innovationData = [],
+       outcomeKnowledgeData = [];
+     
+          
+          for (let i = 0; i < conceptid.length; i++) {
+            const ID = conceptid[i];
+            const newknowledge = await db.query(`
+            SELECT 
+            prok.outcome_knowledge_id,
+            prkg.knowledge_group_id,
+            prkg.knowledge_group_category,
+            prok.outcome_knowledge_name,
+            prok.outcome_knowledge_image,
+            prok.outcome_id,
+            pro.output_id,
+            pr.concept_proposal_id
+        FROM progress_report_outcome_knowledge AS prok 
+        INNER JOIN progress_report_outcome pro ON pro.outcome_id = prok.outcome_id
+        LEFT JOIN progress_report AS pr ON pr.progress_report_id = pro.progress_report_id
+        LEFT JOIN progress_report_knowledge_group AS prkg ON prkg.knowledge_group_id = prok.knowledge_group_id 
+            WHERE concept_proposal_id = ${ID} AND output_id IS NOT NULL AND prkg.knowledge_group_id = ${
+              group.knowledgegroup ? group.knowledgegroup : "prkg.knowledge_group_id"
+            }
+            AND prkg.knowledge_group_id !=  24
+            `);
+            newknowledge.map((item) =>  outcomeKnowledgeData.push(item));
+          }
+       
+          console.log(outcomeKnowledgeData);
+
+          const outputId = outcomeKnowledgeData.map((item) => item.output_id);
+          for (let i = 0; i < outputId.length; i++) {
+            const ID = outputId[i];
+            const innovations = await db.query(
+              `SELECT output_id, output_name, output_image FROM progress_report_output WHERE output_id = ${ID}`
+            );
+            innovations.map((item) => innovationData.push(item));
+          }
+          console.log(innovationData);
+
+          const innovation = helper.mergeArrWithSameKey(
+           outcomeKnowledgeData,
+           innovationData,
+            "output_id",
+            "innovation"
+           
+          );
+           console.log(innovation);
+        
+
+          const projectConcept = helper.mergeArrWithSameKey(
+            arrUniq,
+            innovation,
+            "concept_proposal_id",
+            "newknowledge"
+          );
+          return projectConcept
+        }
+        return { messages: "not found." };
+}
+
 
 async function getKnowledgeMap(group) {
   console.log(group);
@@ -2047,7 +2163,8 @@ async function getKnowledgeMap(group) {
       (item) => item.knowledge.length > 0
     );
 
-    //map
+    ///map
+
     let parentNodes = [],
       childNodesKnowledge = [],
       childNodesInnovation = [],
@@ -2940,4 +3057,5 @@ module.exports = {
   getCampusGroup,
   getKnowledgeGroup,
   getKnowledgeMap,
+  getnewKnowledgeMap,
 };

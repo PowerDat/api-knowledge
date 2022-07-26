@@ -21,4 +21,13 @@ router.get("/get/chart/piechart/detail", async function (req, res, next) {
   }
 });
 
+router.get("/get/chart/piechart/knowledge", async function (req, res, next) {
+  try {
+    res.json(await piechart.getKnowledge(req.query));
+  } catch (err) {
+    console.error(`Error while getting new Knowledge `, err.message);
+    next(err);
+  }
+});
+
 module.exports = router;
