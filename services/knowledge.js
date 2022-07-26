@@ -2047,6 +2047,7 @@ async function getKnowledgeMap(group) {
       (item) => item.knowledge.length > 0
     );
 
+    //map
     let parentNodes = [],
       childNodesKnowledge = [],
       childNodesInnovation = [],
@@ -2162,7 +2163,29 @@ async function getKnowledgeMap(group) {
 
     console.log(knowledgeGroupLinks);
 
- 
+    const knowledgesResult = childNodesKnowledge.filter((item) => {
+      return group.groupId
+        ? item.knowledgeGroupId === Number(group.groupId)
+        : childNodesKnowledge.some((f) => {
+            return f.knowledgeGroupId === item.knowledgeGroupId;
+          }) && item.label === group.groupName;
+    });
+
+    const innovationsResult = childNodesInnovation.filter((item) => {
+      return group.groupId
+        ? item.outputId === Number(group.groupId)
+        : childNodesInnovation.some((f) => {
+            return f.outputId === item.outputId;
+          }) && item.label === group.groupName;
+    });
+
+    const newKnowledgesResult = childNodesNewKnowledge.filter((item) => {
+      return group.groupId
+        ? item.knowledgeGroupId === Number(group.groupId)
+        : childNodesNewKnowledge.some((f) => {
+            return f.knowledgeGroupId === item.knowledgeGroupId;
+          }) && item.label === group.groupName;
+    });
 
     return {
       nodes: nodes,
@@ -2173,9 +2196,11 @@ async function getKnowledgeMap(group) {
         countnewknowledge: childNodesNewKnowledge.length,
       },
       details: {
-        knowledges: childNodesKnowledge,
-        innovations: childNodesInnovation,
-        newknowledges: childNodesNewKnowledge,
+        knowledges:
+          group.groupName === "องค์ความรู้เดิม" ? knowledgesResult : [],
+        innovations: group.groupName === "นวัตกรรม" ? innovationsResult : [],
+        newknowledges:
+          group.groupName === "องค์ความรู้ใหม่" ? newKnowledgesResult : [],
       },
     };
   }

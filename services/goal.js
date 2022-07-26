@@ -79,7 +79,8 @@ async function getGoalMap(paramsQuery) {
           LEFT JOIN bd_bcg bcg on bcg.bcg_id = details.item_id
           GROUP BY bcg.bcg_id`);
       bcg.map((item) => {
-        item.bcg_detail = JSON.parse(item.bcg_detail);
+        console.log(typeof item.bcg_detail);
+        // item.bcg_detail = JSON.parse(`${item.bcg_detail}`);
         bcgData.push(item);
       });
     }
