@@ -1914,6 +1914,8 @@ async function getKnowledgeGroup() {
   }
   return { messages: "not found." };
 }
+
+
 async function getnewKnowledgeMap(group) {
   console.log(group);
   const projects = await db.query(`
@@ -1969,9 +1971,9 @@ async function getnewKnowledgeMap(group) {
       if (arrUniq.length) {
         const conceptid = arrUniq.map((item) => item.concept_proposal_id);
       let   
-       innovationData = [],
-       outcomeKnowledgeData = [];
-     
+      outcomeKnowledgeData = [],
+      innovationData = [];
+      
           
           for (let i = 0; i < conceptid.length; i++) {
             const ID = conceptid[i];
@@ -2003,17 +2005,19 @@ async function getnewKnowledgeMap(group) {
           for (let i = 0; i < outputId.length; i++) {
             const ID = outputId[i];
             const innovations = await db.query(
-              `SELECT output_id, output_name, output_image FROM progress_report_output WHERE output_id = ${ID}`
+              `SELECT pro.output_id, pro.output_name, pro.output_image ,pr.concept_proposal_id
+              FROM progress_report_output AS pro  
+              LEFT JOIN progress_report AS pr ON pr.progress_report_id = pro.progress_report_id  WHERE output_id = ${ID}`
             );
             innovations.map((item) => innovationData.push(item));
           }
           console.log(innovationData);
 
           const innovation = helper.mergeArrWithSameKey(
+           innovationData, 
            outcomeKnowledgeData,
-           innovationData,
             "output_id",
-            "innovation"
+            "newknowledge"
            
           );
            console.log(innovation);
@@ -2023,10 +2027,12 @@ async function getnewKnowledgeMap(group) {
             arrUniq,
             innovation,
             "concept_proposal_id",
-            "newknowledge"
+            "innovation"
           );
           return projectConcept
         }
+
+
         return { messages: "not found." };
 }
 
@@ -2067,10 +2073,10 @@ async function getKnowledgeMap(group) {
         group.university ? group.university : "u.user_section"
       } 
       AND ( goal.type = ${
-        group.impact ? group.impact : "goal.type OR goal.type IS NULL"
+        group.goal ? group.goal : "goal.type OR goal.type IS NULL"
       }) 
       AND ( impact.impact_id = ${
-        group.goal ? group.goal : "impact.impact_id OR impact.impact_id IS NULL"
+        group.impact ? group.impact : "impact.impact_id OR impact.impact_id IS NULL"
       })  
       GROUP BY cp.concept_proposal_id, co.co_researcher_id, u.user_section`);
   const projectsData = helper.emptyOrRows(projects);
@@ -3034,4 +3040,5 @@ module.exports = {
   getKnowledgeGroup,
   getKnowledgeMap,
   getnewKnowledgeMap,
+
 };

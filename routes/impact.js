@@ -11,6 +11,15 @@ router.get("/get/impact", async function(req, res, next) {
     }
 });
 
+router.get("/get/impact/visualize-map", async function (req, res, next) {
+    try {
+      res.json(await impact.getimpactMap(req.query));
+    } catch (err) {
+      console.error(`Error while getting Knowledge `, err.message);
+      next(err);
+    }
+  });
+
 router.get("/get/impact/groups", async function(req, res, next) {
     try {
         res.json(await impact.getImpactGroup());

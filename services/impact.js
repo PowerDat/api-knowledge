@@ -713,10 +713,193 @@ async function getResearch(paramsQuery) {
   };
 }
 
+async function getimpactMap(group) {
+  console.log(group);
+  const projects = await db.query(`
+      SELECT 
+            cp.concept_proposal_id,
+            cp.concept_proposal_name_th,
+            cp.concept_proposal_name_en,
+            cp.project_type_id,
+            co.co_researcher_id,
+            co.co_researcher_name_th,
+            co.co_researcher_name_en,
+            co.co_researcher_latitude,
+            co.co_researcher_longitude,
+            co.co_researcher_image, 
+            u.user_section
+      FROM concept_proposal AS cp 
+        LEFT JOIN co_concept_fk AS cfk ON cp.concept_proposal_id = cfk.concept_proposal_id
+        LEFT JOIN co_researcher AS co ON co.co_researcher_id = cfk.co_researcher_id
+        LEFT JOIN bb_user AS u ON u.user_idcard = cp.user_idcard
+        LEFT JOIN (
+              SELECT 
+                  distinct bd_sum_goals.type,
+                  bd_sum_goals.concept_proposal_id
+              FROM bd_sum_goals 
+              ) AS goal ON goal.concept_proposal_id = cp.concept_proposal_id
+        LEFT JOIN (
+              select 
+                  distinct bd_outcome_issues.impact_id,  
+                  bd_sum_impact.concept_proposal_id
+              from bd_sum_impact 
+              left join bd_outcome_issues on bd_sum_impact.issues_id = bd_outcome_issues.issues_id
+              ) AS impact ON impact.concept_proposal_id = cp.concept_proposal_id
+      WHERE cfk.area_status = 1 AND u.user_section = ${
+        group.university ? group.university : "u.user_section"
+      } 
+      AND ( goal.type = ${
+        group.goal ? group.goal : "goal.type OR goal.type IS NULL"
+      }) 
+      AND ( impact.impact_id = ${
+        group.impact ? group.impact : "impact.impact_id OR impact.impact_id IS NULL"
+      })  
+      GROUP BY cp.concept_proposal_id, co.co_researcher_id, u.user_section`);
+      const projectsData = helper.emptyOrRows(projects);
+      const arrUniq = [
+        ...new Map(
+          projectsData
+            .slice()
+            .reverse()
+            .map((v) => [v.concept_proposal_id, v])
+        ).values(),
+      ].reverse();
+
+      if (arrUniq.length) {
+        const conceptid = arrUniq.map((item) => item.concept_proposal_id);
+      let   
+      economyData = [],
+       socialData = [],
+       culturalData = [],
+       environmentData = [];
+     
+          
+          for (let i = 0; i < conceptid.length; i++) {
+            const ID = conceptid[i];
+            const economy = await db.query(`
+            SELECT 
+            imp.concept_proposal_id,
+            outimp.impact_id,
+            imp.impact_detail,
+            imp.issues_id,
+            issues.issues_name
+            
+          FROM bd_sum_impact imp
+          INNER JOIN bd_outcome_issues issues ON issues.issues_id = imp.issues_id
+          INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
+            
+              WHERE concept_proposal_id = ${ID} 
+              AND outimp.impact_id = 1
+            `);
+            economy.map((item) =>   economyData.push(item));
+          }
+       
+          console.log( economyData);
+
+          for (let i = 0; i < conceptid.length; i++) {
+            const ID = conceptid[i];
+            const social = await db.query(`
+            SELECT 
+            imp.concept_proposal_id,
+            outimp.impact_id,
+            imp.impact_detail,
+            imp.issues_id,
+            issues.issues_name
+            
+          FROM bd_sum_impact imp
+          INNER JOIN bd_outcome_issues issues ON issues.issues_id = imp.issues_id
+          INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
+            
+              WHERE concept_proposal_id = ${ID} 
+              AND outimp.impact_id = 2
+            `);
+            social.map((item) =>   socialData.push(item));
+          }
+       
+          console.log(socialData);
+
+          for (let i = 0; i < conceptid.length; i++) {
+            const ID = conceptid[i];
+            const cultural = await db.query(`
+            SELECT 
+            imp.concept_proposal_id,
+            outimp.impact_id,
+            imp.impact_detail,
+            imp.issues_id,
+            issues.issues_name
+            
+          FROM bd_sum_impact imp
+          INNER JOIN bd_outcome_issues issues ON issues.issues_id = imp.issues_id
+          INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
+          
+              WHERE concept_proposal_id = ${ID} 
+              AND outimp.impact_id = 3
+            `);
+            cultural.map((item) =>  culturalData.push(item));
+          }
+       
+          console.log(culturalData);
+          for (let i = 0; i < conceptid.length; i++) {
+            const ID = conceptid[i];
+            const environment = await db.query(`
+            SELECT 
+            imp.concept_proposal_id,
+            outimp.impact_id,
+            imp.impact_detail,
+            imp.issues_id,
+            issues.issues_name
+            
+          FROM bd_sum_impact imp
+          INNER JOIN bd_outcome_issues issues ON issues.issues_id = imp.issues_id
+          INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
+            
+              WHERE concept_proposal_id = ${ID} 
+              AND outimp.impact_id = 4
+            `);
+            environment.map((item) => environmentData.push(item));
+          }
+       
+          console.log(environmentData);
+
+
+          const projectConceptEconomy = helper.mergeArrWithSameKey(
+            arrUniq,
+            economyData,
+            "concept_proposal_id",
+            "Economy"
+          );
+
+          const projectConceptSocial = helper.mergeArrWithSameKey(
+            projectConceptEconomy,
+            socialData,
+            "concept_proposal_id",
+            "Social"
+          );
+
+          const projectConceptCultural = helper.mergeArrWithSameKey(
+            projectConceptSocial,
+            culturalData,
+            "concept_proposal_id",
+            "Cultural"
+          );
+
+          const projectConceptEnvironment = helper.mergeArrWithSameKey(
+            projectConceptCultural,
+            environmentData,
+            "concept_proposal_id",
+            "Environment"
+          );
+          return projectConceptEnvironment
+        }
+        return { messages: "not found." };
+    }
+
+
 module.exports = {
   getImpact,
   getCampusGroupimpact,
   getResearch,
-  getImpactGroup
+  getImpactGroup,
+  getimpactMap
 };
 

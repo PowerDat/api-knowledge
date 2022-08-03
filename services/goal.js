@@ -1,8 +1,8 @@
 const db = require("./db");
 const helper = require("../helper");
 
-async function getGoalMap(paramsQuery) {
-  const { university, impact, goal } = paramsQuery;
+async function getGoalMap(group) {
+  console.log(group);
   const projects = await db.query(`
       SELECT 
             cp.concept_proposal_id,
@@ -17,80 +17,203 @@ async function getGoalMap(paramsQuery) {
             co.co_researcher_image, 
             u.user_section
       FROM concept_proposal AS cp 
-      LEFT JOIN co_concept_fk AS cfk ON cp.concept_proposal_id = cfk.concept_proposal_id
-      LEFT JOIN co_researcher AS co ON co.co_researcher_id = cfk.co_researcher_id
-      LEFT JOIN bb_user AS u ON u.user_idcard = cp.user_idcard
-      LEFT JOIN (
-          SELECT 
-              distinct bd_sum_goals.type,
-              bd_sum_goals.concept_proposal_id
-          FROM bd_sum_goals 
-          ) AS goal ON goal.concept_proposal_id = cp.concept_proposal_id
-      LEFT JOIN (
-          select 
-              distinct bd_outcome_issues.impact_id,  
-              bd_sum_impact.concept_proposal_id
-          from bd_sum_impact 
-          left join bd_outcome_issues on bd_sum_impact.issues_id = bd_outcome_issues.issues_id
-          ) AS impact ON impact.concept_proposal_id = cp.concept_proposal_id
+        LEFT JOIN co_concept_fk AS cfk ON cp.concept_proposal_id = cfk.concept_proposal_id
+        LEFT JOIN co_researcher AS co ON co.co_researcher_id = cfk.co_researcher_id
+        LEFT JOIN bb_user AS u ON u.user_idcard = cp.user_idcard
+        LEFT JOIN (
+              SELECT 
+                  distinct bd_sum_goals.type,
+                  bd_sum_goals.concept_proposal_id
+              FROM bd_sum_goals 
+              ) AS goal ON goal.concept_proposal_id = cp.concept_proposal_id
+        LEFT JOIN (
+              select 
+                  distinct bd_outcome_issues.impact_id,  
+                  bd_sum_impact.concept_proposal_id
+              from bd_sum_impact 
+              left join bd_outcome_issues on bd_sum_impact.issues_id = bd_outcome_issues.issues_id
+              ) AS impact ON impact.concept_proposal_id = cp.concept_proposal_id
       WHERE cfk.area_status = 1 AND u.user_section = ${
-        university ? university : "u.user_section"
+        group.university ? group.university : "u.user_section"
       } 
-      AND ( goal.type = ${impact ? impact : "goal.type OR goal.type IS NULL"}) 
+      AND ( goal.type = ${
+        group.goal ? group.goal : "goal.type OR goal.type IS NULL"
+      }) 
       AND ( impact.impact_id = ${
-        goal ? goal : "impact.impact_id OR impact.impact_id IS NULL"
+        group.impact ? group.impact : "impact.impact_id OR impact.impact_id IS NULL"
       })  
       GROUP BY cp.concept_proposal_id, co.co_researcher_id, u.user_section`);
+      const projectsData = helper.emptyOrRows(projects);
+      const arrUniq = [
+        ...new Map(
+          projectsData
+            .slice()
+            .reverse()
+            .map((v) => [v.concept_proposal_id, v])
+        ).values(),
+      ].reverse();
 
-  const projectsData = helper.emptyOrRows(projects);
-  const arrUniq = [
-    ...new Map(
-      projectsData
-        .slice()
-        .reverse()
-        .map((v) => [v.concept_proposal_id, v])
-    ).values(),
-  ].reverse();
+      if (arrUniq.length) {
+        const conceptid = arrUniq.map((item) => item.concept_proposal_id);
+      let   
+    bcgData = [],
+    sdgData = [],
+    curveData = [],
+    clusterData = [];
+  
+//bcg   
+       for (let i = 0; i < conceptid.length; i++) {
+         const ID = conceptid[i];
+         const bcg = await db.query(`
+         SELECT 	  
+       details.concept_proposal_id,
+       bcg.bcg_name,
+       bcg.bcg_image,
+       CONCAT('[', GROUP_CONCAT(JSON_OBJECT('detail', details.detail) ORDER BY details.item_id SEPARATOR ','), ']') AS bcg_detail 
+    FROM 
+     ( 
+       SELECT 
+       sumgoal.concept_proposal_id,
+           sumgoal.detail,
+           sumgoal.item_id,
+           sumgoal.type 
+       FROM bd_sum_goals sumgoal     
+         WHERE sumgoal.type = 1
+         AND sumgoal.concept_proposal_id = ${ID} 
+       GROUP BY sumgoal.bd_sum_goal_id  ) AS details
+     LEFT JOIN bd_bcg bcg ON bcg.bcg_id = details.item_id
+     GROUP BY details.concept_proposal_id,
+     bcg.bcg_id
+ 
+         `);
+         bcg.map((item) =>   bcgData.push(item));
+       }
+    
+       console.log(bcgData);
+//sdg
+       for (let i = 0; i < conceptid.length; i++) {
+         const ID = conceptid[i];
+         const sdg = await db.query(`
+         SELECT 	  
+         details.concept_proposal_id,
+         sdg.sdgs_name,
+         sdg.sdgs_image,
+         CONCAT('[', GROUP_CONCAT(JSON_OBJECT('detail', details.detail) ORDER BY details.item_id SEPARATOR ','), ']') AS sdgs_detail 
+      FROM 
+       ( 
+         SELECT 
+         sumgoal.concept_proposal_id,
+             sumgoal.detail,
+             sumgoal.item_id,
+             sumgoal.type 
+         FROM bd_sum_goals sumgoal     
+           WHERE sumgoal.type = 2
+           AND sumgoal.concept_proposal_id = ${ID} 
+         GROUP BY sumgoal.bd_sum_goal_id  ) AS details
+       LEFT JOIN bd_sdgs sdg ON sdg.sdgs_id = details.item_id
+       GROUP BY details.concept_proposal_id,
+                sdg.sdgs_id
+         `);
+         sdg.map((item) =>   sdgData.push(item));
+       }
+    
+       console.log(sdgData);
+//10scurve
+       for (let i = 0; i < conceptid.length; i++) {
+         const ID = conceptid[i];
+         const curve = await db.query(`
+         SELECT 	  
+         details.concept_proposal_id,
+         curve.curve_name,
+         curve.curve_image,
+         CONCAT('[', GROUP_CONCAT(JSON_OBJECT('detail', details.detail) ORDER BY details.item_id SEPARATOR ','), ']') AS curve_detail 
+      FROM 
+       ( 
+         SELECT 
+         sumgoal.concept_proposal_id,
+             sumgoal.detail,
+             sumgoal.item_id,
+             sumgoal.type 
+         FROM bd_sum_goals sumgoal     
+           WHERE sumgoal.type = 3
+           AND sumgoal.concept_proposal_id = ${ID}
+         GROUP BY sumgoal.bd_sum_goal_id  ) AS details
+       LEFT JOIN bd_10s_curve curve ON curve.curve_id = details.item_id
+       GROUP BY details.concept_proposal_id,
+              curve.curve_id
+         `);
+         curve.map((item) =>  curveData.push(item));
+       }
 
-  if (arrUniq.length) {
-    const conceptid = arrUniq.map((item) => item.concept_proposal_id);
-    const conceptcount = conceptid.length;
-    let bcgData = [],
-      sdgsData = [],
-      clusterData = [],
-      curveData = [];
+       console.log(curveData);
+       
+//cluster
+       for (let i = 0; i < conceptid.length; i++) {
+         const ID = conceptid[i];
+         const cluster = await db.query(`
+         SELECT 	  
+         details.concept_proposal_id,
+         cluster.cluster_name,
+         cluster.cluster_image,
+         CONCAT('[', GROUP_CONCAT(JSON_OBJECT('detail', details.detail) ORDER BY details.item_id SEPARATOR ','), ']') AS curve_detail 
+      FROM 
+       ( 
+         SELECT 
+         sumgoal.concept_proposal_id,
+             sumgoal.detail,
+             sumgoal.item_id,
+             sumgoal.type 
+         FROM bd_sum_goals sumgoal     
+           WHERE sumgoal.type = 4
+           AND sumgoal.concept_proposal_id = ${ID}
+         GROUP BY sumgoal.bd_sum_goal_id  ) AS details
+       LEFT JOIN bd_cluster cluster ON cluster.cluster_id = details.item_id
+       GROUP BY 
+       details.concept_proposal_id,
+       cluster.cluster_id
+         `);
+         cluster.map((item) => clusterData.push(item));
+       }
+    
+       console.log(clusterData);
 
-    for (let i = 0; i < conceptcount; i++) {
-      const CONID = conceptid[i];
-      const bcg = await db.query(`
-          SELECT 
-              bcg.bcg_name, 
-              bcg.bcg_image, 
-              concat('[', group_concat(JSON_OBJECT('detail', details.detail) separator ','), ']') as bcg_detail  
-          FROM 
-          ( SELECT 
-                sumgoal.detail,
-                sumgoal.item_id,
-                sumgoal.type
-            FROM bd_sum_goals sumgoal 
-              WHERE sumgoal.type = 1
-              AND sumgoal.concept_proposal_id = ${CONID} 
-            GROUP BY sumgoal.bd_sum_goal_id  ) as details
-          LEFT JOIN bd_bcg bcg on bcg.bcg_id = details.item_id
-          GROUP BY bcg.bcg_id`);
-      bcg.map((item) => {
-        item.bcg_detail = JSON.parse(item.bcg_detail);
-        bcgData.push(item);
-      });
-    }
 
-    console.log(bcgData);
+       const projectConceptBCG = helper.mergeArrWithSameKey(
+         arrUniq,
+         bcgData,
+         "concept_proposal_id",
+         "bcg"
+       );
 
-    return arrUniq;
-  }
+       const projectConceptSDGs = helper.mergeArrWithSameKey(
+         projectConceptBCG,
+         sdgData,
+         "concept_proposal_id",
+         "sdg"
+       );
 
-  return { messages: "not found" };
-}
+       const projectConcept10sCurve = helper.mergeArrWithSameKey(
+         projectConceptSDGs,
+        curveData,
+         "concept_proposal_id",
+         "curve"
+       );
+
+       const projectConceptCluster = helper.mergeArrWithSameKey(
+         projectConcept10sCurve,
+         clusterData,
+         "concept_proposal_id",
+         "cluster"
+       );
+
+       const filterGoal= projectConceptCluster.filter(
+        (item) => item.cluster.length > 0 || item.curve.length > 0 || item.bcg.length > 0 || item.sdg.length > 0
+      );
+       return filterGoal;
+     }
+     return { messages: "not found." };
+ }
+
 
 async function getGoalGroup() {
   const rows = await db.query(

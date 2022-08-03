@@ -31,7 +31,6 @@ router.get("/get/newknowledge/visualize-map", async function (req, res, next) {
   }
 });
 
-
 router.get("/get/newknowledge", async function (req, res, next) {
   try {
     res.json(await knowledge.getNewKnowledge(req.query));
