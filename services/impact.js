@@ -889,7 +889,11 @@ async function getimpactMap(group) {
             "concept_proposal_id",
             "Environment"
           );
-          return projectConceptEnvironment
+
+        const filterImpact = projectConceptEnvironment.filter(
+          (item) => item.Environment.length > 0 || item.Cultural.length > 0 || item.Social.length > 0 || item.Economy.length > 0
+        );
+          return filterImpact
         }
         return { messages: "not found." };
     }
