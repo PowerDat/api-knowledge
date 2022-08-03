@@ -1958,26 +1958,24 @@ async function getnewKnowledgeMap(group) {
         group.goal ? group.goal : "impact.impact_id OR impact.impact_id IS NULL"
       })  
       GROUP BY cp.concept_proposal_id, co.co_researcher_id, u.user_section`);
-      const projectsData = helper.emptyOrRows(projects);
-      const arrUniq = [
-        ...new Map(
-          projectsData
-            .slice()
-            .reverse()
-            .map((v) => [v.concept_proposal_id, v])
-        ).values(),
-      ].reverse();
-    
-      if (arrUniq.length) {
-        const conceptid = arrUniq.map((item) => item.concept_proposal_id);
-      let   
-      outcomeKnowledgeData = [],
-      innovationData = [];
-      
-          
-          for (let i = 0; i < conceptid.length; i++) {
-            const ID = conceptid[i];
-            const newknowledge = await db.query(`
+  const projectsData = helper.emptyOrRows(projects);
+  const arrUniq = [
+    ...new Map(
+      projectsData
+        .slice()
+        .reverse()
+        .map((v) => [v.concept_proposal_id, v])
+    ).values(),
+  ].reverse();
+
+  if (arrUniq.length) {
+    const conceptid = arrUniq.map((item) => item.concept_proposal_id);
+    let innovationData = [],
+      outcomeKnowledgeData = [];
+
+    for (let i = 0; i < conceptid.length; i++) {
+      const ID = conceptid[i];
+      const newknowledge = await db.query(`
             SELECT 
             prok.outcome_knowledge_id,
             prkg.knowledge_group_id,
@@ -1992,50 +1990,43 @@ async function getnewKnowledgeMap(group) {
         LEFT JOIN progress_report AS pr ON pr.progress_report_id = pro.progress_report_id
         LEFT JOIN progress_report_knowledge_group AS prkg ON prkg.knowledge_group_id = prok.knowledge_group_id 
             WHERE concept_proposal_id = ${ID} AND output_id IS NOT NULL AND prkg.knowledge_group_id = ${
-              group.knowledgegroup ? group.knowledgegroup : "prkg.knowledge_group_id"
-            }
+        group.knowledgegroup ? group.knowledgegroup : "prkg.knowledge_group_id"
+      }
             AND prkg.knowledge_group_id !=  24
             `);
-            newknowledge.map((item) =>  outcomeKnowledgeData.push(item));
-          }
-       
-          console.log(outcomeKnowledgeData);
+      newknowledge.map((item) => outcomeKnowledgeData.push(item));
+    }
 
-          const outputId = outcomeKnowledgeData.map((item) => item.output_id);
-          for (let i = 0; i < outputId.length; i++) {
-            const ID = outputId[i];
-            const innovations = await db.query(
-              `SELECT pro.output_id, pro.output_name, pro.output_image ,pr.concept_proposal_id
-              FROM progress_report_output AS pro  
-              LEFT JOIN progress_report AS pr ON pr.progress_report_id = pro.progress_report_id  WHERE output_id = ${ID}`
-            );
-            innovations.map((item) => innovationData.push(item));
-          }
-          console.log(innovationData);
+    console.log(outcomeKnowledgeData);
 
-          const innovation = helper.mergeArrWithSameKey(
-           innovationData, 
-           outcomeKnowledgeData,
-            "output_id",
-            "newknowledge"
-           
-          );
-           console.log(innovation);
-        
+    const outputId = outcomeKnowledgeData.map((item) => item.output_id);
+    for (let i = 0; i < outputId.length; i++) {
+      const ID = outputId[i];
+      const innovations = await db.query(
+        `SELECT output_id, output_name, output_image FROM progress_report_output WHERE output_id = ${ID}`
+      );
+      innovations.map((item) => innovationData.push(item));
+    }
+    console.log(innovationData);
 
-          const projectConcept = helper.mergeArrWithSameKey(
-            arrUniq,
-            innovation,
-            "concept_proposal_id",
-            "innovation"
-          );
-          return projectConcept
-        }
+    const innovation = helper.mergeArrWithSameKey(
+      outcomeKnowledgeData,
+      innovationData,
+      "output_id",
+      "innovation"
+    );
+    console.log(innovation);
 
-
-        return { messages: "not found." };
+    const projectConcept = helper.mergeArrWithSameKey(
+      arrUniq,
+      innovation,
+      "concept_proposal_id",
+      "newknowledge"
+    );
+    return projectConcept;
+  }
+  return { messages: "not found." };
 }
-
 
 async function getKnowledgeMap(group) {
   console.log(group);
@@ -2286,7 +2277,29 @@ async function getKnowledgeMap(group) {
 
     console.log(knowledgeGroupLinks);
 
- 
+    const knowledgesResult = childNodesKnowledge.filter((item) => {
+      return group.groupId
+        ? item.knowledgeGroupId === Number(group.groupId)
+        : childNodesKnowledge.some((f) => {
+            return f.knowledgeGroupId === item.knowledgeGroupId;
+          }) && item.label === group.groupName;
+    });
+
+    const innovationsResult = childNodesInnovation.filter((item) => {
+      return group.groupId
+        ? item.outputId === Number(group.groupId)
+        : childNodesInnovation.some((f) => {
+            return f.outputId === item.outputId;
+          }) && item.label === group.groupName;
+    });
+
+    const newKnowledgesResult = childNodesNewKnowledge.filter((item) => {
+      return group.groupId
+        ? item.knowledgeGroupId === Number(group.groupId)
+        : childNodesNewKnowledge.some((f) => {
+            return f.knowledgeGroupId === item.knowledgeGroupId;
+          }) && item.label === group.groupName;
+    });
 
     return {
       nodes: nodes,
@@ -2297,9 +2310,18 @@ async function getKnowledgeMap(group) {
         countnewknowledge: childNodesNewKnowledge.length,
       },
       details: {
-        knowledges: childNodesKnowledge,
-        innovations: childNodesInnovation,
-        newknowledges: childNodesNewKnowledge,
+        knowledges:
+          group.groupName === "องค์ความรู้เดิม"
+            ? knowledgesResult
+            : childNodesKnowledge,
+        innovations:
+          group.groupName === "นวัตกรรม"
+            ? innovationsResult
+            : childNodesInnovation,
+        newknowledges:
+          group.groupName === "องค์ความรู้ใหม่"
+            ? newKnowledgesResult
+            : childNodesNewKnowledge,
       },
     };
   }
