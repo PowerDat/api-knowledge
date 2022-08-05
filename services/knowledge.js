@@ -1915,7 +1915,6 @@ async function getKnowledgeGroup() {
   return { messages: "not found." };
 }
 
-
 async function getnewKnowledgeMap(group) {
   console.log(group);
   const projects = await db.query(`
@@ -1940,6 +1939,7 @@ async function getnewKnowledgeMap(group) {
                   distinct bd_sum_goals.type,
                   bd_sum_goals.concept_proposal_id
               FROM bd_sum_goals 
+
               ) AS goal ON goal.concept_proposal_id = cp.concept_proposal_id
         LEFT JOIN (
               select 
@@ -1981,6 +1981,7 @@ async function getnewKnowledgeMap(group) {
             prkg.knowledge_group_id,
             prkg.knowledge_group_category,
             prok.outcome_knowledge_name,
+            prok.outcome_knowledge_detail,
             prok.outcome_knowledge_image,
             prok.outcome_id,
             pro.output_id,
@@ -2003,7 +2004,7 @@ async function getnewKnowledgeMap(group) {
     for (let i = 0; i < outputId.length; i++) {
       const ID = outputId[i];
       const innovations = await db.query(
-        `SELECT output_id, output_name, output_image FROM progress_report_output WHERE output_id = ${ID}`
+        `SELECT output_id, output_name, output_detail, output_image FROM progress_report_output WHERE output_id = ${ID}`
       );
       innovations.map((item) => innovationData.push(item));
     }
@@ -2023,7 +2024,121 @@ async function getnewKnowledgeMap(group) {
       "concept_proposal_id",
       "newknowledge"
     );
-    return projectConcept;
+
+    const filterNewknowledge = projectConcept.filter(
+      (item) => item.newknowledge.length
+    );
+
+    let parentNodes = [],
+      childNodesInnovation = [],
+      childNodesNewKnowledge = [],
+      parentToknowledgeLink = [],
+      knowledgeToInnovationLink = [],
+      innovationToNewKnowledgeLink = [];
+
+    filterNewknowledge.map((item, index) => {
+      const ID = index + 1;
+      const projecttype = Number(item.project_type_id);
+      parentNodes.push({
+        id: ID,
+        type: "parent",
+        label: helper.handleNameAndImage(projecttype, "label"),
+        title: item.concept_proposal_name_th,
+        lat: item.co_researcher_latitude,
+        lon: item.co_researcher_longitude,
+        img: helper.handleNameAndImage(projecttype, "image"),
+      });
+
+      item.newknowledge.map((nitem, nindex) => {
+        const NID = nindex + 1;
+        childNodesNewKnowledge.push({
+          id: ID + "." + NID,
+          type: "child",
+          label: "องค์ความรู้ใหม่",
+          title: nitem.outcome_knowledge_name,
+          detail: nitem.outcome_knowledge_detail,
+          knowledgeGroupId: nitem.knowledge_group_id,
+          knowledgeGroupName: nitem.knowledge_group_category,
+          lat: item.co_researcher_latitude,
+          lon: item.co_researcher_longitude,
+          img: "https://researcher.kims-rmuti.com/icon/new%20knowledge3.png",
+        });
+
+        parentToknowledgeLink.push({
+          from: ID,
+          to: ID + "." + NID,
+        });
+
+        nitem.innovation.map((iitem, iindex) => {
+          const IID = iindex + 1;
+          childNodesInnovation.push({
+            id: ID + "." + NID + "." + IID,
+            type: "child",
+            label: "นวัตกรรม",
+            title: iitem.output_name,
+            detail: iitem.output_detail,
+            outputId: iitem.output_id,
+            lat: item.co_researcher_latitude,
+            lon: item.co_researcher_longitude,
+            img: "https://researcher.kims-rmuti.com/icon/innovation2.png",
+          });
+
+          knowledgeToInnovationLink.push({
+            from: ID + "." + NID,
+            to: ID + "." + NID + "." + IID,
+          });
+        });
+      });
+    });
+
+    const nodes = [
+      ...parentNodes,
+      // ...childNodesKnowledge,
+      ...childNodesInnovation,
+      ...childNodesNewKnowledge,
+    ];
+
+    const links = [
+      ...parentToknowledgeLink,
+      ...knowledgeToInnovationLink,
+      // ...innovationToNewKnowledgeLink,
+      // ...knowledgeGroupLinks,
+    ];
+
+    const innovationsResult = childNodesInnovation.filter((item) => {
+      return group.groupId
+        ? item.outputId === Number(group.groupId)
+        : childNodesInnovation.some((f) => {
+            return f.outputId === item.outputId;
+          }) && item.label === group.groupName;
+    });
+
+    const newKnowledgesResult = childNodesNewKnowledge.filter((item) => {
+      return group.groupId
+        ? item.knowledgeGroupId === Number(group.groupId)
+        : childNodesNewKnowledge.some((f) => {
+            return f.knowledgeGroupId === item.knowledgeGroupId;
+          }) && item.label === group.groupName;
+    });
+
+    return {
+      nodes: nodes,
+      links: links,
+      data: {
+        countinnovation: childNodesInnovation.length,
+        countnewknowledge: childNodesNewKnowledge.length,
+      },
+      details: {
+        innovations:
+          group.groupName === "นวัตกรรม"
+            ? innovationsResult
+            : childNodesInnovation,
+        newknowledges:
+          group.groupName === "องค์ความรู้ใหม่"
+            ? newKnowledgesResult
+            : childNodesNewKnowledge,
+      },
+    };
   }
   return { messages: "not found." };
 }
@@ -2067,7 +2182,9 @@ async function getKnowledgeMap(group) {
         group.goal ? group.goal : "goal.type OR goal.type IS NULL"
       }) 
       AND ( impact.impact_id = ${
-        group.impact ? group.impact : "impact.impact_id OR impact.impact_id IS NULL"
+        group.impact
+          ? group.impact
+          : "impact.impact_id OR impact.impact_id IS NULL"
       })  
       GROUP BY cp.concept_proposal_id, co.co_researcher_id, u.user_section`);
   const projectsData = helper.emptyOrRows(projects);
@@ -3062,5 +3179,4 @@ module.exports = {
   getKnowledgeGroup,
   getKnowledgeMap,
   getnewKnowledgeMap,
-
 };
