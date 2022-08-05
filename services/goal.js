@@ -23,8 +23,10 @@ async function getGoalMap(group) {
         LEFT JOIN (
               SELECT 
                   distinct bd_sum_goals.type,
+                  prk.knowledge_group_id,
                   bd_sum_goals.concept_proposal_id
               FROM bd_sum_goals 
+              LEFT JOIN progress_report_knowledge prk ON bd_sum_goals.progress_report_id = prk.progress_report_id 
               ) AS goal ON goal.concept_proposal_id = cp.concept_proposal_id
         LEFT JOIN (
               select 
@@ -42,6 +44,8 @@ async function getGoalMap(group) {
       AND ( impact.impact_id = ${
         group.impact ? group.impact : "impact.impact_id OR impact.impact_id IS NULL"
       })  
+      AND ( goal.knowledge_group_id =  ${
+        group.knowledgegroup ? group.knowledgegroup :"goal.knowledge_group_id OR goal.knowledge_group_id IS NULL"})
       GROUP BY cp.concept_proposal_id, co.co_researcher_id, u.user_section`);
       const projectsData = helper.emptyOrRows(projects);
       const arrUniq = [
@@ -152,25 +156,29 @@ async function getGoalMap(group) {
          const ID = conceptid[i];
          const cluster = await db.query(`
          SELECT 	  
-            details.concept_proposal_id,
-            cluster.cluster_name,
-            cluster.cluster_image,
-            CONCAT('[', GROUP_CONCAT(JSON_OBJECT('detail', details.detail) ORDER BY details.item_id SEPARATOR ','), ']') AS curve_detail 
-          FROM 
-          ( 
-            SELECT 
-            sumgoal.concept_proposal_id,
-                sumgoal.detail,
-                sumgoal.item_id,
-                sumgoal.type 
-            FROM bd_sum_goals sumgoal     
-              WHERE sumgoal.type = 4
-              AND sumgoal.concept_proposal_id = ${ID}
-            GROUP BY sumgoal.bd_sum_goal_id  ) AS details
-          LEFT JOIN bd_cluster cluster ON cluster.cluster_id = details.item_id
-          GROUP BY 
-          details.concept_proposal_id,
-          cluster.cluster_id
+         details.concept_proposal_id,
+         details.knowledge_group_id,
+         cluster.cluster_name,
+         cluster.cluster_image,
+         CONCAT('[', GROUP_CONCAT(JSON_OBJECT('detail', details.detail) ORDER BY details.item_id SEPARATOR ','), ']') AS curve_detail 
+      FROM 
+       ( 
+         SELECT 
+         sumgoal.concept_proposal_id,
+         prk.knowledge_group_id,
+             sumgoal.detail,
+             sumgoal.item_id,
+             sumgoal.type 
+         FROM bd_sum_goals sumgoal     
+         LEFT JOIN progress_report_knowledge prk ON sumgoal.progress_report_id = prk.progress_report_id 
+           WHERE sumgoal.type = 4
+           AND sumgoal.concept_proposal_id = ${ID}
+         GROUP BY sumgoal.bd_sum_goal_id ,prk.knowledge_group_id  ) AS details
+       LEFT JOIN bd_cluster cluster ON cluster.cluster_id = details.item_id
+       GROUP BY 
+       details.concept_proposal_id,
+       details.knowledge_group_id,
+       cluster.cluster_id
          `);
          cluster.map((item) => clusterData.push(item));
        }
