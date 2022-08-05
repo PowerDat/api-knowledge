@@ -716,45 +716,49 @@ async function getResearch(paramsQuery) {
 async function getimpactMap(group) {
   console.log(group);
   const projects = await db.query(`
-      SELECT 
-            cp.concept_proposal_id,
-            cp.concept_proposal_name_th,
-            cp.concept_proposal_name_en,
-            cp.project_type_id,
-            co.co_researcher_id,
-            co.co_researcher_name_th,
-            co.co_researcher_name_en,
-            co.co_researcher_latitude,
-            co.co_researcher_longitude,
-            co.co_researcher_image, 
-            u.user_section
-      FROM concept_proposal AS cp 
-        LEFT JOIN co_concept_fk AS cfk ON cp.concept_proposal_id = cfk.concept_proposal_id
-        LEFT JOIN co_researcher AS co ON co.co_researcher_id = cfk.co_researcher_id
-        LEFT JOIN bb_user AS u ON u.user_idcard = cp.user_idcard
-        LEFT JOIN (
-              SELECT 
-                  distinct bd_sum_goals.type,
-                  bd_sum_goals.concept_proposal_id
-              FROM bd_sum_goals 
-              ) AS goal ON goal.concept_proposal_id = cp.concept_proposal_id
-        LEFT JOIN (
-              select 
-                  distinct bd_outcome_issues.impact_id,  
-                  bd_sum_impact.concept_proposal_id
-              from bd_sum_impact 
-              left join bd_outcome_issues on bd_sum_impact.issues_id = bd_outcome_issues.issues_id
-              ) AS impact ON impact.concept_proposal_id = cp.concept_proposal_id
-      WHERE cfk.area_status = 1 AND u.user_section = ${
-        group.university ? group.university : "u.user_section"
-      } 
-      AND ( goal.type = ${
-        group.goal ? group.goal : "goal.type OR goal.type IS NULL"
-      }) 
-      AND ( impact.impact_id = ${
-        group.impact ? group.impact : "impact.impact_id OR impact.impact_id IS NULL"
-      })  
-      GROUP BY cp.concept_proposal_id, co.co_researcher_id, u.user_section`);
+  SELECT 
+  cp.concept_proposal_id,
+  cp.concept_proposal_name_th,
+  cp.concept_proposal_name_en,
+  cp.project_type_id,
+  co.co_researcher_id,
+  co.co_researcher_name_th,
+  co.co_researcher_name_en,
+  co.co_researcher_latitude,
+  co.co_researcher_longitude,
+  co.co_researcher_image, 
+  u.user_section
+FROM concept_proposal AS cp 
+LEFT JOIN co_concept_fk AS cfk ON cp.concept_proposal_id = cfk.concept_proposal_id
+LEFT JOIN co_researcher AS co ON co.co_researcher_id = cfk.co_researcher_id
+LEFT JOIN bb_user AS u ON u.user_idcard = cp.user_idcard
+LEFT JOIN (
+    SELECT 
+        distinct bd_sum_goals.type,
+        prk.knowledge_group_id,
+        bd_sum_goals.concept_proposal_id
+    FROM bd_sum_goals 
+    LEFT JOIN progress_report_knowledge prk ON bd_sum_goals.progress_report_id = prk.progress_report_id 
+    ) AS goal ON goal.concept_proposal_id = cp.concept_proposal_id
+LEFT JOIN (
+    select 
+        distinct bd_outcome_issues.impact_id,  
+        bd_sum_impact.concept_proposal_id
+    from bd_sum_impact 
+    left join bd_outcome_issues on bd_sum_impact.issues_id = bd_outcome_issues.issues_id
+    ) AS impact ON impact.concept_proposal_id = cp.concept_proposal_id
+WHERE cfk.area_status = 1 AND u.user_section = ${
+group.university ? group.university : "u.user_section"
+} 
+AND ( goal.type = ${
+group.goal ? group.goal : "goal.type OR goal.type IS NULL"
+}) 
+AND ( impact.impact_id = ${
+group.impact ? group.impact : "impact.impact_id OR impact.impact_id IS NULL"
+})  
+AND ( goal.knowledge_group_id =  ${
+group.knowledgegroup ? group.knowledgegroup :"goal.knowledge_group_id OR goal.knowledge_group_id IS NULL"})
+GROUP BY cp.concept_proposal_id, co.co_researcher_id, u.user_section`);
       const projectsData = helper.emptyOrRows(projects);
       const arrUniq = [
         ...new Map(
