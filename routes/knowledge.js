@@ -22,7 +22,7 @@ router.get("/get/knowledge/visualize-map", async function (req, res, next) {
   }
 });
 
-router.get("/get/newknowledge/visualize-map", async function (req, res, next) {
+router.get("/get/new-knowledge/visualize-map", async function (req, res, next) {
   try {
     res.json(await knowledge.getnewKnowledgeMap(req.query));
   } catch (err) {
