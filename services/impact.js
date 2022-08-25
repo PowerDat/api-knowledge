@@ -750,19 +750,21 @@ async function getimpactMap(group) {
         left join bd_outcome_issues on bd_sum_impact.issues_id = bd_outcome_issues.issues_id
         ) AS impact ON impact.concept_proposal_id = cp.concept_proposal_id
     WHERE cfk.area_status = 1 AND u.user_section = ${
-        group.university ? group.university : "u.user_section"
-      } 
+      group.university ? group.university : "u.user_section"
+    } 
     AND ( goal.type = ${
-        group.goal ? group.goal : "goal.type OR goal.type IS NULL"
-      }) 
+      group.goal ? group.goal : "goal.type OR goal.type IS NULL"
+    }) 
     AND ( impact.impact_id = ${
-        group.impact ? group.impact : "impact.impact_id OR impact.impact_id IS NULL"
-      })  
+      group.impact
+        ? group.impact
+        : "impact.impact_id OR impact.impact_id IS NULL"
+    })  
     AND ( goal.knowledge_group_id =  ${
-        group.knowledgegroup
-          ? group.knowledgegroup
-          : "goal.knowledge_group_id OR goal.knowledge_group_id IS NULL"
-      })
+      group.knowledgegroup
+        ? group.knowledgegroup
+        : "goal.knowledge_group_id OR goal.knowledge_group_id IS NULL"
+    })
     GROUP BY cp.concept_proposal_id, co.co_researcher_id, u.user_section`);
   const projectsData = helper.emptyOrRows(projects);
   const arrUniq = [
@@ -1012,37 +1014,55 @@ async function getimpactMap(group) {
       ...parentToEnvironmentLink,
     ];
 
-    const economyResult = economyData.filter((item) => {
-      return group.groupId
-        ? item.bd_sum_impact_id === Number(group.groupId)
-        : economyData.some((f) => {
-            return f.bd_sum_impact_id === item.bd_sum_impact_id;
-          }) && item.impact_id === Number(group.groupName);
-    });
+    // const economyResult = economyData.filter((item) => {
+    //   return group.groupId
+    //     ? item.bd_sum_impact_id === Number(group.groupId)
+    //     : economyData.some((f) => {
+    //         return f.bd_sum_impact_id === item.bd_sum_impact_id;
+    //       }) && item.impact_id === Number(group.groupName);
+    // });
 
-    const socialResult = socialData.filter((item) => {
-      return group.groupId
-        ? item.bd_sum_impact_id === Number(group.groupId)
-        : socialData.some((f) => {
-            return f.bd_sum_impact_id === item.bd_sum_impact_id;
-          }) && item.impact_id === Number(group.groupName);
-    });
+    // const socialResult = socialData.filter((item) => {
+    //   return group.groupId
+    //     ? item.bd_sum_impact_id === Number(group.groupId)
+    //     : socialData.some((f) => {
+    //         return f.bd_sum_impact_id === item.bd_sum_impact_id;
+    //       }) && item.impact_id === Number(group.groupName);
+    // });
 
-    const culturalResult = culturalData.filter((item) => {
-      return group.groupId
-        ? item.bd_sum_impact_id === Number(group.groupId)
-        : culturalData.some((f) => {
-            return f.bd_sum_impact_id === item.bd_sum_impact_id;
-          }) && item.impact_id === Number(group.groupName);
-    });
+    // const culturalResult = culturalData.filter((item) => {
+    //   return group.groupId
+    //     ? item.bd_sum_impact_id === Number(group.groupId)
+    //     : culturalData.some((f) => {
+    //         return f.bd_sum_impact_id === item.bd_sum_impact_id;
+    //       }) && item.impact_id === Number(group.groupName);
+    // });
 
-    const environmentResult = environmentData.filter((item) => {
-      return group.groupId
-        ? item.bd_sum_impact_id === Number(group.groupId)
-        : environmentData.some((f) => {
-            return f.bd_sum_impact_id === item.bd_sum_impact_id;
-          }) && item.impact_id === Number(group.groupName);
-    });
+    // const environmentResult = environmentData.filter((item) => {
+    //   return group.groupId
+    //     ? item.bd_sum_impact_id === Number(group.groupId)
+    //     : environmentData.some((f) => {
+    //         return f.bd_sum_impact_id === item.bd_sum_impact_id;
+    //       }) && item.impact_id === Number(group.groupName);
+    // });
+
+    const economyRes = economyData.filter(
+      (item) => item.bd_sum_impact_id === Number(group.groupId)
+    );
+
+    const socialRes = socialData.filter(
+      (item) => item.bd_sum_impact_id === Number(group.groupId)
+    );
+
+    const culturalRes = culturalData.filter(
+      (item) => item.bd_sum_impact_id === Number(group.groupId)
+    );
+
+    const environmentRes = environmentData.filter(
+      (item) => item.bd_sum_impact_id === Number(group.groupId)
+    );
+
+    console.log(economyRes);
 
     return {
       nodes: nodes,
@@ -1054,11 +1074,38 @@ async function getimpactMap(group) {
         countEnvironment: environmentData.length,
       },
       details: {
-        economy: Number(group.groupName) === 1 ? economyResult : [],
-        social: Number(group.groupName) === 2 ? socialResult : [],
-        cultural: Number(group.groupName) === 3 ? culturalResult : [],
+        economy:
+          Number(group.groupname) === 1 && group.groupId
+            ? economyRes
+            : Number(group.groupname) === 1
+            ? economyData
+            : Number(group.groupname) === "all"
+            ? economyData
+            : [],
+        social:
+          Number(group.groupname) === 2 && group.groupId
+            ? socialRes
+            : Number(group.groupname) === 2
+            ? socialData
+            : Number(group.groupname) === "all"
+            ? socialData
+            : [],
+        cultural:
+          Number(group.groupname) === 3 && group.groupId
+            ? culturalRes
+            : Number(group.groupname) === 3
+            ? culturalData
+            : Number(group.groupname) === "all"
+            ? culturalData
+            : [],
         environment:
-          Number(group.groupName) === 4 ? environmentResult : [],
+          Number(group.groupname) === 4 && group.groupId
+            ? environmentRes
+            : Number(group.groupname) === 4
+            ? environmentData
+            : Number(group.groupname) === "all"
+            ? environmentData
+            : [],
       },
     };
   }

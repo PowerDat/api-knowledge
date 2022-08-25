@@ -74,12 +74,12 @@ async function getGoalMap(group) {
       const ID = conceptid[i];
       const bcg = await db.query(`
          SELECT 	  
-            details.bd_sum_goal_id,
             details.concept_proposal_id,
+            bcg.bcg_id,
             bcg.bcg_name,
             bcg.bcg_image,
             "bcg" as groupname,
-            CONCAT('[', GROUP_CONCAT(JSON_OBJECT('detail', details.detail) ORDER BY details.item_id SEPARATOR ','), ']') AS bcg_detail 
+            JSON_ARRAYAGG(JSON_OBJECT('detail', details.detail)) AS bcg_detail 
           FROM 
           ( 
             SELECT 
@@ -93,17 +93,17 @@ async function getGoalMap(group) {
               AND sumgoal.concept_proposal_id = ${ID} 
             GROUP BY sumgoal.bd_sum_goal_id  ) AS details
           LEFT JOIN bd_bcg bcg ON bcg.bcg_id = details.item_id
-          GROUP BY details.concept_proposal_id, details.bd_sum_goal_id, bcg.bcg_id 
+          GROUP BY details.concept_proposal_id, bcg.bcg_id 
  
          `);
       bcg.map((item) => {
         console.log(item.bcg_detail);
-        try {
-          item.bcg_detail = JSON.parse(`"${item.bcg_detail}"`);
-        } catch (error) {
-          // SyntaxError: Unexpected end of JSON input
-          console.log("error", error);
-        }
+        // try {
+        //   item.bcg_detail = JSON.parse(item.bcg_detail);
+        // } catch (error) {
+        //   // SyntaxError: Unexpected end of JSON input
+        //   console.log("error", error);
+        // }
 
         bcgData.push(item);
       });
@@ -115,12 +115,12 @@ async function getGoalMap(group) {
       const ID = conceptid[i];
       const sdg = await db.query(`
          SELECT 	  
-            details.bd_sum_goal_id,
             details.concept_proposal_id,
+            sdg.sdgs_id,
             sdg.sdgs_name,
             sdg.sdgs_image,
             "sdg" as groupname,
-            CONCAT('[', GROUP_CONCAT(JSON_OBJECT('detail', details.detail) ORDER BY details.item_id SEPARATOR ','), ']') AS sdgs_detail 
+            JSON_ARRAYAGG(JSON_OBJECT('detail', details.detail)) AS sdgs_detail 
           FROM 
           ( 
             SELECT 
@@ -135,11 +135,10 @@ async function getGoalMap(group) {
             GROUP BY sumgoal.bd_sum_goal_id  ) AS details
           LEFT JOIN bd_sdgs sdg ON sdg.sdgs_id = details.item_id
           GROUP BY details.concept_proposal_id,
-                    sdg.sdgs_id,
-                    details.bd_sum_goal_id
+                    sdg.sdgs_id
          `);
       sdg.map((item) => {
-        item.sdgs_detail = JSON.parse(item.sdgs_detail);
+        // item.sdgs_detail = JSON.parse(item.sdgs_detail);
         sdgData.push(item);
       });
     }
@@ -150,12 +149,12 @@ async function getGoalMap(group) {
       const ID = conceptid[i];
       const curve = await db.query(`
          SELECT 	  
-            details.bd_sum_goal_id,
             details.concept_proposal_id,
+            curve.curve_id,
             curve.curve_name,
             curve.curve_image,
             "curve" as groupname,
-            CONCAT('[', GROUP_CONCAT(JSON_OBJECT('detail', details.detail) ORDER BY details.item_id SEPARATOR ','), ']') AS curve_detail 
+            JSON_ARRAYAGG(JSON_OBJECT('detail', details.detail)) AS curve_detail 
           FROM 
           ( 
             SELECT 
@@ -170,11 +169,10 @@ async function getGoalMap(group) {
             GROUP BY sumgoal.bd_sum_goal_id  ) AS details
           LEFT JOIN bd_10s_curve curve ON curve.curve_id = details.item_id
           GROUP BY  details.concept_proposal_id,
-                    details.bd_sum_goal_id,
                     curve.curve_id
          `);
       curve.map((item) => {
-        item.curve_detail = JSON.parse(item.curve_detail);
+        // item.curve_detail = JSON.parse(item.curve_detail);
         curveData.push(item);
       });
     }
@@ -186,12 +184,12 @@ async function getGoalMap(group) {
       const ID = conceptid[i];
       const cluster = await db.query(`
          SELECT 	  
-            details.bd_sum_goal_id,
             details.concept_proposal_id,
+            cluster.cluster_id,
             cluster.cluster_name,
             cluster.cluster_image,
             "cluster" as groupname,
-            CONCAT('[', GROUP_CONCAT(JSON_OBJECT('detail', details.detail) ORDER BY details.item_id SEPARATOR ','), ']') AS cluster_detail 
+            JSON_ARRAYAGG(JSON_OBJECT('detail', details.detail)) AS cluster_detail 
           FROM 
           ( 
             SELECT 
@@ -207,11 +205,10 @@ async function getGoalMap(group) {
           LEFT JOIN bd_cluster cluster ON cluster.cluster_id = details.item_id
           GROUP BY 
               details.concept_proposal_id,
-              details.bd_sum_goal_id,
               cluster.cluster_id
          `);
       cluster.map((item) => {
-        item.cluster_detail = JSON.parse(item.cluster_detail);
+        // item.cluster_detail = JSON.parse(item.cluster_detail);
         clusterData.push(item);
       });
     }
@@ -361,37 +358,53 @@ async function getGoalMap(group) {
       ...parentToClusterLink,
     ];
 
-    const bcgResult = bcgData.filter((item) => {
-      return group.groupId
-        ? item.bd_sum_goal_id === Number(group.groupId)
-        : bcgData.some((f) => {
-            return f.bd_sum_goal_id === item.bd_sum_goal_id;
-          }) && item.groupname === group.groupName;
-    });
+    // const bcgResult = bcgData.filter((item) => {
+    //   return group.groupId
+    //     ? item.bcg_id === Number(group.groupId)
+    //     : bcgData.some((f) => {
+    //         return f.bcg_id === item.bcg_id;
+    //       }) && item.groupname === group.groupName;
+    // });
 
-    const sdgResult = sdgData.filter((item) => {
-      return group.groupId
-        ? item.bd_sum_goal_id === Number(group.groupId)
-        : sdgData.some((f) => {
-            return f.bd_sum_goal_id === item.bd_sum_goal_id;
-          }) && item.groupname === group.groupName;
-    });
+    // const sdgResult = sdgData.filter((item) => {
+    //   return group.groupId
+    //     ? item.sdgs_id === Number(group.groupId)
+    //     : sdgData.some((f) => {
+    //         return f.sdgs_id === item.sdgs_id;
+    //       }) && item.groupname === group.groupName;
+    // });
 
-    const curveResult = curveData.filter((item) => {
-      return group.groupId
-        ? item.bd_sum_goal_id === Number(group.groupId)
-        : curveData.some((f) => {
-            return f.bd_sum_goal_id === item.bd_sum_goal_id;
-          }) && item.groupname === group.groupName;
-    });
+    // const curveResult = curveData.filter((item) => {
+    //   return group.groupId
+    //     ? item.curve_id === Number(group.groupId)
+    //     : curveData.some((f) => {
+    //         return f.curve_id === item.curve_id;
+    //       }) && item.groupname === group.groupName;
+    // });
 
-    const clusterResult = clusterData.filter((item) => {
-      return group.groupId
-        ? item.bd_sum_goal_id === Number(group.groupId)
-        : clusterData.some((f) => {
-            return f.bd_sum_goal_id === item.bd_sum_goal_id;
-          }) && item.groupname === group.groupName;
-    });
+    // const clusterResult = clusterData.filter((item) => {
+    //   return group.groupId
+    //     ? item.cluster_id === Number(group.groupId)
+    //     : clusterData.some((f) => {
+    //         return f.cluster_id === item.cluster_id;
+    //       }) && item.groupname === group.groupName;
+    // });
+
+    const bcgRes = bcgData.filter(
+      (item) => item.bcg_id === Number(group.groupId)
+    );
+
+    const sdgRes = sdgData.filter(
+      (item) => item.sdgs_id === Number(group.groupId)
+    );
+
+    const curveRes = curveData.filter(
+      (item) => item.curve_id === Number(group.groupId)
+    );
+
+    const clusterRes = clusterData.filter(
+      (item) => item.cluster_id === Number(group.groupId)
+    );
 
     return {
       // detail: filterGoal,
@@ -404,10 +417,38 @@ async function getGoalMap(group) {
         countCluster: clusterData.length,
       },
       details: {
-        bcg: group.groupName === "bcg" ? bcgResult : [],
-        sdg: group.groupName === "sdg" ? sdgResult : [],
-        curve: group.groupName === "curve" ? curveResult : [],
-        cluster: group.groupName === "cluster" ? clusterResult : [],
+        bcg:
+          group.groupname === "bcg" && group.groupId
+            ? bcgRes
+            : group.groupname === "bcg"
+            ? bcgData
+            : group.groupname === "all"
+            ? bcgData
+            : [],
+        sdg:
+          group.groupname === "sdg" && group.groupId
+            ? sdgRes
+            : group.groupname === "sdg"
+            ? sdgData
+            : group.groupname === "all"
+            ? sdgData
+            : [],
+        curve:
+          group.groupname === "curve" && group.groupId
+            ? curveRes
+            : group.groupname === "curve"
+            ? curveData
+            : group.groupname === "all"
+            ? curveData
+            : [],
+        cluster:
+          group.groupname === "cluster" && group.groupId
+            ? clusterRes
+            : group.groupname === "cluster"
+            ? clusterData
+            : group.groupname === "all"
+            ? clusterData
+            : [],
       },
     };
   }
