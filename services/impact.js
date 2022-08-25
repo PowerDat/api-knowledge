@@ -1079,7 +1079,7 @@ async function getimpactMap(group) {
             ? economyRes
             : Number(group.groupname) === 1
             ? economyData
-            : Number(group.groupname) === "all"
+            : group.groupname === "all"
             ? economyData
             : [],
         social:
@@ -1087,7 +1087,7 @@ async function getimpactMap(group) {
             ? socialRes
             : Number(group.groupname) === 2
             ? socialData
-            : Number(group.groupname) === "all"
+            : group.groupname === "all"
             ? socialData
             : [],
         cultural:
@@ -1095,7 +1095,7 @@ async function getimpactMap(group) {
             ? culturalRes
             : Number(group.groupname) === 3
             ? culturalData
-            : Number(group.groupname) === "all"
+            : group.groupname === "all"
             ? culturalData
             : [],
         environment:
@@ -1103,7 +1103,7 @@ async function getimpactMap(group) {
             ? environmentRes
             : Number(group.groupname) === 4
             ? environmentData
-            : Number(group.groupname) === "all"
+            : group.groupname === "all"
             ? environmentData
             : [],
       },
