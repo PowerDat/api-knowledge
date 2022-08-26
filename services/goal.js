@@ -337,25 +337,25 @@ async function getGoalMap(group) {
           to: ID + ".s" + 1,
         });
 
-        item.sdg.map((sdgitem, sdgindex) => {
-          const EID = sdgindex + 1;
-          childNodesSdgSub.push({
-            id: ID + "e." + EID,
-            type: "child",
-            label: sdgitem.sdgs_name,
-            title: sdgitem.sdg_detail,
-            lat: item.co_researcher_latitude,
-            lon: item.co_researcher_longitude,
-            img:
-              "https://researcher.kims-rmuti.com/icon/" +
-              sdgitem.sdgs_image,
-          });
+        // item.sdg.map((sdgitem, sdgindex) => {
+        //   const EID = sdgindex + 1;
+        //   childNodesSdgSub.push({
+        //     id: ID + "e." + EID,
+        //     type: "child",
+        //     label: sdgitem.sdgs_name,
+        //     title: sdgitem.sdg_detail,
+        //     lat: item.co_researcher_latitude,
+        //     lon: item.co_researcher_longitude,
+        //     img:
+        //       "https://researcher.kims-rmuti.com/icon/" +
+        //       sdgitem.sdgs_image,
+        //   });
 
-          sdgToSdgSub.push({
-            from: ID + ".s" + 1,
-            to: ID + "s." + EID,
-          });
-        });
+        //   sdgToSdgSub.push({
+        //     from: ID + ".s" + 1,
+        //     to: ID + "s." + EID,
+        //   });
+        // });
       }
 
       if (item.curve.length) {
@@ -373,25 +373,25 @@ async function getGoalMap(group) {
           to: ID + ".cu" + 1,
         });
 
-        item.curve.map((curveitem, curveindex) => {
-          const EID = curveindex + 1;
-          childNodesSdgSub.push({
-            id: ID + "cu." + EID,
-            type: "child",
-            label: curveitem.curve_name,
-            title: curveitem.curve_detail,
-            lat: item.co_researcher_latitude,
-            lon: item.co_researcher_longitude,
-            img:
-              "https://researcher.kims-rmuti.com/icon/" +
-              curveitem.curve_image,
-          });
+        // item.curve.map((curveitem, curveindex) => {
+        //   const EID = curveindex + 1;
+        //   childNodesSdgSub.push({
+        //     id: ID + "cu." + EID,
+        //     type: "child",
+        //     label: curveitem.curve_name,
+        //     title: curveitem.curve_detail,
+        //     lat: item.co_researcher_latitude,
+        //     lon: item.co_researcher_longitude,
+        //     img:
+        //       "https://researcher.kims-rmuti.com/icon/" +
+        //       curveitem.curve_image,
+        //   });
 
-          curveToCurveSub.push({
-            from: ID + ".cu" + 1,
-            to: ID + "cu." + EID,
-          });
-        });
+        //   curveToCurveSub.push({
+        //     from: ID + ".cu" + 1,
+        //     to: ID + "cu." + EID,
+        //   });
+        // });
       }
 
       if (item.cluster.length) {
@@ -409,25 +409,25 @@ async function getGoalMap(group) {
           to: ID + ".cl" + 1,
         });
 
-        item.cluster.map((clusteritem, clusterindex) => {
-          const EID = clusterindex + 1;
-          childNodesSdgSub.push({
-            id: ID + "cl." + EID,
-            type: "child",
-            label: clusteritem.curve_name,
-            title: clusteritem.curve_detail,
-            lat: item.co_researcher_latitude,
-            lon: item.co_researcher_longitude,
-            img:
-              "https://researcher.kims-rmuti.com/icon/" +
-              clusteritem.cluster_image,
-          });
+        // item.cluster.map((clusteritem, clusterindex) => {
+        //   const EID = clusterindex + 1;
+        //   childNodesSdgSub.push({
+        //     id: ID + "cl." + EID,
+        //     type: "child",
+        //     label: clusteritem.curve_name,
+        //     title: clusteritem.curve_detail,
+        //     lat: item.co_researcher_latitude,
+        //     lon: item.co_researcher_longitude,
+        //     img:
+        //       "https://researcher.kims-rmuti.com/icon/" +
+        //       clusteritem.cluster_image,
+        //   });
 
-          clusterToclusterSub.push({
-            from: ID + ".cl" + 1,
-            to: ID + "cl." + EID,
-          });
-        });
+        //   clusterToclusterSub.push({
+        //     from: ID + ".cl" + 1,
+        //     to: ID + "cl." + EID,
+        //   });
+        // });
       }
     });
 
