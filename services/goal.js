@@ -253,13 +253,21 @@ async function getGoalMap(group) {
 
     let parentNodes = [],
       childNodesSdg = [],
+      childNodesSdgSub = [],
       childNodesBcg = [],
+      childNodesBcgSub = [],
       childNodesCurve = [],
+      childNodesCurveSub = [],
       childNodesCluster = [],
+      childNodesClusterSub = [],
       parentToBcgLink = [],
+      bcgToBcgSub =[],
       parentToSdgLink = [],
+      sdgToSdgSub = [],
       parentToCurveLink = [],
+      curveToCurveSub = [],
       parentToClusterLink = [];
+      clusterToclusterSub = [],
     // knowledgeToInnovationLink = [],
     // innovationToNewKnowledgeLink = [];
 
@@ -291,6 +299,26 @@ async function getGoalMap(group) {
           from: ID,
           to: ID + ".b" + 1,
         });
+      
+        item.bcg.map((bcgitem, bcgindex) => {
+          const EID = bcgindex + 1;
+          childNodesBcgSub.push({
+            id: ID + "b." + EID,
+            type: "child",
+            label: bcgitem.bcg_name,
+            title: bcgitem.bcg_detail,
+            lat: item.co_researcher_latitude,
+            lon: item.co_researcher_longitude,
+            img:
+              "https://researcher.kims-rmuti.com/icon/" +
+              bcgitem.bcg_image,
+          });
+
+          bcgToBcgSub.push({
+            from: ID + ".b" + 1,
+            to: ID + "b." + EID,
+          });
+        });
       }
 
       if (item.sdg.length) {
@@ -308,11 +336,31 @@ async function getGoalMap(group) {
           from: ID,
           to: ID + ".s" + 1,
         });
+
+        item.sdg.map((sdgitem, sdgindex) => {
+          const EID = sdgindex + 1;
+          childNodesSdgSub.push({
+            id: ID + "e." + EID,
+            type: "child",
+            label: sdgitem.sdgs_name,
+            title: sdgitem.sdg_detail,
+            lat: item.co_researcher_latitude,
+            lon: item.co_researcher_longitude,
+            img:
+              "https://researcher.kims-rmuti.com/icon/" +
+              sdgitem.sdgs_image,
+          });
+
+          sdgToSdgSub.push({
+            from: ID + ".s" + 1,
+            to: ID + "s." + EID,
+          });
+        });
       }
 
       if (item.curve.length) {
         childNodesCurve.push({
-          id: ID + ".u" + 1,
+          id: ID + ".cu" + 1,
           type: "child",
           label: "10 S-Curve",
           title: "10 S-Curve",
@@ -322,13 +370,33 @@ async function getGoalMap(group) {
         });
         parentToCurveLink.push({
           from: ID,
-          to: ID + ".u" + 1,
+          to: ID + ".cu" + 1,
+        });
+
+        item.curve.map((curveitem, curveindex) => {
+          const EID = curveindex + 1;
+          childNodesSdgSub.push({
+            id: ID + "cu." + EID,
+            type: "child",
+            label: curveitem.curve_name,
+            title: curveitem.curve_detail,
+            lat: item.co_researcher_latitude,
+            lon: item.co_researcher_longitude,
+            img:
+              "https://researcher.kims-rmuti.com/icon/" +
+              curveitem.curve_image,
+          });
+
+          curveToCurveSub.push({
+            from: ID + ".cu" + 1,
+            to: ID + "cu." + EID,
+          });
         });
       }
 
       if (item.cluster.length) {
         childNodesCluster.push({
-          id: ID + ".c" + 1,
+          id: ID + ".cl" + 1,
           type: "child",
           label: "RMUTI Cluster",
           title: "RMUTI Cluster",
@@ -338,7 +406,27 @@ async function getGoalMap(group) {
         });
         parentToClusterLink.push({
           from: ID,
-          to: ID + ".c" + 1,
+          to: ID + ".cl" + 1,
+        });
+
+        item.cluster.map((clusteritem, clusterindex) => {
+          const EID = clusterindex + 1;
+          childNodesSdgSub.push({
+            id: ID + "cl." + EID,
+            type: "child",
+            label: clusteritem.curve_name,
+            title: clusteritem.curve_detail,
+            lat: item.co_researcher_latitude,
+            lon: item.co_researcher_longitude,
+            img:
+              "https://researcher.kims-rmuti.com/icon/" +
+              clusteritem.cluster_image,
+          });
+
+          clusterToclusterSub.push({
+            from: ID + ".cl" + 1,
+            to: ID + "cl." + EID,
+          });
         });
       }
     });
@@ -346,16 +434,24 @@ async function getGoalMap(group) {
     const nodes = [
       ...parentNodes,
       ...childNodesBcg,
+      ...childNodesBcgSub,
       ...childNodesSdg,
+      ...childNodesSdgSub,
       ...childNodesCurve,
+      ...childNodesCurveSub,
       ...childNodesCluster,
+      ...childNodesClusterSub,
     ];
 
     const links = [
-      ...parentToBcgLink,
+      ...parentToBcgLink, 
+      ...bcgToBcgSub,
       ...parentToSdgLink,
+      ...sdgToSdgSub,
       ...parentToCurveLink,
+      ...curveToCurveSub,
       ...parentToClusterLink,
+      ...clusterToclusterSub,
     ];
 
     // const bcgResult = bcgData.filter((item) => {

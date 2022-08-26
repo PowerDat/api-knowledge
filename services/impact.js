@@ -718,7 +718,7 @@ async function getResearch(paramsQuery) {
 async function getimpactMap(group) {
   console.log(group);
   const projects = await db.query(`
-  SELECT 
+  SELECT  
       cp.concept_proposal_id,
       cp.concept_proposal_name_th,
       cp.concept_proposal_name_en,
