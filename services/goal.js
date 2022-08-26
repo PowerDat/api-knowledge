@@ -75,6 +75,7 @@ async function getGoalMap(group) {
       const bcg = await db.query(`
          SELECT 	  
             details.concept_proposal_id,
+            details.concept_proposal_name_th,
             bcg.bcg_id,
             bcg.bcg_name,
             bcg.bcg_image,
@@ -84,17 +85,18 @@ async function getGoalMap(group) {
           ( 
             SELECT 
                 sumgoal.bd_sum_goal_id,
-                sumgoal.concept_proposal_id,
+                cp.concept_proposal_id,
+                cp.concept_proposal_name_th,
                 sumgoal.detail,
                 sumgoal.item_id,
                 sumgoal.type 
             FROM bd_sum_goals sumgoal     
+              INNER JOIN concept_proposal cp ON cp.concept_proposal_id = sumgoal.concept_proposal_id
               WHERE sumgoal.type = 1
               AND sumgoal.concept_proposal_id = ${ID} 
-            GROUP BY sumgoal.bd_sum_goal_id  ) AS details
+            GROUP BY sumgoal.bd_sum_goal_id, cp.concept_proposal_id ) AS details
           LEFT JOIN bd_bcg bcg ON bcg.bcg_id = details.item_id
-          GROUP BY details.concept_proposal_id, bcg.bcg_id 
- 
+          GROUP BY details.concept_proposal_id, bcg.bcg_id  
          `);
       bcg.map((item) => {
         console.log(item.bcg_detail);
@@ -116,6 +118,7 @@ async function getGoalMap(group) {
       const sdg = await db.query(`
          SELECT 	  
             details.concept_proposal_id,
+            details.concept_proposal_name_th,
             sdg.sdgs_id,
             sdg.sdgs_name,
             sdg.sdgs_image,
@@ -125,14 +128,16 @@ async function getGoalMap(group) {
           ( 
             SELECT 
                 sumgoal.bd_sum_goal_id,
-                sumgoal.concept_proposal_id,
+                cp.concept_proposal_id,
+                cp.concept_proposal_name_th,
                 sumgoal.detail,
                 sumgoal.item_id,
                 sumgoal.type 
             FROM bd_sum_goals sumgoal     
+              INNER JOIN concept_proposal cp ON cp.concept_proposal_id = sumgoal.concept_proposal_id
               WHERE sumgoal.type = 2
               AND sumgoal.concept_proposal_id = ${ID} 
-            GROUP BY sumgoal.bd_sum_goal_id  ) AS details
+            GROUP BY sumgoal.bd_sum_goal_id, cp.concept_proposal_id  ) AS details
           LEFT JOIN bd_sdgs sdg ON sdg.sdgs_id = details.item_id
           GROUP BY details.concept_proposal_id,
                     sdg.sdgs_id
@@ -150,6 +155,7 @@ async function getGoalMap(group) {
       const curve = await db.query(`
          SELECT 	  
             details.concept_proposal_id,
+            details.concept_proposal_name_th,
             curve.curve_id,
             curve.curve_name,
             curve.curve_image,
@@ -159,14 +165,16 @@ async function getGoalMap(group) {
           ( 
             SELECT 
                 sumgoal.bd_sum_goal_id,
-                sumgoal.concept_proposal_id,
+                cp.concept_proposal_id,
+                cp.concept_proposal_name_th,
                 sumgoal.detail,
                 sumgoal.item_id,
                 sumgoal.type 
-            FROM bd_sum_goals sumgoal     
+            FROM bd_sum_goals sumgoal    
+              INNER JOIN concept_proposal cp ON cp.concept_proposal_id = sumgoal.concept_proposal_id 
               WHERE sumgoal.type = 3
               AND sumgoal.concept_proposal_id = ${ID}
-            GROUP BY sumgoal.bd_sum_goal_id  ) AS details
+            GROUP BY sumgoal.bd_sum_goal_id, cp.concept_proposal_id  ) AS details
           LEFT JOIN bd_10s_curve curve ON curve.curve_id = details.item_id
           GROUP BY  details.concept_proposal_id,
                     curve.curve_id
@@ -185,6 +193,7 @@ async function getGoalMap(group) {
       const cluster = await db.query(`
          SELECT 	  
             details.concept_proposal_id,
+            details.concept_proposal_name_th,
             cluster.cluster_id,
             cluster.cluster_name,
             cluster.cluster_image,
@@ -193,15 +202,17 @@ async function getGoalMap(group) {
           FROM 
           ( 
             SELECT 
-                  sumgoal.bd_sum_goal_id,
-                  sumgoal.concept_proposal_id,
+                sumgoal.bd_sum_goal_id,
+                cp.concept_proposal_id,
+                cp.concept_proposal_name_th,
                 sumgoal.detail,
                 sumgoal.item_id,
                 sumgoal.type 
             FROM bd_sum_goals sumgoal      
+              INNER JOIN concept_proposal cp ON cp.concept_proposal_id = sumgoal.concept_proposal_id
               WHERE sumgoal.type = 4
               AND sumgoal.concept_proposal_id = ${ID}
-            GROUP BY sumgoal.bd_sum_goal_id ) AS details
+            GROUP BY sumgoal.bd_sum_goal_id, cp.concept_proposal_id ) AS details
           LEFT JOIN bd_cluster cluster ON cluster.cluster_id = details.item_id
           GROUP BY 
               details.concept_proposal_id,
