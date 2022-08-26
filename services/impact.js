@@ -825,7 +825,10 @@ async function getimpactMap(group) {
         // item.issue_detail = JSON.parse(item.issue_detail)
         item.issue_detail.map((iitem) => {
           // iitem.impact_detail = JSON.parse(iitem.impact_detail)
-          iitem.impact_detail = removedub(iitem.impact_detail, "impact_detail");
+          const filterimpact = iitem.impact_detail.filter(
+            (impdetail) => impdetail.impact_detail !== ""
+          );
+          iitem.impact_detail = removedub(filterimpact, "impact_detail");
         });
       });
 
@@ -1044,7 +1047,7 @@ async function getimpactMap(group) {
             title: `<div>
                     ${eitem.issue_detail.map(
                       (iitem) =>
-                      `<strong>${iitem.issue_detail}</strong>   
+                        `<strong>${iitem.issue_detail}</strong>   
                       <ul> 
                         ${iitem.impact_detail.map(
                           (ditem) => `<li>${ditem.impact_detail}</li>`
@@ -1091,7 +1094,7 @@ async function getimpactMap(group) {
             title: `<div>
                       ${sitem.issue_detail.map(
                         (iitem) =>
-                        `<strong>${iitem.issue_detail}</strong>   
+                          `<strong>${iitem.issue_detail}</strong>   
                         <ul> 
                           ${iitem.impact_detail.map(
                             (ditem) => `<li>${ditem.impact_detail}</li>`
@@ -1137,7 +1140,7 @@ async function getimpactMap(group) {
             title: `<div>
                     ${titem.issue_detail.map(
                       (iitem) =>
-                      `<strong>${iitem.issue_detail}</strong>   
+                        `<strong>${iitem.issue_detail}</strong>   
                       <ul> 
                         ${iitem.impact_detail.map(
                           (ditem) => `<li>${ditem.impact_detail}</li>`
@@ -1183,7 +1186,7 @@ async function getimpactMap(group) {
             title: `<div>
                     ${nitem.issue_detail.map(
                       (iitem) =>
-                      `<strong>${iitem.issue_detail}</strong>   
+                        `<strong>${iitem.issue_detail}</strong>   
                       <ul> 
                         ${iitem.impact_detail.map(
                           (ditem) => `<li>${ditem.impact_detail}</li>`
