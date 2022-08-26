@@ -306,7 +306,12 @@ async function getGoalMap(group) {
             id: ID + "b." + BID,
             type: "child",
             label: bcgitem.bcg_name,
-            title: bcgitem.bcg_detail,
+            title:  `<div>
+            ${bcgitem.bcg_detail.map(
+            (ditem) =>
+              `<li>${ditem.detail}</li> `
+            )}    
+        </div>`,
             lat: item.co_researcher_latitude,
             lon: item.co_researcher_longitude,
             img:
@@ -343,7 +348,12 @@ async function getGoalMap(group) {
             id: ID + "s." + SID,
             type: "child",
             label: sdgitem.sdgs_name,
-            title: sdgitem.sdg_detail,
+            title:  `<div>
+            ${sdgitem.sdgs_detail.map(
+            (ditem) =>
+              `<li>${ditem.detail}</li> `
+            )}    
+        </div>`,
             lat: item.co_researcher_latitude,
             lon: item.co_researcher_longitude,
             img:
@@ -375,11 +385,16 @@ async function getGoalMap(group) {
 
         item.curve.map((curveitem, curveindex) => {
           const CID = curveindex + 1;
-          childNodesSdgSub.push({
+          childNodesCurveSub.push({
             id: ID + "cu." + CID,
             type: "child",
             label: curveitem.curve_name,
-            title: curveitem.curve_detail,
+            title: `<div>
+              ${curveitem.curve_detail.map(
+              (ditem) =>
+                `<li>${ditem.detail}</li> `
+              )}    
+          </div>`,
             lat: item.co_researcher_latitude,
             lon: item.co_researcher_longitude,
             img:
@@ -411,11 +426,16 @@ async function getGoalMap(group) {
 
         item.cluster.map((clusteritem, clusterindex) => {
           const CLID = clusterindex + 1;
-          childNodesSdgSub.push({
+          childNodesClusterSub.push({
             id: ID + "cl." + CLID,
             type: "child",
-            label: clusteritem.curve_name,
-            title: clusteritem.curve_detail,
+            label: clusteritem.cluster_name,
+            title: `<div>
+              ${clusteritem.cluster_detail.map(
+              (ditem) =>
+                `<li>${ditem.detail}</li> `
+              )}    
+          </div>`,
             lat: item.co_researcher_latitude,
             lon: item.co_researcher_longitude,
             img:
