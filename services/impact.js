@@ -786,21 +786,28 @@ async function getimpactMap(group) {
     for (let i = 0; i < conceptid.length; i++) {
       const ID = conceptid[i];
       const economy = await db.query(`
-            SELECT 
-            imp.concept_proposal_id,
-            bdf.factor_name,
-            bdf.bd_outcome_image,
-            outimp.impact_id,
-            imp.impact_detail,
-            imp.issues_id,
-            issues.issues_name,
-            imp.bd_sum_impact_id
-          FROM bd_sum_impact imp
-          INNER JOIN bd_outcome_issues issues ON issues.issues_id = imp.issues_id
-          INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
-          left join bd_outcome_factor bdf ON bdf.factor_id = issues.factor_id
-              WHERE concept_proposal_id = ${ID} 
-              AND outimp.impact_id = 1
+      SELECT 
+        issues_data.concept_proposal_id,
+        bof.factor_id,
+        bof.factor_name,
+          bof.bd_outcome_image,
+          JSON_ARRAYAGG(JSON_OBJECT('issue_detail', issues_data.issues_name , 'issue_id', issues_data.issues_id, 'impact_detail', issues_data.impact_detail)) AS issue_detail
+      FROM (
+          SELECT 
+                  imp.concept_proposal_id,
+                  issues.factor_id,
+                  imp.issues_id,
+                  issues.issues_name,
+            JSON_ARRAYAGG(JSON_OBJECT('impact_detail', imp.impact_detail , 'impact_id', outimp.impact_id)) AS impact_detail
+                FROM bd_sum_impact imp
+              INNER JOIN bd_outcome_issues issues ON issues.issues_id = imp.issues_id
+              INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
+                    WHERE concept_proposal_id = ${ID}
+                    AND outimp.impact_id = 1
+          group by imp.issues_id, imp.concept_proposal_id, issues.factor_id, imp.concept_proposal_id
+      ) AS issues_data 
+      INNER JOIN bd_outcome_factor AS bof ON bof.factor_id = issues_data.factor_id
+      GROUP BY bof.factor_id
             `);
       economy.map((item) => economyData.push(item));
     }
@@ -810,22 +817,28 @@ async function getimpactMap(group) {
     for (let i = 0; i < conceptid.length; i++) {
       const ID = conceptid[i];
       const social = await db.query(`
-            SELECT 
-            imp.concept_proposal_id,
-            bdf.factor_name,
-            bdf.bd_outcome_image,
-            outimp.impact_id,
-            imp.impact_detail,
-            imp.issues_id,
-            issues.issues_name,
-            imp.bd_sum_impact_id
-            
-          FROM bd_sum_impact imp
-            INNER JOIN bd_outcome_issues issues ON issues.issues_id = imp.issues_id
-            INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
-            left join bd_outcome_factor bdf ON bdf.factor_id = issues.factor_id
-              WHERE concept_proposal_id = ${ID} 
-              AND outimp.impact_id = 2
+      SELECT 
+        issues_data.concept_proposal_id,
+        bof.factor_id,
+        bof.factor_name,
+          bof.bd_outcome_image,
+          JSON_ARRAYAGG(JSON_OBJECT('issue_detail', issues_data.issues_name , 'issue_id', issues_data.issues_id, 'impact_detail', issues_data.impact_detail)) AS issue_detail
+      FROM (
+          SELECT 
+                  imp.concept_proposal_id,
+                  issues.factor_id,
+                  imp.issues_id,
+                  issues.issues_name,
+            JSON_ARRAYAGG(JSON_OBJECT('impact_detail', imp.impact_detail , 'impact_id', outimp.impact_id)) AS impact_detail
+                FROM bd_sum_impact imp
+              INNER JOIN bd_outcome_issues issues ON issues.issues_id = imp.issues_id
+              INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
+                    WHERE concept_proposal_id = ${ID}
+                    AND outimp.impact_id = 2 
+          group by imp.issues_id, imp.concept_proposal_id, issues.factor_id, imp.concept_proposal_id
+      ) AS issues_data 
+      INNER JOIN bd_outcome_factor AS bof ON bof.factor_id = issues_data.factor_id
+      GROUP BY bof.factor_id
             `);
       social.map((item) => socialData.push(item));
     }
@@ -835,22 +848,28 @@ async function getimpactMap(group) {
     for (let i = 0; i < conceptid.length; i++) {
       const ID = conceptid[i];
       const cultural = await db.query(`
-            SELECT 
-            imp.concept_proposal_id,
-            bdf.factor_name,
-            bdf.bd_outcome_image,
-            outimp.impact_id,
-            imp.impact_detail,
-            imp.issues_id,
-            issues.issues_name,
-            imp.bd_sum_impact_id
-            
-          FROM bd_sum_impact imp
-            INNER JOIN bd_outcome_issues issues ON issues.issues_id = imp.issues_id
-            INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
-            left join bd_outcome_factor bdf ON bdf.factor_id = issues.factor_id
-              WHERE concept_proposal_id = ${ID} 
-              AND outimp.impact_id = 3
+      SELECT 
+        issues_data.concept_proposal_id,
+        bof.factor_id,
+        bof.factor_name,
+          bof.bd_outcome_image,
+          JSON_ARRAYAGG(JSON_OBJECT('issue_detail', issues_data.issues_name , 'issue_id', issues_data.issues_id, 'impact_detail', issues_data.impact_detail)) AS issue_detail
+      FROM (
+          SELECT 
+                  imp.concept_proposal_id,
+                  issues.factor_id,
+                  imp.issues_id,
+                  issues.issues_name,
+            JSON_ARRAYAGG(JSON_OBJECT('impact_detail', imp.impact_detail , 'impact_id', outimp.impact_id)) AS impact_detail
+                FROM bd_sum_impact imp
+              INNER JOIN bd_outcome_issues issues ON issues.issues_id = imp.issues_id
+              INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
+                    WHERE concept_proposal_id = ${ID}
+                    AND outimp.impact_id = 3
+          group by imp.issues_id, imp.concept_proposal_id, issues.factor_id, imp.concept_proposal_id
+      ) AS issues_data 
+      INNER JOIN bd_outcome_factor AS bof ON bof.factor_id = issues_data.factor_id
+      GROUP BY bof.factor_id
             `);
       cultural.map((item) => culturalData.push(item));
     }
@@ -859,22 +878,28 @@ async function getimpactMap(group) {
     for (let i = 0; i < conceptid.length; i++) {
       const ID = conceptid[i];
       const environment = await db.query(`
-            SELECT 
-            imp.concept_proposal_id,
-            bdf.factor_name,
-            bdf.bd_outcome_image,
-            outimp.impact_id,
-            imp.impact_detail,
-            imp.issues_id,
-            issues.issues_name,
-            imp.bd_sum_impact_id
-            
-          FROM bd_sum_impact imp
-            INNER JOIN bd_outcome_issues issues ON issues.issues_id = imp.issues_id
-            INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
-            left join bd_outcome_factor bdf ON bdf.factor_id = issues.factor_id
-              WHERE concept_proposal_id = ${ID} 
-              AND outimp.impact_id = 4
+      SELECT 
+          issues_data.concept_proposal_id,
+          bof.factor_id,
+          bof.factor_name,
+          bof.bd_outcome_image,
+          JSON_ARRAYAGG(JSON_OBJECT('issue_detail', issues_data.issues_name , 'issue_id', issues_data.issues_id, 'impact_detail', issues_data.impact_detail)) AS issue_detail
+      FROM (
+          SELECT 
+                  imp.concept_proposal_id,
+                  issues.factor_id,
+                  imp.issues_id,
+                  issues.issues_name,
+            JSON_ARRAYAGG(JSON_OBJECT('impact_detail', imp.impact_detail , 'impact_id', outimp.impact_id)) AS impact_detail
+                FROM bd_sum_impact imp
+              INNER JOIN bd_outcome_issues issues ON issues.issues_id = imp.issues_id
+              INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
+                    WHERE concept_proposal_id = ${ID}
+                    AND outimp.impact_id = 4
+          group by imp.issues_id, imp.concept_proposal_id, issues.factor_id, imp.concept_proposal_id
+      ) AS issues_data 
+      INNER JOIN bd_outcome_factor AS bof ON bof.factor_id = issues_data.factor_id
+      GROUP BY bof.factor_id
             `);
       environment.map((item) => environmentData.push(item));
     }
@@ -972,7 +997,7 @@ async function getimpactMap(group) {
             id: ID + "e." + EID,
             type: "child",
             label: eitem.factor_name,
-            title: eitem.issues_name,
+            title: JSON.parse(eitem.issue_detail),
             lat: item.co_researcher_latitude,
             lon: item.co_researcher_longitude,
             img:
@@ -1009,7 +1034,7 @@ async function getimpactMap(group) {
             id: ID + "s." + SID,
             type: "child",
             label: sitem.factor_name,
-            title: sitem.issues_name,
+            title: JSON.parse(sitem.issue_detail),
             lat: item.co_researcher_latitude,
             lon: item.co_researcher_longitude,
             img:
@@ -1045,7 +1070,7 @@ async function getimpactMap(group) {
             id: ID + "t." + TID,
             type: "child",
             label: titem.factor_name,
-            title: titem.issues_name,
+            title: JSON.parse(titem.issue_detail),
             lat: item.co_researcher_latitude,
             lon: item.co_researcher_longitude,
             img:
@@ -1081,7 +1106,7 @@ async function getimpactMap(group) {
             id: ID + "n." + NID,
             type: "child",
             label: nitem.factor_name,
-            title: nitem.issues_name,
+            title: JSON.parse(nitem.issue_detail),
             lat: item.co_researcher_latitude,
             lon: item.co_researcher_longitude,
             img:
