@@ -997,7 +997,7 @@ async function getimpactMap(group) {
             id: ID + "e." + EID,
             type: "child",
             label: eitem.factor_name,
-            title: JSON.parse(eitem.issue_detail),
+            title: eitem.issue_detail,
             lat: item.co_researcher_latitude,
             lon: item.co_researcher_longitude,
             img:
@@ -1034,7 +1034,7 @@ async function getimpactMap(group) {
             id: ID + "s." + SID,
             type: "child",
             label: sitem.factor_name,
-            title: JSON.parse(sitem.issue_detail),
+            title: sitem.issue_detail,
             lat: item.co_researcher_latitude,
             lon: item.co_researcher_longitude,
             img:
@@ -1070,7 +1070,7 @@ async function getimpactMap(group) {
             id: ID + "t." + TID,
             type: "child",
             label: titem.factor_name,
-            title: JSON.parse(titem.issue_detail),
+            title: titem.issue_detail,
             lat: item.co_researcher_latitude,
             lon: item.co_researcher_longitude,
             img:
@@ -1106,7 +1106,7 @@ async function getimpactMap(group) {
             id: ID + "n." + NID,
             type: "child",
             label: nitem.factor_name,
-            title: JSON.parse(nitem.issue_detail),
+            title: nitem.issue_detail,
             lat: item.co_researcher_latitude,
             lon: item.co_researcher_longitude,
             img:
