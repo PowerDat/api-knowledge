@@ -776,6 +776,18 @@ async function getimpactMap(group) {
     ).values(),
   ].reverse();
 
+  function removedub(array, field) {
+    const arrUniq = [
+      ...new Map(
+        array
+          .slice()
+          .reverse()
+          .map((v) => [v[`${field}`], v])
+      ).values(),
+    ].reverse();
+    return arrUniq;
+  }
+
   if (arrUniq.length) {
     const conceptid = arrUniq.map((item) => item.concept_proposal_id);
     let economyData = [],
@@ -787,9 +799,9 @@ async function getimpactMap(group) {
       const ID = conceptid[i];
       const economy = await db.query(`
       SELECT 
-        issues_data.concept_proposal_id,
-        bof.factor_id,
-        bof.factor_name,
+          issues_data.concept_proposal_id,
+          bof.factor_id,
+          bof.factor_name,
           bof.bd_outcome_image,
           JSON_ARRAYAGG(JSON_OBJECT('issue_detail', issues_data.issues_name , 'issue_id', issues_data.issues_id, 'impact_detail', issues_data.impact_detail)) AS issue_detail
       FROM (
@@ -804,11 +816,19 @@ async function getimpactMap(group) {
               INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
                     WHERE concept_proposal_id = ${ID}
                     AND outimp.impact_id = 1
-          group by imp.issues_id, imp.concept_proposal_id, issues.factor_id, imp.concept_proposal_id
+          group by imp.issues_id, imp.concept_proposal_id, issues.factor_id
       ) AS issues_data 
       INNER JOIN bd_outcome_factor AS bof ON bof.factor_id = issues_data.factor_id
       GROUP BY bof.factor_id
             `);
+      economy.map((item) => {
+        // item.issue_detail = JSON.parse(item.issue_detail)
+        item.issue_detail.map((iitem) => {
+          // iitem.impact_detail = JSON.parse(iitem.impact_detail)
+          iitem.impact_detail = removedub(iitem.impact_detail, "impact_detail");
+        });
+      });
+
       economy.map((item) => economyData.push(item));
     }
 
@@ -818,9 +838,9 @@ async function getimpactMap(group) {
       const ID = conceptid[i];
       const social = await db.query(`
       SELECT 
-        issues_data.concept_proposal_id,
-        bof.factor_id,
-        bof.factor_name,
+          issues_data.concept_proposal_id,
+          bof.factor_id,
+          bof.factor_name,
           bof.bd_outcome_image,
           JSON_ARRAYAGG(JSON_OBJECT('issue_detail', issues_data.issues_name , 'issue_id', issues_data.issues_id, 'impact_detail', issues_data.impact_detail)) AS issue_detail
       FROM (
@@ -835,11 +855,20 @@ async function getimpactMap(group) {
               INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
                     WHERE concept_proposal_id = ${ID}
                     AND outimp.impact_id = 2 
-          group by imp.issues_id, imp.concept_proposal_id, issues.factor_id, imp.concept_proposal_id
+          group by imp.issues_id, imp.concept_proposal_id, issues.factor_id
       ) AS issues_data 
       INNER JOIN bd_outcome_factor AS bof ON bof.factor_id = issues_data.factor_id
       GROUP BY bof.factor_id
             `);
+      social.map((item) => {
+        // item.issue_detail = JSON.parse(item.issue_detail)
+        item.issue_detail.map((iitem) => {
+          // iitem.impact_detail = JSON.parse(iitem.impact_detail)
+          iitem.impact_detail = removedub(iitem.impact_detail, "impact_detail");
+        });
+      });
+
+
       social.map((item) => socialData.push(item));
     }
 
@@ -849,9 +878,9 @@ async function getimpactMap(group) {
       const ID = conceptid[i];
       const cultural = await db.query(`
       SELECT 
-        issues_data.concept_proposal_id,
-        bof.factor_id,
-        bof.factor_name,
+          issues_data.concept_proposal_id,
+          bof.factor_id,
+          bof.factor_name,
           bof.bd_outcome_image,
           JSON_ARRAYAGG(JSON_OBJECT('issue_detail', issues_data.issues_name , 'issue_id', issues_data.issues_id, 'impact_detail', issues_data.impact_detail)) AS issue_detail
       FROM (
@@ -866,11 +895,19 @@ async function getimpactMap(group) {
               INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
                     WHERE concept_proposal_id = ${ID}
                     AND outimp.impact_id = 3
-          group by imp.issues_id, imp.concept_proposal_id, issues.factor_id, imp.concept_proposal_id
+          group by imp.issues_id, imp.concept_proposal_id, issues.factor_id
       ) AS issues_data 
       INNER JOIN bd_outcome_factor AS bof ON bof.factor_id = issues_data.factor_id
       GROUP BY bof.factor_id
             `);
+      cultural.map((item) => {
+        // item.issue_detail = JSON.parse(item.issue_detail)
+        item.issue_detail.map((iitem) => {
+          // iitem.impact_detail = JSON.parse(iitem.impact_detail)
+          iitem.impact_detail = removedub(iitem.impact_detail, "impact_detail");
+        });
+      });
+
       cultural.map((item) => culturalData.push(item));
     }
 
@@ -896,11 +933,19 @@ async function getimpactMap(group) {
               INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
                     WHERE concept_proposal_id = ${ID}
                     AND outimp.impact_id = 4
-          group by imp.issues_id, imp.concept_proposal_id, issues.factor_id, imp.concept_proposal_id
+          group by imp.issues_id, imp.concept_proposal_id, issues.factor_id
       ) AS issues_data 
       INNER JOIN bd_outcome_factor AS bof ON bof.factor_id = issues_data.factor_id
       GROUP BY bof.factor_id
             `);
+      environment.map((item) => {
+        // item.issue_detail = JSON.parse(item.issue_detail)
+        item.issue_detail.map((iitem) => {
+          // iitem.impact_detail = JSON.parse(iitem.impact_detail)
+          iitem.impact_detail = removedub(iitem.impact_detail, "impact_detail");
+        });
+      });
+
       environment.map((item) => environmentData.push(item));
     }
 
@@ -979,7 +1024,7 @@ async function getimpactMap(group) {
         childNodesEconomy.push({
           id: ID + ".e" + 1,
           type: "child",
-          label: "Economy",
+          label: "เศรษฐกิจ",
           title: "Economy",
           lat: item.co_researcher_latitude,
           lon: item.co_researcher_longitude,
@@ -1016,7 +1061,7 @@ async function getimpactMap(group) {
         childNodesSocial.push({
           id: ID + ".s" + 1,
           type: "child",
-          label: "Social",
+          label: "สังคม",
           title: "Social",
           lat: item.co_researcher_latitude,
           lon: item.co_researcher_longitude,
@@ -1053,7 +1098,7 @@ async function getimpactMap(group) {
         childNodesCultural.push({
           id: ID + ".t" + 1,
           type: "child",
-          label: "Cultural",
+          label: "วัฒนธรรม",
           title: "Cultural",
           lat: item.co_researcher_latitude,
           lon: item.co_researcher_longitude,
@@ -1089,7 +1134,7 @@ async function getimpactMap(group) {
         childNodesEnvironment.push({
           id: ID + ".n" + 1,
           type: "child",
-          label: "Environment",
+          label: "สิ่งแวดล้อม",
           title: "Environment",
           lat: item.co_researcher_latitude,
           lon: item.co_researcher_longitude,
