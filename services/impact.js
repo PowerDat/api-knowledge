@@ -788,6 +788,8 @@ async function getimpactMap(group) {
       const economy = await db.query(`
             SELECT 
             imp.concept_proposal_id,
+            bdf.factor_name,
+            bdf.bd_outcome_image,
             outimp.impact_id,
             imp.impact_detail,
             imp.issues_id,
@@ -796,20 +798,22 @@ async function getimpactMap(group) {
           FROM bd_sum_impact imp
           INNER JOIN bd_outcome_issues issues ON issues.issues_id = imp.issues_id
           INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
-            
+          left join bd_outcome_factor bdf ON bdf.factor_id = issues.factor_id
               WHERE concept_proposal_id = ${ID} 
               AND outimp.impact_id = 1
             `);
       economy.map((item) => economyData.push(item));
     }
 
-    console.log(economyData);
+    // console.log(economyData);
 
     for (let i = 0; i < conceptid.length; i++) {
       const ID = conceptid[i];
       const social = await db.query(`
             SELECT 
             imp.concept_proposal_id,
+            bdf.factor_name,
+            bdf.bd_outcome_image,
             outimp.impact_id,
             imp.impact_detail,
             imp.issues_id,
@@ -817,22 +821,24 @@ async function getimpactMap(group) {
             imp.bd_sum_impact_id
             
           FROM bd_sum_impact imp
-          INNER JOIN bd_outcome_issues issues ON issues.issues_id = imp.issues_id
-          INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
-            
+            INNER JOIN bd_outcome_issues issues ON issues.issues_id = imp.issues_id
+            INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
+            left join bd_outcome_factor bdf ON bdf.factor_id = issues.factor_id
               WHERE concept_proposal_id = ${ID} 
               AND outimp.impact_id = 2
             `);
       social.map((item) => socialData.push(item));
     }
 
-    console.log(socialData);
+    // console.log(socialData);
 
     for (let i = 0; i < conceptid.length; i++) {
       const ID = conceptid[i];
       const cultural = await db.query(`
             SELECT 
             imp.concept_proposal_id,
+            bdf.factor_name,
+            bdf.bd_outcome_image,
             outimp.impact_id,
             imp.impact_detail,
             imp.issues_id,
@@ -840,21 +846,23 @@ async function getimpactMap(group) {
             imp.bd_sum_impact_id
             
           FROM bd_sum_impact imp
-          INNER JOIN bd_outcome_issues issues ON issues.issues_id = imp.issues_id
-          INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
-          
+            INNER JOIN bd_outcome_issues issues ON issues.issues_id = imp.issues_id
+            INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
+            left join bd_outcome_factor bdf ON bdf.factor_id = issues.factor_id
               WHERE concept_proposal_id = ${ID} 
               AND outimp.impact_id = 3
             `);
       cultural.map((item) => culturalData.push(item));
     }
 
-    console.log(culturalData);
+    // console.log(culturalData);
     for (let i = 0; i < conceptid.length; i++) {
       const ID = conceptid[i];
       const environment = await db.query(`
             SELECT 
             imp.concept_proposal_id,
+            bdf.factor_name,
+            bdf.bd_outcome_image,
             outimp.impact_id,
             imp.impact_detail,
             imp.issues_id,
@@ -862,16 +870,16 @@ async function getimpactMap(group) {
             imp.bd_sum_impact_id
             
           FROM bd_sum_impact imp
-          INNER JOIN bd_outcome_issues issues ON issues.issues_id = imp.issues_id
-          INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
-            
+            INNER JOIN bd_outcome_issues issues ON issues.issues_id = imp.issues_id
+            INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
+            left join bd_outcome_factor bdf ON bdf.factor_id = issues.factor_id
               WHERE concept_proposal_id = ${ID} 
               AND outimp.impact_id = 4
             `);
       environment.map((item) => environmentData.push(item));
     }
 
-    console.log(environmentData);
+    // console.log(environmentData);
 
     const projectConceptEconomy = helper.mergeArrWithSameKey(
       arrUniq,
@@ -909,15 +917,25 @@ async function getimpactMap(group) {
         item.Economy.length > 0
     );
 
+    console.log(filterImpact);
+
     let parentNodes = [],
       childNodesEconomy = [],
+      childNodesEconomySub = [],
       childNodesSocial = [],
+      childNodesSocialSub = [],
       childNodesCultural = [],
+      childNodesCulturalSub = [],
       childNodesEnvironment = [],
+      childNodesEnvironmentSub = [],
       parentToEconomyLink = [],
+      economyToEconomySub = [],
       parentToSocialLink = [],
+      socialToSocialSub = [],
       parentToCulturalLink = [],
-      parentToEnvironmentLink = [];
+      culturalToCulturalSub = [],
+      parentToEnvironmentLink = [],
+      environmentToEnvironmentSub = [];
 
     filterImpact.map((item, index) => {
       const ID = index + 1;
@@ -947,6 +965,26 @@ async function getimpactMap(group) {
           from: ID,
           to: ID + ".e" + 1,
         });
+
+        item.Economy.map((eitem, eindex) => {
+          const EID = eindex + 1;
+          childNodesEconomySub.push({
+            id: ID + "e." + EID,
+            type: "child",
+            label: eitem.factor_name,
+            title: eitem.issues_name,
+            lat: item.co_researcher_latitude,
+            lon: item.co_researcher_longitude,
+            img:
+              "https://researcher.kims-rmuti.com/icon/impact/" +
+              eitem.bd_outcome_image,
+          });
+
+          economyToEconomySub.push({
+            from: ID + ".e" + 1,
+            to: ID + "e." + EID,
+          });
+        });
       }
 
       if (item.Social.length) {
@@ -964,6 +1002,26 @@ async function getimpactMap(group) {
           from: ID,
           to: ID + ".s" + 1,
         });
+
+        item.Social.map((sitem, sindex) => {
+          const SID = sindex + 1;
+          childNodesSocialSub.push({
+            id: ID + "s." + SID,
+            type: "child",
+            label: sitem.factor_name,
+            title: sitem.issues_name,
+            lat: item.co_researcher_latitude,
+            lon: item.co_researcher_longitude,
+            img:
+              "https://researcher.kims-rmuti.com/icon/impact/" +
+              sitem.bd_outcome_image,
+          });
+
+          socialToSocialSub.push({
+            from: ID + ".s" + 1,
+            to: ID + "s." + SID,
+          });
+        });
       }
 
       if (item.Cultural.length) {
@@ -979,6 +1037,26 @@ async function getimpactMap(group) {
         parentToCulturalLink.push({
           from: ID,
           to: ID + ".t" + 1,
+        });
+
+        item.Cultural.map((titem, tindex) => {
+          const TID = tindex + 1;
+          childNodesSocialSub.push({
+            id: ID + "t." + TID,
+            type: "child",
+            label: titem.factor_name,
+            title: titem.issues_name,
+            lat: item.co_researcher_latitude,
+            lon: item.co_researcher_longitude,
+            img:
+              "https://researcher.kims-rmuti.com/icon/impact/" +
+              titem.bd_outcome_image,
+          });
+
+          culturalToCulturalSub.push({
+            from: ID + ".t" + 1,
+            to: ID + "t." + TID,
+          });
         });
       }
 
@@ -996,22 +1074,50 @@ async function getimpactMap(group) {
           from: ID,
           to: ID + ".n" + 1,
         });
+
+        item.Environment.map((nitem, nindex) => {
+          const NID = nindex + 1;
+          childNodesSocialSub.push({
+            id: ID + "n." + NID,
+            type: "child",
+            label: nitem.factor_name,
+            title: nitem.issues_name,
+            lat: item.co_researcher_latitude,
+            lon: item.co_researcher_longitude,
+            img:
+              "https://researcher.kims-rmuti.com/icon/impact/" +
+              nitem.bd_outcome_image,
+          });
+
+          environmentToEnvironmentSub.push({
+            from: ID + ".n" + 1,
+            to: ID + "n." + NID,
+          });
+        });
       }
     });
 
     const nodes = [
       ...parentNodes,
       ...childNodesEconomy,
+      ...childNodesEconomySub,
       ...childNodesSocial,
+      ...childNodesSocialSub,
       ...childNodesCultural,
+      ...childNodesCulturalSub,
       ...childNodesEnvironment,
+      ...childNodesEnvironmentSub,
     ];
 
     const links = [
       ...parentToEconomyLink,
+      ...economyToEconomySub,
       ...parentToSocialLink,
+      ...socialToSocialSub,
       ...parentToCulturalLink,
+      ...culturalToCulturalSub,
       ...parentToEnvironmentLink,
+      ...environmentToEnvironmentSub,
     ];
 
     // const economyResult = economyData.filter((item) => {
@@ -1074,38 +1180,38 @@ async function getimpactMap(group) {
         countEnvironment: environmentData.length,
       },
       details: {
-        economy:
-          Number(group.groupname) === 1 && group.groupId
-            ? economyRes
-            : Number(group.groupname) === 1
-            ? economyData
-            : group.groupname === "all"
-            ? economyData
-            : [],
-        social:
-          Number(group.groupname) === 2 && group.groupId
-            ? socialRes
-            : Number(group.groupname) === 2
-            ? socialData
-            : group.groupname === "all"
-            ? socialData
-            : [],
-        cultural:
-          Number(group.groupname) === 3 && group.groupId
-            ? culturalRes
-            : Number(group.groupname) === 3
-            ? culturalData
-            : group.groupname === "all"
-            ? culturalData
-            : [],
-        environment:
-          Number(group.groupname) === 4 && group.groupId
-            ? environmentRes
-            : Number(group.groupname) === 4
-            ? environmentData
-            : group.groupname === "all"
-            ? environmentData
-            : [],
+        economy: economyData,
+        // Number(group.groupname) === 1 && group.groupId
+        //   ? economyRes
+        //   : Number(group.groupname) === 1
+        //   ? economyData
+        //   : group.groupname === "all"
+        //   ? economyData
+        //   : [],
+        social: socialData,
+        // Number(group.groupname) === 2 && group.groupId
+        //   ? socialRes
+        //   : Number(group.groupname) === 2
+        //   ? socialData
+        //   : group.groupname === "all"
+        //   ? socialData
+        //   : [],
+        cultural: culturalData,
+        // Number(group.groupname) === 3 && group.groupId
+        //   ? culturalRes
+        //   : Number(group.groupname) === 3
+        //   ? culturalData
+        //   : group.groupname === "all"
+        //   ? culturalData
+        //   : [],
+        environment: environmentData,
+        // Number(group.groupname) === 4 && group.groupId
+        //   ? environmentRes
+        //   : Number(group.groupname) === 4
+        //   ? environmentData
+        //   : group.groupname === "all"
+        //   ? environmentData
+        //   : [],
       },
     };
   }

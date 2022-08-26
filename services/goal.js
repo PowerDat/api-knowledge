@@ -417,38 +417,38 @@ async function getGoalMap(group) {
         countCluster: clusterData.length,
       },
       details: {
-        bcg:
-          group.groupname === "bcg" && group.groupId
-            ? bcgRes
-            : group.groupname === "bcg"
-            ? bcgData
-            : group.groupname === "all"
-            ? bcgData
-            : [],
-        sdg:
-          group.groupname === "sdg" && group.groupId
-            ? sdgRes
-            : group.groupname === "sdg"
-            ? sdgData
-            : group.groupname === "all"
-            ? sdgData
-            : [],
-        curve:
-          group.groupname === "curve" && group.groupId
-            ? curveRes
-            : group.groupname === "curve"
-            ? curveData
-            : group.groupname === "all"
-            ? curveData
-            : [],
-        cluster:
-          group.groupname === "cluster" && group.groupId
-            ? clusterRes
-            : group.groupname === "cluster"
-            ? clusterData
-            : group.groupname === "all"
-            ? clusterData
-            : [],
+        bcg: bcgData,
+          // group.groupname === "bcg" && group.groupId
+          //   ? bcgRes
+          //   : group.groupname === "bcg"
+          //   ? bcgData
+          //   : group.groupname === "all"
+          //   ? bcgData
+          //   : [],
+        sdg: sdgData,
+          // group.groupname === "sdg" && group.groupId
+          //   ? sdgRes
+          //   : group.groupname === "sdg"
+          //   ? sdgData
+          //   : group.groupname === "all"
+          //   ? sdgData
+          //   : [],
+        curve: curveData,
+          // group.groupname === "curve" && group.groupId
+          //   ? curveRes
+          //   : group.groupname === "curve"
+          //   ? curveData
+          //   : group.groupname === "all"
+          //   ? curveData
+          //   : [],
+        cluster: clusterData,
+          // group.groupname === "cluster" && group.groupId
+          //   ? clusterRes
+          //   : group.groupname === "cluster"
+          //   ? clusterData
+          //   : group.groupname === "all"
+          //   ? clusterData
+          //   : [],
       },
     };
   }
