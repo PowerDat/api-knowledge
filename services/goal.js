@@ -92,7 +92,9 @@ async function getGoalMap(group) {
                 sumgoal.type 
             FROM bd_sum_goals sumgoal     
               INNER JOIN concept_proposal cp ON cp.concept_proposal_id = sumgoal.concept_proposal_id
-              WHERE sumgoal.type = 1
+              WHERE sumgoal.type = ${
+                group.goal ? group.goal : group.goal === "all" ? 1 : null
+              }
               AND sumgoal.concept_proposal_id = ${ID} 
             GROUP BY sumgoal.bd_sum_goal_id, cp.concept_proposal_id ) AS details
           LEFT JOIN bd_bcg bcg ON bcg.bcg_id = details.item_id
@@ -135,7 +137,9 @@ async function getGoalMap(group) {
                 sumgoal.type 
             FROM bd_sum_goals sumgoal     
               INNER JOIN concept_proposal cp ON cp.concept_proposal_id = sumgoal.concept_proposal_id
-              WHERE sumgoal.type = 2
+              WHERE sumgoal.type = ${
+                group.goal ? group.goal : group.goal === "all" ? 2 : null
+              }
               AND sumgoal.concept_proposal_id = ${ID} 
             GROUP BY sumgoal.bd_sum_goal_id, cp.concept_proposal_id  ) AS details
           LEFT JOIN bd_sdgs sdg ON sdg.sdgs_id = details.item_id
@@ -172,7 +176,9 @@ async function getGoalMap(group) {
                 sumgoal.type 
             FROM bd_sum_goals sumgoal    
               INNER JOIN concept_proposal cp ON cp.concept_proposal_id = sumgoal.concept_proposal_id 
-              WHERE sumgoal.type = 3
+              WHERE sumgoal.type = ${
+                group.goal ? group.goal : group.goal === "all" ? 3 : null
+              }
               AND sumgoal.concept_proposal_id = ${ID}
             GROUP BY sumgoal.bd_sum_goal_id, cp.concept_proposal_id  ) AS details
           LEFT JOIN bd_10s_curve curve ON curve.curve_id = details.item_id
@@ -210,7 +216,9 @@ async function getGoalMap(group) {
                 sumgoal.type 
             FROM bd_sum_goals sumgoal      
               INNER JOIN concept_proposal cp ON cp.concept_proposal_id = sumgoal.concept_proposal_id
-              WHERE sumgoal.type = 4
+              WHERE sumgoal.type = ${
+                group.goal ? group.goal : group.goal === "all" ? 4 : null
+              }
               AND sumgoal.concept_proposal_id = ${ID}
             GROUP BY sumgoal.bd_sum_goal_id, cp.concept_proposal_id ) AS details
           LEFT JOIN bd_cluster cluster ON cluster.cluster_id = details.item_id
@@ -272,195 +280,189 @@ async function getGoalMap(group) {
       childNodesCluster = [],
       childNodesClusterSub = [],
       parentToBcgLink = [],
-      bcgToBcgSub =[],
+      bcgToBcgSub = [],
       parentToSdgLink = [],
       sdgToSdgSub = [],
       parentToCurveLink = [],
       curveToCurveSub = [],
       parentToClusterLink = [];
-      clusterToclusterSub = [],
-    // knowledgeToInnovationLink = [],
-    // innovationToNewKnowledgeLink = [];
+    (clusterToclusterSub = []),
+      // knowledgeToInnovationLink = [],
+      // innovationToNewKnowledgeLink = [];
 
-    filterGoal.map((item, index) => {
-      const ID = index + 1;
-      const projecttype = Number(item.project_type_id);
-      parentNodes.push({
-        id: ID,
-        type: "parent",
-        label: helper.handleNameAndImage(projecttype, "label"),
-        title: item.concept_proposal_name_th,
-        lat: item.co_researcher_latitude,
-        lon: item.co_researcher_longitude,
-        img: helper.handleNameAndImage(projecttype, "image"),
-      });
-
-      if (item.bcg.length) {
-        childNodesBcg.push({
-          id: ID + ".b" + 1,
-          type: "child",
-          label: "BCG",
-          title: "BCG",
+      filterGoal.map((item, index) => {
+        const ID = index + 1;
+        const projecttype = Number(item.project_type_id);
+        parentNodes.push({
+          id: ID,
+          type: "parent",
+          label: helper.handleNameAndImage(projecttype, "label"),
+          title: item.concept_proposal_name_th,
           lat: item.co_researcher_latitude,
           lon: item.co_researcher_longitude,
-          img: "https://researcher.kims-rmuti.com/icon/BCG.png",
+          img: helper.handleNameAndImage(projecttype, "image"),
         });
 
-        parentToBcgLink.push({
-          from: ID,
-          to: ID + ".b" + 1,
-        });
-      
-        item.bcg.map((bcgitem, bcgindex) => {
-          const BID = bcgindex + 1;
-          childNodesBcgSub.push({
-            id: ID + "b." + BID,
+        if (item.bcg.length) {
+          childNodesBcg.push({
+            id: ID + ".b" + 1,
             type: "child",
-            label: bcgitem.bcg_name,
-            title:  `<div>
+            label: "BCG",
+            title: "BCG",
+            lat: item.co_researcher_latitude,
+            lon: item.co_researcher_longitude,
+            img: "https://researcher.kims-rmuti.com/icon/BCG.png",
+          });
+
+          parentToBcgLink.push({
+            from: ID,
+            to: ID + ".b" + 1,
+          });
+
+          item.bcg.map((bcgitem, bcgindex) => {
+            const BID = bcgindex + 1;
+            childNodesBcgSub.push({
+              id: ID + "b." + BID,
+              type: "child",
+              label: bcgitem.bcg_name,
+              title: `<div>
             ${bcgitem.bcg_detail.map(
-            (ditem) =>
-              `<li>${ditem.detail}</li> `
+              (ditem) => `<li>${ditem.detail}</li> `
             )}    
         </div>`,
+              lat: item.co_researcher_latitude,
+              lon: item.co_researcher_longitude,
+              img:
+                "https://researcher.kims-rmuti.com/icon/" + bcgitem.bcg_image,
+            });
+
+            bcgToBcgSub.push({
+              from: ID + ".b" + 1,
+              to: ID + "b." + BID,
+            });
+          });
+        }
+
+        if (item.sdg.length) {
+          childNodesSdg.push({
+            id: ID + ".s" + 1,
+            type: "child",
+            label: "SDGs",
+            title: "Sustainable Development Goals",
             lat: item.co_researcher_latitude,
             lon: item.co_researcher_longitude,
-            img:
-              "https://researcher.kims-rmuti.com/icon/" +
-              bcgitem.bcg_image,
+            img: "https://researcher.kims-rmuti.com/icon/SDGs-icon.png",
           });
 
-          bcgToBcgSub.push({
-            from: ID + ".b" + 1,
-            to: ID + "b." + BID,
+          parentToSdgLink.push({
+            from: ID,
+            to: ID + ".s" + 1,
           });
-        });
-      }
 
-      if (item.sdg.length) {
-        childNodesSdg.push({
-          id: ID + ".s" + 1,
-          type: "child",
-          label: "SDGs",
-          title: "Sustainable Development Goals",
-          lat: item.co_researcher_latitude,
-          lon: item.co_researcher_longitude,
-          img: "https://researcher.kims-rmuti.com/icon/SDGs-icon.png",
-        });
-
-        parentToSdgLink.push({
-          from: ID,
-          to: ID + ".s" + 1,
-        });
-
-        item.sdg.map((sdgitem, sdgindex) => {
-          const SID = sdgindex + 1;
-          childNodesSdgSub.push({
-            id: ID + "s." + SID,
-            type: "child",
-            label: sdgitem.sdgs_name,
-            title:  `<div>
+          item.sdg.map((sdgitem, sdgindex) => {
+            const SID = sdgindex + 1;
+            childNodesSdgSub.push({
+              id: ID + "s." + SID,
+              type: "child",
+              label: sdgitem.sdgs_name,
+              title: `<div>
             ${sdgitem.sdgs_detail.map(
-            (ditem) =>
-              `<li>${ditem.detail}</li> `
+              (ditem) => `<li>${ditem.detail}</li> `
             )}    
         </div>`,
+              lat: item.co_researcher_latitude,
+              lon: item.co_researcher_longitude,
+              img:
+                "https://researcher.kims-rmuti.com/icon/" + sdgitem.sdgs_image,
+            });
+
+            sdgToSdgSub.push({
+              from: ID + ".s" + 1,
+              to: ID + "s." + SID,
+            });
+          });
+        }
+
+        if (item.curve.length) {
+          childNodesCurve.push({
+            id: ID + ".cu" + 1,
+            type: "child",
+            label: "10 S-Curve",
+            title: "10 S-Curve",
             lat: item.co_researcher_latitude,
             lon: item.co_researcher_longitude,
-            img:
-              "https://researcher.kims-rmuti.com/icon/" +
-              sdgitem.sdgs_image,
+            img: "https://researcher.kims-rmuti.com/icon/10S-curve.png",
+          });
+          parentToCurveLink.push({
+            from: ID,
+            to: ID + ".cu" + 1,
           });
 
-          sdgToSdgSub.push({
-            from: ID + ".s" + 1,
-            to: ID + "s." + SID,
-          });
-        });
-      }
-
-      if (item.curve.length) {
-        childNodesCurve.push({
-          id: ID + ".cu" + 1,
-          type: "child",
-          label: "10 S-Curve",
-          title: "10 S-Curve",
-          lat: item.co_researcher_latitude,
-          lon: item.co_researcher_longitude,
-          img: "https://researcher.kims-rmuti.com/icon/10S-curve.png",
-        });
-        parentToCurveLink.push({
-          from: ID,
-          to: ID + ".cu" + 1,
-        });
-
-        item.curve.map((curveitem, curveindex) => {
-          const CID = curveindex + 1;
-          childNodesCurveSub.push({
-            id: ID + "cu." + CID,
-            type: "child",
-            label: curveitem.curve_name,
-            title: `<div>
+          item.curve.map((curveitem, curveindex) => {
+            const CID = curveindex + 1;
+            childNodesCurveSub.push({
+              id: ID + "cu." + CID,
+              type: "child",
+              label: curveitem.curve_name,
+              title: `<div>
               ${curveitem.curve_detail.map(
-              (ditem) =>
-                `<li>${ditem.detail}</li> `
+                (ditem) => `<li>${ditem.detail}</li> `
               )}    
           </div>`,
-            lat: item.co_researcher_latitude,
-            lon: item.co_researcher_longitude,
-            img:
-              "https://researcher.kims-rmuti.com/icon/" +
-              curveitem.curve_image,
+              lat: item.co_researcher_latitude,
+              lon: item.co_researcher_longitude,
+              img:
+                "https://researcher.kims-rmuti.com/icon/" +
+                curveitem.curve_image,
+            });
+
+            curveToCurveSub.push({
+              from: ID + ".cu" + 1,
+              to: ID + "cu." + CID,
+            });
           });
+        }
 
-          curveToCurveSub.push({
-            from: ID + ".cu" + 1,
-            to: ID + "cu." + CID,
-          });
-        });
-      }
-
-      if (item.cluster.length) {
-        childNodesCluster.push({
-          id: ID + ".cl" + 1,
-          type: "child",
-          label: "RMUTI Cluster",
-          title: "RMUTI Cluster",
-          lat: item.co_researcher_latitude,
-          lon: item.co_researcher_longitude,
-          img: "https://researcher.kims-rmuti.com/icon/RMUTI-Cluster.png",
-        });
-        parentToClusterLink.push({
-          from: ID,
-          to: ID + ".cl" + 1,
-        });
-
-        item.cluster.map((clusteritem, clusterindex) => {
-          const CLID = clusterindex + 1;
-          childNodesClusterSub.push({
-            id: ID + "cl." + CLID,
+        if (item.cluster.length) {
+          childNodesCluster.push({
+            id: ID + ".cl" + 1,
             type: "child",
-            label: clusteritem.cluster_name,
-            title: `<div>
-              ${clusteritem.cluster_detail.map(
-              (ditem) =>
-                `<li>${ditem.detail}</li> `
-              )}    
-          </div>`,
+            label: "RMUTI Cluster",
+            title: "RMUTI Cluster",
             lat: item.co_researcher_latitude,
             lon: item.co_researcher_longitude,
-            img:
-              "https://researcher.kims-rmuti.com/icon/" +
-              clusteritem.cluster_image,
+            img: "https://researcher.kims-rmuti.com/icon/RMUTI-Cluster.png",
+          });
+          parentToClusterLink.push({
+            from: ID,
+            to: ID + ".cl" + 1,
           });
 
-          clusterToclusterSub.push({
-            from: ID + ".cl" + 1,
-            to: ID + "cl." + CLID,
+          item.cluster.map((clusteritem, clusterindex) => {
+            const CLID = clusterindex + 1;
+            childNodesClusterSub.push({
+              id: ID + "cl." + CLID,
+              type: "child",
+              label: clusteritem.cluster_name,
+              title: `<div>
+              ${clusteritem.cluster_detail.map(
+                (ditem) => `<li>${ditem.detail}</li> `
+              )}    
+          </div>`,
+              lat: item.co_researcher_latitude,
+              lon: item.co_researcher_longitude,
+              img:
+                "https://researcher.kims-rmuti.com/icon/" +
+                clusteritem.cluster_image,
+            });
+
+            clusterToclusterSub.push({
+              from: ID + ".cl" + 1,
+              to: ID + "cl." + CLID,
+            });
           });
-        });
-      }
-    });
+        }
+      });
 
     const nodes = [
       ...parentNodes,
@@ -475,7 +477,7 @@ async function getGoalMap(group) {
     ];
 
     const links = [
-      ...parentToBcgLink, 
+      ...parentToBcgLink,
       ...bcgToBcgSub,
       ...parentToSdgLink,
       ...sdgToSdgSub,
@@ -545,37 +547,37 @@ async function getGoalMap(group) {
       },
       details: {
         bcg: bcgData,
-          // group.groupname === "bcg" && group.groupId
-          //   ? bcgRes
-          //   : group.groupname === "bcg"
-          //   ? bcgData
-          //   : group.groupname === "all"
-          //   ? bcgData
-          //   : [],
+        // group.groupname === "bcg" && group.groupId
+        //   ? bcgRes
+        //   : group.groupname === "bcg"
+        //   ? bcgData
+        //   : group.groupname === "all"
+        //   ? bcgData
+        //   : [],
         sdg: sdgData,
-          // group.groupname === "sdg" && group.groupId
-          //   ? sdgRes
-          //   : group.groupname === "sdg"
-          //   ? sdgData
-          //   : group.groupname === "all"
-          //   ? sdgData
-          //   : [],
+        // group.groupname === "sdg" && group.groupId
+        //   ? sdgRes
+        //   : group.groupname === "sdg"
+        //   ? sdgData
+        //   : group.groupname === "all"
+        //   ? sdgData
+        //   : [],
         curve: curveData,
-          // group.groupname === "curve" && group.groupId
-          //   ? curveRes
-          //   : group.groupname === "curve"
-          //   ? curveData
-          //   : group.groupname === "all"
-          //   ? curveData
-          //   : [],
+        // group.groupname === "curve" && group.groupId
+        //   ? curveRes
+        //   : group.groupname === "curve"
+        //   ? curveData
+        //   : group.groupname === "all"
+        //   ? curveData
+        //   : [],
         cluster: clusterData,
-          // group.groupname === "cluster" && group.groupId
-          //   ? clusterRes
-          //   : group.groupname === "cluster"
-          //   ? clusterData
-          //   : group.groupname === "all"
-          //   ? clusterData
-          //   : [],
+        // group.groupname === "cluster" && group.groupId
+        //   ? clusterRes
+        //   : group.groupname === "cluster"
+        //   ? clusterData
+        //   : group.groupname === "all"
+        //   ? clusterData
+        //   : [],
       },
     };
   }

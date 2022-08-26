@@ -818,7 +818,13 @@ async function getimpactMap(group) {
               INNER JOIN bd_outcome_impact outimp ON outimp.impact_id = issues.impact_id
               INNER JOIN concept_proposal cp ON cp.concept_proposal_id = imp.concept_proposal_id
                WHERE cp.concept_proposal_id = ${ID}
-                AND outimp.impact_id = 1
+                AND outimp.impact_id =  ${
+                  group.impact
+                    ? group.impact
+                    : group.impact === "all"
+                    ? 1
+                    : null
+                }
           group by imp.issues_id, cp.concept_proposal_id, issues.factor_id
       ) AS issues_data 
       INNER JOIN bd_outcome_factor AS bof ON bof.factor_id = issues_data.factor_id
@@ -863,7 +869,13 @@ async function getimpactMap(group) {
               INNER JOIN bd_outcome_impact outimp ON outimp.impact_id = issues.impact_id
               INNER JOIN concept_proposal cp ON cp.concept_proposal_id = imp.concept_proposal_id
                WHERE cp.concept_proposal_id = ${ID}
-                AND outimp.impact_id = 2
+                AND outimp.impact_id = ${
+                  group.impact
+                    ? group.impact
+                    : group.impact === "all"
+                    ? 2
+                    : null
+                }
           group by imp.issues_id, cp.concept_proposal_id, issues.factor_id
       ) AS issues_data 
       INNER JOIN bd_outcome_factor AS bof ON bof.factor_id = issues_data.factor_id
@@ -908,7 +920,13 @@ async function getimpactMap(group) {
               INNER JOIN bd_outcome_impact outimp ON outimp.impact_id = issues.impact_id
               INNER JOIN concept_proposal cp ON cp.concept_proposal_id = imp.concept_proposal_id
                WHERE cp.concept_proposal_id = ${ID}
-                AND outimp.impact_id = 3
+                AND outimp.impact_id =  ${
+                  group.impact
+                    ? group.impact
+                    : group.impact === "all"
+                    ? 3
+                    : null
+                }
           group by imp.issues_id, cp.concept_proposal_id, issues.factor_id
       ) AS issues_data 
       INNER JOIN bd_outcome_factor AS bof ON bof.factor_id = issues_data.factor_id
@@ -952,7 +970,13 @@ async function getimpactMap(group) {
               INNER JOIN bd_outcome_impact outimp ON outimp.impact_id = issues.impact_id
               INNER JOIN concept_proposal cp ON cp.concept_proposal_id = imp.concept_proposal_id
                WHERE cp.concept_proposal_id = ${ID}
-                AND outimp.impact_id = 4
+                AND outimp.impact_id =  ${
+                  group.impact
+                    ? group.impact
+                    : group.impact === "all"
+                    ? 4
+                    : null
+                }
           group by imp.issues_id, cp.concept_proposal_id, issues.factor_id
       ) AS issues_data 
       INNER JOIN bd_outcome_factor AS bof ON bof.factor_id = issues_data.factor_id
