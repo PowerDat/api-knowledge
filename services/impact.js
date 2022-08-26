@@ -867,7 +867,10 @@ async function getimpactMap(group) {
         // item.issue_detail = JSON.parse(item.issue_detail)
         item.issue_detail.map((iitem) => {
           // iitem.impact_detail = JSON.parse(iitem.impact_detail)
-          iitem.impact_detail = removedub(iitem.impact_detail, "impact_detail");
+          const filterimpact = iitem.impact_detail.filter(
+            (impdetail) => impdetail.impact_detail !== ""
+          );
+          iitem.impact_detail = removedub(filterimpact, "impact_detail");
         });
       });
 
@@ -906,7 +909,10 @@ async function getimpactMap(group) {
         // item.issue_detail = JSON.parse(item.issue_detail)
         item.issue_detail.map((iitem) => {
           // iitem.impact_detail = JSON.parse(iitem.impact_detail)
-          iitem.impact_detail = removedub(iitem.impact_detail, "impact_detail");
+          const filterimpact = iitem.impact_detail.filter(
+            (impdetail) => impdetail.impact_detail !== ""
+          );
+          iitem.impact_detail = removedub(filterimpact, "impact_detail");
         });
       });
 
@@ -944,7 +950,10 @@ async function getimpactMap(group) {
         // item.issue_detail = JSON.parse(item.issue_detail)
         item.issue_detail.map((iitem) => {
           // iitem.impact_detail = JSON.parse(iitem.impact_detail)
-          iitem.impact_detail = removedub(iitem.impact_detail, "impact_detail");
+          const filterimpact = iitem.impact_detail.filter(
+            (impdetail) => impdetail.impact_detail !== ""
+          );
+          iitem.impact_detail = removedub(filterimpact, "impact_detail");
         });
       });
 
