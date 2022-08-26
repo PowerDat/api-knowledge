@@ -810,12 +810,12 @@ async function getimpactMap(group) {
                   issues.factor_id,
                   imp.issues_id,
                   issues.issues_name,
-            JSON_ARRAYAGG(JSON_OBJECT('impact_detail', imp.impact_detail , 'impact_id', outimp.impact_id)) AS impact_detail
-                FROM bd_sum_impact imp
+                  JSON_ARRAYAGG(JSON_OBJECT('impact_detail', imp.impact_detail , 'impact_id', outimp.impact_id)) AS impact_detail
+          FROM bd_sum_impact imp
               INNER JOIN bd_outcome_issues issues ON issues.issues_id = imp.issues_id
               INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
-                    WHERE concept_proposal_id = ${ID}
-                    AND outimp.impact_id = 1
+                WHERE concept_proposal_id = ${ID}
+                  AND outimp.impact_id = 1
           group by imp.issues_id, imp.concept_proposal_id, issues.factor_id
       ) AS issues_data 
       INNER JOIN bd_outcome_factor AS bof ON bof.factor_id = issues_data.factor_id
@@ -849,12 +849,12 @@ async function getimpactMap(group) {
                   issues.factor_id,
                   imp.issues_id,
                   issues.issues_name,
-            JSON_ARRAYAGG(JSON_OBJECT('impact_detail', imp.impact_detail , 'impact_id', outimp.impact_id)) AS impact_detail
-                FROM bd_sum_impact imp
+                  JSON_ARRAYAGG(JSON_OBJECT('impact_detail', imp.impact_detail , 'impact_id', outimp.impact_id)) AS impact_detail
+          FROM bd_sum_impact imp
               INNER JOIN bd_outcome_issues issues ON issues.issues_id = imp.issues_id
               INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
-                    WHERE concept_proposal_id = ${ID}
-                    AND outimp.impact_id = 2 
+                WHERE concept_proposal_id = ${ID}
+                  AND outimp.impact_id = 2 
           group by imp.issues_id, imp.concept_proposal_id, issues.factor_id
       ) AS issues_data 
       INNER JOIN bd_outcome_factor AS bof ON bof.factor_id = issues_data.factor_id
@@ -867,7 +867,6 @@ async function getimpactMap(group) {
           iitem.impact_detail = removedub(iitem.impact_detail, "impact_detail");
         });
       });
-
 
       social.map((item) => socialData.push(item));
     }
@@ -889,12 +888,12 @@ async function getimpactMap(group) {
                   issues.factor_id,
                   imp.issues_id,
                   issues.issues_name,
-            JSON_ARRAYAGG(JSON_OBJECT('impact_detail', imp.impact_detail , 'impact_id', outimp.impact_id)) AS impact_detail
-                FROM bd_sum_impact imp
+                  JSON_ARRAYAGG(JSON_OBJECT('impact_detail', imp.impact_detail , 'impact_id', outimp.impact_id)) AS impact_detail
+          FROM bd_sum_impact imp
               INNER JOIN bd_outcome_issues issues ON issues.issues_id = imp.issues_id
               INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
-                    WHERE concept_proposal_id = ${ID}
-                    AND outimp.impact_id = 3
+                WHERE concept_proposal_id = ${ID}
+                  AND outimp.impact_id = 3
           group by imp.issues_id, imp.concept_proposal_id, issues.factor_id
       ) AS issues_data 
       INNER JOIN bd_outcome_factor AS bof ON bof.factor_id = issues_data.factor_id
@@ -927,12 +926,12 @@ async function getimpactMap(group) {
                   issues.factor_id,
                   imp.issues_id,
                   issues.issues_name,
-            JSON_ARRAYAGG(JSON_OBJECT('impact_detail', imp.impact_detail , 'impact_id', outimp.impact_id)) AS impact_detail
-                FROM bd_sum_impact imp
+                  JSON_ARRAYAGG(JSON_OBJECT('impact_detail', imp.impact_detail , 'impact_id', outimp.impact_id)) AS impact_detail
+          FROM bd_sum_impact imp
               INNER JOIN bd_outcome_issues issues ON issues.issues_id = imp.issues_id
               INNER JOIN bd_outcome_impact outimp ON outimp.impact_id =  issues.impact_id
-                    WHERE concept_proposal_id = ${ID}
-                    AND outimp.impact_id = 4
+               WHERE concept_proposal_id = ${ID}
+                AND outimp.impact_id = 4
           group by imp.issues_id, imp.concept_proposal_id, issues.factor_id
       ) AS issues_data 
       INNER JOIN bd_outcome_factor AS bof ON bof.factor_id = issues_data.factor_id
@@ -1079,7 +1078,17 @@ async function getimpactMap(group) {
             id: ID + "s." + SID,
             type: "child",
             label: sitem.factor_name,
-            title: sitem.issue_detail,
+            title: `<div>
+                      ${sitem.issue_detail.map(
+                        (iitem) =>
+                          `${iitem.issue_detail}   
+                        <ul> 
+                          ${iitem.impact_detail.map(
+                            (ditem) => `<li>${ditem.impact_detail}</li>`
+                          )}
+                        </ul>`
+                      )}    
+                    </div>`,
             lat: item.co_researcher_latitude,
             lon: item.co_researcher_longitude,
             img:
