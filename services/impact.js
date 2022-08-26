@@ -1041,7 +1041,17 @@ async function getimpactMap(group) {
             id: ID + "e." + EID,
             type: "child",
             label: eitem.factor_name,
-            title: eitem.issue_detail,
+            title: `<div>
+                    ${eitem.issue_detail.map(
+                      (iitem) =>
+                      `<strong>${iitem.issue_detail}</strong>   
+                      <ul> 
+                        ${iitem.impact_detail.map(
+                          (ditem) => `<li>${ditem.impact_detail}</li>`
+                        )}
+                      </ul>`
+                    )}    
+                  </div>`,
             lat: item.co_researcher_latitude,
             lon: item.co_researcher_longitude,
             img:
@@ -1081,7 +1091,7 @@ async function getimpactMap(group) {
             title: `<div>
                       ${sitem.issue_detail.map(
                         (iitem) =>
-                          `${iitem.issue_detail}   
+                        `<strong>${iitem.issue_detail}</strong>   
                         <ul> 
                           ${iitem.impact_detail.map(
                             (ditem) => `<li>${ditem.impact_detail}</li>`
@@ -1124,7 +1134,17 @@ async function getimpactMap(group) {
             id: ID + "t." + TID,
             type: "child",
             label: titem.factor_name,
-            title: titem.issue_detail,
+            title: `<div>
+                    ${titem.issue_detail.map(
+                      (iitem) =>
+                      `<strong>${iitem.issue_detail}</strong>   
+                      <ul> 
+                        ${iitem.impact_detail.map(
+                          (ditem) => `<li>${ditem.impact_detail}</li>`
+                        )}
+                      </ul>`
+                    )}    
+                  </div>`,
             lat: item.co_researcher_latitude,
             lon: item.co_researcher_longitude,
             img:
@@ -1160,7 +1180,17 @@ async function getimpactMap(group) {
             id: ID + "n." + NID,
             type: "child",
             label: nitem.factor_name,
-            title: nitem.issue_detail,
+            title: `<div>
+                    ${nitem.issue_detail.map(
+                      (iitem) =>
+                      `<strong>${iitem.issue_detail}</strong>   
+                      <ul> 
+                        ${iitem.impact_detail.map(
+                          (ditem) => `<li>${ditem.impact_detail}</li>`
+                        )}
+                      </ul>`
+                    )}    
+                  </div>`,
             lat: item.co_researcher_latitude,
             lon: item.co_researcher_longitude,
             img:
