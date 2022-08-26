@@ -1192,16 +1192,14 @@ async function getimpactMap(group) {
             id: ID + "n." + NID,
             type: "child",
             label: nitem.factor_name,
-            title: `<div>
-                    ${nitem.issue_detail.map(
-                      (iitem) =>
-                        `<strong>${iitem.issue_detail}</strong>   
+            title: `<div>${nitem.issue_detail.map(
+              (iitem) => `<strong>${iitem.issue_detail}</strong>   
                       <ul> 
                         ${iitem.impact_detail.map(
                           (ditem) => `<li>${ditem.impact_detail}</li>`
                         )}
                       </ul>`
-                    )}    
+            )}    
                   </div>`,
             lat: item.co_researcher_latitude,
             lon: item.co_researcher_longitude,
