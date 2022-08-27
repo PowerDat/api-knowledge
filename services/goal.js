@@ -93,7 +93,7 @@ async function getGoalMap(group) {
             FROM bd_sum_goals sumgoal     
               INNER JOIN concept_proposal cp ON cp.concept_proposal_id = sumgoal.concept_proposal_id
               WHERE sumgoal.type = ${
-                group.goal ? group.goal : group.goal === "all" ? 1 : null
+                group.goal === "1" ? group.goal : group.goal === "" ? 1 : null
               }
               AND sumgoal.concept_proposal_id = ${ID} 
             GROUP BY sumgoal.bd_sum_goal_id, cp.concept_proposal_id ) AS details
@@ -138,7 +138,7 @@ async function getGoalMap(group) {
             FROM bd_sum_goals sumgoal     
               INNER JOIN concept_proposal cp ON cp.concept_proposal_id = sumgoal.concept_proposal_id
               WHERE sumgoal.type = ${
-                group.goal ? group.goal : group.goal === "all" ? 2 : null
+                group.goal === "2" ? group.goal : group.goal === "" ? 2 : null
               }
               AND sumgoal.concept_proposal_id = ${ID} 
             GROUP BY sumgoal.bd_sum_goal_id, cp.concept_proposal_id  ) AS details
@@ -177,7 +177,7 @@ async function getGoalMap(group) {
             FROM bd_sum_goals sumgoal    
               INNER JOIN concept_proposal cp ON cp.concept_proposal_id = sumgoal.concept_proposal_id 
               WHERE sumgoal.type = ${
-                group.goal ? group.goal : group.goal === "all" ? 3 : null
+                group.goal === "3" ? group.goal : group.goal === "" ? 3 : null
               }
               AND sumgoal.concept_proposal_id = ${ID}
             GROUP BY sumgoal.bd_sum_goal_id, cp.concept_proposal_id  ) AS details
@@ -217,7 +217,7 @@ async function getGoalMap(group) {
             FROM bd_sum_goals sumgoal      
               INNER JOIN concept_proposal cp ON cp.concept_proposal_id = sumgoal.concept_proposal_id
               WHERE sumgoal.type = ${
-                group.goal ? group.goal : group.goal === "all" ? 4 : null
+                group.goal === "4" ? group.goal : group.goal === "" ? 4 : null
               }
               AND sumgoal.concept_proposal_id = ${ID}
             GROUP BY sumgoal.bd_sum_goal_id, cp.concept_proposal_id ) AS details

@@ -817,11 +817,11 @@ async function getimpactMap(group) {
               INNER JOIN bd_outcome_issues issues ON issues.issues_id = imp.issues_id
               INNER JOIN bd_outcome_impact outimp ON outimp.impact_id = issues.impact_id
               INNER JOIN concept_proposal cp ON cp.concept_proposal_id = imp.concept_proposal_id
-               WHERE cp.concept_proposal_id = ${ID}
+          WHERE cp.concept_proposal_id = ${ID}
                 AND outimp.impact_id =  ${
-                  group.impact
+                  group.impact === '1'
                     ? group.impact
-                    : group.impact === "all"
+                    : group.impact === ""
                     ? 1
                     : null
                 }
@@ -870,9 +870,9 @@ async function getimpactMap(group) {
               INNER JOIN concept_proposal cp ON cp.concept_proposal_id = imp.concept_proposal_id
                WHERE cp.concept_proposal_id = ${ID}
                 AND outimp.impact_id = ${
-                  group.impact
+                  group.impact === '2'
                     ? group.impact
-                    : group.impact === "all"
+                    : group.impact === ""
                     ? 2
                     : null
                 }
@@ -921,9 +921,9 @@ async function getimpactMap(group) {
               INNER JOIN concept_proposal cp ON cp.concept_proposal_id = imp.concept_proposal_id
                WHERE cp.concept_proposal_id = ${ID}
                 AND outimp.impact_id =  ${
-                  group.impact
+                  group.impact === '3'
                     ? group.impact
-                    : group.impact === "all"
+                    : group.impact === ""
                     ? 3
                     : null
                 }
@@ -971,9 +971,9 @@ async function getimpactMap(group) {
               INNER JOIN concept_proposal cp ON cp.concept_proposal_id = imp.concept_proposal_id
                WHERE cp.concept_proposal_id = ${ID}
                 AND outimp.impact_id =  ${
-                  group.impact
+                  group.impact === '4'
                     ? group.impact
-                    : group.impact === "all"
+                    : group.impact === ""
                     ? 4
                     : null
                 }
